@@ -3,3 +3,11 @@
 @{
     ViewData["Title"] = "Home page";
 }
+
+
+<div class="container-fluid">
+    <form action="https://localhost:44308/Tool" method="post">
+        <input type="hidden" name="id_token" id="id_token" value="@Model.IdToken" />
+        <input type="submit" name="launch" value="Launch" class="btn btn-primary" data-disable-with="Launch" />
+    </form>
+</div>
