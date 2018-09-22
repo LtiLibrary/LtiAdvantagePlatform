@@ -3,8 +3,6 @@ using System.Collections;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using LtiAdvantageLibrary.NetCore;
-using LtiAdvantageLibrary.NetCore.Common;
 using LtiAdvantageLibrary.NetCore.Lti;
 using LtiAdvantageLibrary.NetCore.Utilities;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -19,45 +17,47 @@ namespace AdvantagePlatform.Pages
 
         public void OnGet()
         {
-            var request = new LtiResourceLinkRequest();
+            var request = new LtiResourceLinkRequest
+            {
+                MessageType = LtiConstants.LtiResourceLinkRequestMessageType,
+                Version = LtiConstants.Version,
+                DeploymentId = "1",
+                ResourceLink = new ResourceLink
+                {
+                    Description = "This is a sample toole",
+                    Id = "1",
+                    Title = "Sample Tool"
+                },
+                GivenName = "Shanelle",
+                MiddleName = "Walker",
+                FamilyName = "West",
+                Name = "Dr. Shanelle Walker West",
+                Picture = "http://example.org/Shanelle.org",
+                Locale = CultureInfo.CurrentUICulture.Name,
+                Context = new Context
+                {
+                    Id = "1",
+                    Label = "Test Course",
+                    Title = "This is a test course",
+                    Type = new[] {ContextType.CourseSection}
+                },
+                Lis = new Lis
+                {
+                    PersonSourcedId = "sis12345",
+                    CourseOfferingSourcedId = "off12345",
+                    CourseSectionSourcedId = "sec12345"
+                },
+                Roles = new[] {Role.ContextLearner, Role.InstituionStudent, Role.ContextMentor},
+                LaunchPresentation = new LaunchPresentation
+                {
+                    DocumentTarget = DocumentTarget.iframe,
+                    Height = 600,
+                    Width = 800,
+                    ReturnUrl = "http://localhost:44338"
+                },
+                RoleScopeMentor = new[] {"2"}
+            };
 
-            request.MessageType = LtiConstants.LtiResourceLinkRequestMessageType;
-            request.Version = LtiConstants.Version;
-            request.DeploymentId = "1";
-            request.ResourceLink = new ResourceLink
-            {
-                Description = "This is a sample toole",
-                Id = "1",
-                Title = "Sample Tool"
-            };
-            request.GivenName = "Shanelle";
-            request.MiddleName = "Walker";
-            request.FamilyName = "West";
-            request.Name = "Dr. Shanelle Walker West";
-            request.Picture = "http://example.org/Shanelle.org";
-            request.Locale = CultureInfo.CurrentUICulture.Name;
-            request.Context = new Context
-            {
-                Id = "1",
-                Label = "Test Course",
-                Title = "This is a test course",
-                Type = new[] {ContextType.CourseSection}
-            };
-            request.Lis = new Lis
-            {
-                PersonSourcedId = "sis12345",
-                CourseOfferingSourcedId = "off12345",
-                CourseSectionSourcedId = "sec12345"
-            };
-            request.Roles = new[] {Role.ContextLearner, Role.InstituionStudent, Role.ContextMentor};
-            request.LaunchPresentation = new LaunchPresentation
-            {
-                DocumentTarget = DocumentTarget.iframe,
-                Height = 600,
-                Width = 800,
-                ReturnUrl = "http://localhost:44338"
-            };
-            request.RoleScopeMentor = new[] {"2"};
             request.AddClaim(new Claim(JwtRegisteredClaimNames.Sub, "1", ClaimValueTypes.String)); // User ID
             request.Platform = new Platform
             {
@@ -72,7 +72,7 @@ namespace AdvantagePlatform.Pages
             request.Custom = new Hashtable {{"myCustomValue", "123"}};
 
 
-            var platformPrivateKey =
+            const string platformPrivateKey = 
 @"-----BEGIN RSA PRIVATE KEY----- 
 MIIEpQIBAAKCAQEAxwNk5GjdXmb4iFWOe/LfkWYfuzUhU+rHef4FziWJq31RZUkd 
 Kjaul0MyUwPZ/u2Gpzpdr1hNSa3Kmtj4BQk8IUgveVAyvNxTMinsEm6hSjihQHnM 
