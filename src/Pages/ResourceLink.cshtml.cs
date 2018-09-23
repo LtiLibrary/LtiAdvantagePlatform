@@ -58,7 +58,7 @@ namespace AdvantagePlatform.Pages
                 RoleScopeMentor = new[] {"2"}
             };
 
-            request.AddClaim(new Claim(JwtRegisteredClaimNames.Sub, "1", ClaimValueTypes.String)); // User ID
+            request.UserId = Guid.NewGuid().ToString("N");
             request.Platform = new Platform
             {
                 ContactEmail = "andy@andyfmiller.com",
@@ -104,7 +104,7 @@ fKi1lhYwrl9ObqBjoPkVmP01WGy1tfPkFswvZimOXq+Y53/XVfqs8YM=
             var key = new RsaSecurityKey(RsaHelper.PrivateKeyFromPemString(platformPrivateKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.RsaSha256);
 
-            request.AddClaim(new Claim(JwtRegisteredClaimNames.Nonce, "abc", ClaimValueTypes.String));
+            request.Nonce = LtiResourceLinkRequest.GenerateCryptographicNonce();
 
             var token = new JwtSecurityToken(
                 issuer: Request.GetDisplayUrl(),
