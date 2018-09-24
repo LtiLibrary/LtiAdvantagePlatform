@@ -26,6 +26,12 @@
         <dd>
             @Html.DisplayFor(model => model.Client.RedirectUrl)
         </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Client.PrivateKey)
+        </dt>
+        <dd>
+            <pre>@Model.Client.PrivateKey</pre>
+        </dd>
     </dl>
     <div>
         <a asp-page="./Edit" asp-route-id="@Model.Client.Id">Edit</a> |

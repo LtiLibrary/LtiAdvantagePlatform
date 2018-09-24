@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using AdvantagePlatform.Data;
+using LtiAdvantageLibrary.NetCore.Utilities;
 using Microsoft.AspNetCore.Identity;
 
 namespace AdvantagePlatform.Pages.Clients
@@ -40,6 +41,11 @@ namespace AdvantagePlatform.Pages.Clients
             {
                 return Page();
             }
+
+            // Add the public and private keys
+            var keypair = RsaHelper.GenerateRsaKeyPair();
+            Client.PrivateKey = keypair.PrivateKey;
+            Client.PublicKey = keypair.PublicKey;
 
             _context.Clients.Add(Client);
             await _context.SaveChangesAsync();

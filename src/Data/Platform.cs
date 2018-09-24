@@ -12,6 +12,8 @@ namespace AdvantagePlatform.Data
 
         [Display(Name = "Platform ID")]
         public string PlatformId { get; set; }
+        public string PrivateKey { get; set; }
+        public string PublicKey { get; set; }
         public string UserId { get; set; }
     }
 }
