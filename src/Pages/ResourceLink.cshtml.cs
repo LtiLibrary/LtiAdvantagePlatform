@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using LtiAdvantageLibrary.NetCore.Lti;
 using LtiAdvantageLibrary.NetCore.Utilities;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -17,6 +15,7 @@ namespace AdvantagePlatform.Pages
 
         public void OnGet()
         {
+            // ReSharper disable once UseObjectOrCollectionInitializer
             var request = new LtiResourceLinkRequest
             {
                 MessageType = LtiConstants.LtiResourceLinkRequestMessageType,

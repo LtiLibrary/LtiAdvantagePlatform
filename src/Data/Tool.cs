@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace AdvantagePlatform.Data
+﻿namespace AdvantagePlatform.Data
 {
     public class Tool
     {
