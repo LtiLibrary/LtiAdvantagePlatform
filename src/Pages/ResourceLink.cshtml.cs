@@ -22,7 +22,7 @@ namespace AdvantagePlatform.Pages
                 MessageType = LtiConstants.LtiResourceLinkRequestMessageType,
                 Version = LtiConstants.Version,
                 DeploymentId = "1",
-                ResourceLink = new ResourceLink
+                ResourceLink = new ResourceLinkClaimValue
                 {
                     Description = "This is a sample toole",
                     Id = "1",
@@ -34,21 +34,21 @@ namespace AdvantagePlatform.Pages
                 Name = "Dr. Shanelle Walker West",
                 Picture = "http://example.org/Shanelle.org",
                 Locale = CultureInfo.CurrentUICulture.Name,
-                Context = new Context
+                Context = new ContextClaimValue
                 {
                     Id = "1",
                     Label = "Test Course",
                     Title = "This is a test course",
                     Type = new[] {ContextType.CourseSection}
                 },
-                Lis = new Lis
+                Lis = new LisClaimValue
                 {
                     PersonSourcedId = "sis12345",
                     CourseOfferingSourcedId = "off12345",
                     CourseSectionSourcedId = "sec12345"
                 },
                 Roles = new[] {Role.ContextLearner, Role.InstituionStudent, Role.ContextMentor},
-                LaunchPresentation = new LaunchPresentation
+                LaunchPresentation = new LaunchPresentationClaimValue
                 {
                     DocumentTarget = DocumentTarget.iframe,
                     Height = 600,
@@ -59,7 +59,7 @@ namespace AdvantagePlatform.Pages
             };
 
             request.UserId = Guid.NewGuid().ToString("N");
-            request.Platform = new Platform
+            request.Platform = new PlatformClaimValue
             {
                 ContactEmail = "andy@andyfmiller.com",
                 Description = "Sample AspNetCore Platform",
@@ -69,7 +69,7 @@ namespace AdvantagePlatform.Pages
                 Url = "https://localhost:44330",
                 Version = "1.0"
             };
-            request.Custom = new Hashtable {{"myCustomValue", "123"}};
+            request.Custom = new CustomClaimValue {{"myCustomValue", "123"}};
 
 
             const string platformPrivateKey = 

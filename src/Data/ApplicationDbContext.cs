@@ -9,5 +9,13 @@ namespace AdvantagePlatform.Data
             : base(options)
         {
         }
+
+        // This platform issues Client IDS
+        public DbSet<Client> Clients { get; set; }
+
+        public DbSet<Deployment> Deployments { get; set; }
+        public DbSet<KeySet> KeySets { get; set; }
+        public DbSet<Tool> Tools { get; set; }
+
     }
 }

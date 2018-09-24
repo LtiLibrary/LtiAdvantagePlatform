@@ -4,41 +4,22 @@ using AdvantagePlatform.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AdvantagePlatform.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180923162225_AddDeployments")]
+    partial class AddDeployments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.1.3-rtm-32065")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("AdvantagePlatform.Data.Client", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("ClientId");
-
-                    b.Property<string>("CreatorId");
-
-                    b.Property<string>("Name")
-                        .IsRequired();
-
-                    b.Property<string>("RedirectUrl")
-                        .IsRequired();
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Clients");
-                });
 
             modelBuilder.Entity("AdvantagePlatform.Data.Deployment", b =>
                 {
@@ -48,13 +29,9 @@ namespace AdvantagePlatform.Data.Migrations
 
                     b.Property<int?>("KeySetId");
 
-                    b.Property<int?>("ToolId");
-
                     b.HasKey("Id");
 
                     b.HasIndex("KeySetId");
-
-                    b.HasIndex("ToolId");
 
                     b.ToTable("Deployments");
                 });
@@ -72,21 +49,6 @@ namespace AdvantagePlatform.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("KeySets");
-                });
-
-            modelBuilder.Entity("AdvantagePlatform.Data.Tool", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Name");
-
-                    b.Property<string>("Url");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Tools");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -259,10 +221,6 @@ namespace AdvantagePlatform.Data.Migrations
                     b.HasOne("AdvantagePlatform.Data.KeySet", "KeySet")
                         .WithMany()
                         .HasForeignKey("KeySetId");
-
-                    b.HasOne("AdvantagePlatform.Data.Tool", "Tool")
-                        .WithMany()
-                        .HasForeignKey("ToolId");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
