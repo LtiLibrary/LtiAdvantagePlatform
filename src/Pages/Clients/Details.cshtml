@@ -27,6 +27,12 @@
             @Html.DisplayFor(model => model.Client.RedirectUrl)
         </dd>
         <dt>
+            @Html.DisplayNameFor(model => model.Platform.PublicKey)
+        </dt>
+        <dd>
+            <pre>@Model.Platform.PublicKey</pre>
+        </dd>
+        <dt>
             @Html.DisplayNameFor(model => model.Client.PrivateKey)
         </dt>
         <dd>

@@ -13,10 +13,10 @@ namespace AdvantagePlatform.Data
         [Required]
         public string Name { get; set; }
 
-        [Display(Name = "Private Key")]
+        [Display(Name = "Client Private Key")]
         public string PrivateKey { get; set; }
 
-        [Display(Name = "Public Key")]
+        [Display(Name = "Client Public Key")]
         public string PublicKey { get; set; }
 
         [Required]

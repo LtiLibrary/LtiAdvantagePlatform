@@ -1,0 +1,33 @@
+﻿@page
+@model PlatformModel
+@{
+    ViewData["Title"] = "Platform";
+    ViewData["ActivePage"] = "Platform";
+}
+
+<h4>@ViewData["Title"]</h4>
+
+<div>
+    <form id="regenerate-keys" method="post" class="form-group">
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <dl>
+            <dt>
+                @Html.DisplayNameFor(model => model.Platform.PublicKey)
+            </dt>
+            <dd>
+                <pre>@Model.Platform.PublicKey</pre>
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.Platform.PrivateKey)
+            </dt>
+            <dd>
+                <pre>@Model.Platform.PrivateKey</pre>
+            </dd>
+        </dl>
+        <button class="btn btn-danger" type="submit">Regenerate Keys</button>
+    </form>
+</div>
+
+@section Scripts {
+<partial name="_ValidationScriptsPartial" />
+}
