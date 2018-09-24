@@ -4,14 +4,16 @@ using AdvantagePlatform.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AdvantagePlatform.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180924015334_Platform")]
+    partial class Platform
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -68,6 +70,8 @@ namespace AdvantagePlatform.Data.Migrations
                         .IsUnique()
                         .HasName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.HasIndex("PlatformId");
 
                     b.ToTable("AspNetUsers");
                 });
@@ -266,6 +270,13 @@ namespace AdvantagePlatform.Data.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
+                });
+
+            modelBuilder.Entity("AdvantagePlatform.Data.AdvantagePlatformUser", b =>
+                {
+                    b.HasOne("AdvantagePlatform.Data.Platform", "Platform")
+                        .WithMany()
+                        .HasForeignKey("PlatformId");
                 });
 
             modelBuilder.Entity("AdvantagePlatform.Data.Deployment", b =>

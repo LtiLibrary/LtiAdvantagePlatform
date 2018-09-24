@@ -1,21 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using AdvantagePlatform.Data;
+using Microsoft.AspNetCore.Identity;
 
 namespace AdvantagePlatform.Pages.Clients
 {
     public class DeleteModel : PageModel
     {
-        private readonly AdvantagePlatform.Data.ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context;
+        private readonly UserManager<AdvantagePlatformUser> _userManager;
 
-        public DeleteModel(AdvantagePlatform.Data.ApplicationDbContext context)
+        public DeleteModel(ApplicationDbContext context, UserManager<AdvantagePlatformUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         [BindProperty]
@@ -28,7 +28,9 @@ namespace AdvantagePlatform.Pages.Clients
                 return NotFound();
             }
 
-            Client = await _context.Clients.FirstOrDefaultAsync(m => m.Id == id);
+            var user = await _userManager.GetUserAsync(User);
+
+            Client = await _context.Clients.FirstOrDefaultAsync(m => m.Id == id && m.CreatorId == user.Id);
 
             if (Client == null)
             {

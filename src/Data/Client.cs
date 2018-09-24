@@ -5,11 +5,10 @@ namespace AdvantagePlatform.Data
     public class Client
     {
         public int Id { get; set; }
+        public string CreatorId { get; set; }
 
         [Display(Name = "Client ID")]
         public string ClientId { get; set; }
-
-        public string CreatorId { get; set; }
 
         [Required]
         public string Name { get; set; }

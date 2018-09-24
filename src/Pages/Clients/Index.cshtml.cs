@@ -11,9 +11,9 @@ namespace AdvantagePlatform.Pages.Clients
     public class IndexModel : PageModel
     {
         private readonly ApplicationDbContext _context;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<AdvantagePlatformUser> _userManager;
 
-        public IndexModel(ApplicationDbContext context, UserManager<IdentityUser> userManager)
+        public IndexModel(ApplicationDbContext context, UserManager<AdvantagePlatformUser> userManager)
         {
             _context = context;
             _userManager = userManager;

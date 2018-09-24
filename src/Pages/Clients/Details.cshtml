@@ -1,23 +1,13 @@
 ﻿@page
-@model AdvantagePlatform.Pages.Clients.DetailsModel
+@model DetailsModel
 
 @{
-    Layout = null;
+    ViewData["Title"] = "Details";
 }
-
-<!DOCTYPE html>
-
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Details</title>
-</head>
-<body>
-
-<div>
+<div class="container">
     <h4>Client</h4>
     <hr />
-    <dl class="dl-horizontal">
+    <dl>
         <dt>
             @Html.DisplayNameFor(model => model.Client.ClientId)
         </dt>
@@ -36,17 +26,9 @@
         <dd>
             @Html.DisplayFor(model => model.Client.RedirectUrl)
         </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Client.CreatorId)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Client.CreatorId)
-        </dd>
     </dl>
+    <div>
+        <a asp-page="./Edit" asp-route-id="@Model.Client.Id">Edit</a> |
+        <a asp-page="./Index">Back to List</a>
+    </div>
 </div>
-<div>
-    <a asp-page="./Edit" asp-route-id="@Model.Client.Id">Edit</a> |
-    <a asp-page="./Index">Back to List</a>
-</div>
-</body>
-</html>
