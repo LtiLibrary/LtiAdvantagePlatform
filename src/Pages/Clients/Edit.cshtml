@@ -9,46 +9,80 @@
     <h4>Client</h4>
     <hr />
     <div class="row">
-        <div class="col-md-4">
+            <div class="col">
+                <form method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Client.CreatorId" />
+                    <input type="hidden" asp-for="Client.PublicKey" />
+                    <input type="hidden" asp-for="Client.PrivateKey" />
+                    <div class="form-group">
+                        <label asp-for="Client.ClientId"></label>
+                        <input asp-for="Client.ClientId" class="form-control" readonly="readonly" />
+                        <span asp-validation-for="Client.ClientId" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Client.Name"></label>
+                        <input asp-for="Client.Name" class="form-control" />
+                        <span asp-validation-for="Client.Name" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Client.RedirectUrl"></label>
+                        <input asp-for="Client.RedirectUrl" class="form-control" />
+                        <span asp-validation-for="Client.RedirectUrl" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Save" class="btn btn-secondary" asp-page-handler="Save" />
+                    </div>
+                </form>
+                <div>
+                    <a asp-page="./Index">Back to List</a>
+                </div>
+            </div>
+        <div class="col">
             <form method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <input type="hidden" asp-for="Client.CreatorId" />
                 <input type="hidden" asp-for="Client.Id" />
+                <input type="hidden" asp-for="Client.Name" />
+                <input type="hidden" asp-for="Client.RedirectUrl" />
+                <input type="hidden" asp-for="Client.PrivateKey" />
+                <input type="hidden" asp-for="Client.PublicKey" />
+                <dl>
+                    <dt>
+                        @Html.DisplayNameFor(m => m.Client.PublicKey)
+                        <span data-toggle="tooltip" data-placement="top" data-html="true"
+                              title="The Platform will validate the JWT signature of messages sent by this
+                          Client using the <b>@Html.DisplayNameFor(m => m.Client.PublicKey)</b>.">
+                            <i class="fas fa-info-circle"></i>
+                        </span>
+                    </dt>
+                    <dd>
+                        <pre>@Model.Client.PublicKey</pre>
+                    </dd>
+                    <dt>
+                        @Html.DisplayNameFor(m => m.Client.PrivateKey)
+                        <span data-toggle="tooltip" data-placement="top" data-html="true"
+                              title="Tools should sign the JWT of messages sent to this Platform
+                          using the <b>@Html.DisplayNameFor(m => m.Client.PrivateKey)</b>.">
+                            <i class="fas fa-info-circle"></i>
+                        </span>
+                    </dt>
+                    <dd>
+                        <pre>@Model.Client.PrivateKey</pre>
+                    </dd>
+                </dl>
                 <div class="form-group">
-                    <label asp-for="Client.ClientId"></label>
-                    <input asp-for="Client.ClientId" class="form-control" readonly="readonly" />
-                    <span asp-validation-for="Client.ClientId" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="Client.Name"></label>
-                    <input asp-for="Client.Name" class="form-control" />
-                    <span asp-validation-for="Client.Name" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="Client.RedirectUrl"></label>
-                    <input asp-for="Client.RedirectUrl" class="form-control" />
-                    <span asp-validation-for="Client.RedirectUrl" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="Client.PrivateKey"></label>
-                    <textarea asp-for="Client.PrivateKey" class="form-control" readonly></textarea>
-                </div>
-                <div class="form-group">
-                    <label asp-for="Client.PublicKey"></label>
-                    <textarea asp-for="Client.PublicKey" class="form-control" readonly></textarea>
-                </div>
-                <div class="form-group">
-                    <input type="submit" value="Save" class="btn btn-secondary" />
+                    <input type="submit" value="Regenerate Client Keys" class="btn btn-danger" asp-page-handler="Regenerate"/>
                 </div>
             </form>
         </div>
-    </div>
-
-    <div>
-        <a asp-page="./Index">Back to List</a>
     </div>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script type="text/javascript">
+        $(function() {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
 }
