@@ -18,9 +18,6 @@
                 <th>
                     @Html.DisplayNameFor(model => model.Client[0].Name)
                 </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Client[0].RedirectUrl)
-                </th>
                 <th></th>
             </tr>
         </thead>
@@ -33,9 +30,6 @@
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.Name)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.RedirectUrl)
                     </td>
                     <td>
                         <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |

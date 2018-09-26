@@ -30,7 +30,7 @@ namespace AdvantagePlatform.Pages.Clients
 
             var user = await _userManager.GetUserAsync(User);
 
-            Client = await _context.Clients.FirstOrDefaultAsync(m => m.Id == id && m.CreatorId == user.Id);
+            Client = await _context.Clients.FirstOrDefaultAsync(m => m.Id == id && m.UserId == user.Id);
 
             if (Client == null)
             {

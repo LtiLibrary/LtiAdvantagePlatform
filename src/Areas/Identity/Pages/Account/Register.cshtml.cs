@@ -78,7 +78,7 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account
                     var platform = new Platform {UserId = user.Id};
                     await _context.Platforms.AddAsync(platform);
                     await _context.SaveChangesAsync();
-                    user.PlatformId = platform.PlatformId;
+                    user.PlatformId = platform.Id;
                     await _userManager.UpdateAsync(user);
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);

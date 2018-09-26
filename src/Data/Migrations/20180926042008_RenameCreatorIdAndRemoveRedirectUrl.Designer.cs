@@ -4,14 +4,16 @@ using AdvantagePlatform.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AdvantagePlatform.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180926042008_RenameCreatorIdAndRemoveRedirectUrl")]
+    partial class RenameCreatorIdAndRemoveRedirectUrl
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -100,13 +102,32 @@ namespace AdvantagePlatform.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int?>("KeySetId");
+
                     b.Property<int?>("ToolId");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("KeySetId");
+
                     b.HasIndex("ToolId");
 
                     b.ToTable("Deployments");
+                });
+
+            modelBuilder.Entity("AdvantagePlatform.Data.KeySet", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("PrivateKey");
+
+                    b.Property<string>("PublicKey");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("KeySets");
                 });
 
             modelBuilder.Entity("AdvantagePlatform.Data.Platform", b =>
@@ -256,6 +277,10 @@ namespace AdvantagePlatform.Data.Migrations
 
             modelBuilder.Entity("AdvantagePlatform.Data.Deployment", b =>
                 {
+                    b.HasOne("AdvantagePlatform.Data.KeySet", "KeySet")
+                        .WithMany()
+                        .HasForeignKey("KeySetId");
+
                     b.HasOne("AdvantagePlatform.Data.Tool", "Tool")
                         .WithMany()
                         .HasForeignKey("ToolId");

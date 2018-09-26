@@ -7,11 +7,11 @@ namespace AdvantagePlatform.Data
     {
         public Platform()
         {
-            PlatformId = Guid.NewGuid().ToString("N");
+            Id = Guid.NewGuid().ToString("N");
         }
 
         [Display(Name = "Platform ID")]
-        public string PlatformId { get; set; }
+        public string Id { get; set; }
 
         [Display(Name = "Platform Private Key")]
         public string PrivateKey { get; set; }
@@ -19,6 +19,10 @@ namespace AdvantagePlatform.Data
         [Display(Name = "Platform Public Key")]
         public string PublicKey { get; set; }
 
+        /// <summary>
+        /// The ID of the AdvantagePlatformUser that created this Platform.
+        /// </summary>
+        [Display(Name = "User ID")]
         public string UserId { get; set; }
     }
 }
