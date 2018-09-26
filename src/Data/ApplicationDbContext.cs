@@ -5,7 +5,7 @@ namespace AdvantagePlatform.Data
 {
     public class ApplicationDbContext : IdentityDbContext<AdvantagePlatformUser>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        public ApplicationDbContext(DbContextOptions options)
             : base(options)
         {
         }

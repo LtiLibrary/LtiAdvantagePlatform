@@ -52,7 +52,7 @@
                         <span data-toggle="tooltip" data-placement="top" data-html="true"
                               title="The Platform will validate the JWT signature of messages sent by this
                           Client using the <b>@Html.DisplayNameFor(m => m.Client.PublicKey)</b>.">
-                            <i class="fas fa-info-circle"></i>
+                            <i class="fa fa-info-circle"></i>
                         </span>
                     </dt>
                     <dd>
@@ -63,7 +63,7 @@
                         <span data-toggle="tooltip" data-placement="top" data-html="true"
                               title="Tools should sign the JWT of messages sent to this Platform
                           using the <b>@Html.DisplayNameFor(m => m.Client.PrivateKey)</b>.">
-                            <i class="fas fa-info-circle"></i>
+                            <i class="fa fa-info-circle"></i>
                         </span>
                     </dt>
                     <dd>
@@ -79,10 +79,5 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    <script type="text/javascript">
-        $(function() {
-            $('[data-toggle="tooltip"]').tooltip()
-        })
-    </script>
+    <partial name="_ValidationScriptsPartial" />
 }

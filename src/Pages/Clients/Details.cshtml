@@ -16,7 +16,7 @@
                           title="Tools should validate that messages sent by this Platform
                           include the <b>@Html.DisplayNameFor(m => m.Client.ClientId)</b>
                             in the Audience (aud) claim of the JWT.">
-                        <i class="fas fa-info-circle"></i>
+                        <i class="fa fa-info-circle"></i>
                     </span>
                 </dt>
                 <dd>
@@ -47,7 +47,7 @@
                     <span data-toggle="tooltip" data-placement="top" data-html="true"
                           title="The Platform will validate the JWT signature of messages sent by this
                           Client using the <b>@Html.DisplayNameFor(m => m.Client.PublicKey)</b>.">
-                        <i class="fas fa-info-circle"></i>
+                        <i class="fa fa-info-circle"></i>
                     </span>
                 </dt>
                 <dd>
@@ -58,7 +58,7 @@
                     <span data-toggle="tooltip" data-placement="top" data-html="true"
                           title="Tools should sign the JWT of messages sent to this Platform
                           using the <b>@Html.DisplayNameFor(m => m.Client.PrivateKey)</b>.">
-                        <i class="fas fa-info-circle"></i>
+                        <i class="fa fa-info-circle"></i>
                     </span>
                 </dt>
                 <dd>
@@ -74,7 +74,7 @@
                           title="Tools should validate that messages from this Platform
                           include the <b>@Html.DisplayNameFor(m => m.Platform.PlatformId)</b>
                             in the Issuer (iss) claim of the JWT.">
-                        <i class="fas fa-info-circle"></i>
+                        <i class="fa fa-info-circle"></i>
                     </span>
                 </dt>
                 <dd>
@@ -85,7 +85,7 @@
                     <span data-toggle="tooltip" data-placement="top" data-html="true"
                           title="Tools should validate the JWT signature of messages sent by this
                           platform using the <b>@Html.DisplayNameFor(m => m.Platform.PublicKey)</b>.">
-                        <i class="fas fa-info-circle"></i>
+                        <i class="fa fa-info-circle"></i>
                     </span>
                 </dt>
                 <dd>
@@ -101,9 +101,4 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script type="text/javascript">
-        $(function() {
-            $('[data-toggle="tooltip"]').tooltip()
-        })
-    </script>
 }

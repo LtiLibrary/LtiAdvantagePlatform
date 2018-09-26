@@ -17,7 +17,7 @@
                       title="The <b>@Html.DisplayNameFor(m => m.Platform.PlatformId)</b>
                       is the Issuer for messages that originate from the Platform such as 
                       an LtiResourceLinkRequest.">
-                    <i class="fas fa-info-circle"></i>
+                    <i class="fa fa-info-circle"></i>
                 </span>
             </dt>
             <dd>
@@ -28,7 +28,7 @@
                 <span data-toggle="tooltip" data-placement="top" data-html="true"
                       title="Tools validate the JWT signature of messages sent by the
                       platform using the <b>@Html.DisplayNameFor(m => m.Platform.PublicKey)</b>.">
-                    <i class="fas fa-info-circle"></i>
+                    <i class="fa fa-info-circle"></i>
                 </span>
             </dt>
             <dd>
@@ -39,7 +39,7 @@
                 <span data-toggle="tooltip" data-placement="top" data-html="true"
                       title="The Platform will sign the JWT of messages it sends using the
                       <b>@Html.DisplayNameFor(m => m.Platform.PrivateKey)</b>.">
-                    <i class="fas fa-info-circle"></i>
+                    <i class="fa fa-info-circle"></i>
                 </span>
             </dt>
             <dd>
@@ -54,9 +54,4 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script type="text/javascript">
-        $(function() {
-            $('[data-toggle="tooltip"]').tooltip()
-        })
-    </script>
 }
