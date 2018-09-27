@@ -25,4 +25,10 @@
     <ProjectReference Include="..\..\..\LTI\LtiAdvantageLibrary\src\LtiAdvantageLibrary.NetCore.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="Areas\Identity\Pages\Account\Manage\Course.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+  </ItemGroup>
+
 </Project>

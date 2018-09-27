@@ -75,11 +75,22 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account
                     _logger.LogInformation("User created a new account with password.");
 
                     // Create a Platform for the new user
+
                     var platform = new Platform {UserId = user.Id};
                     await _context.Platforms.AddAsync(platform);
                     await _context.SaveChangesAsync();
                     user.PlatformId = platform.Id;
                     await _userManager.UpdateAsync(user);
+                    _logger.LogInformation("Platform created for new account.");
+
+                    // Create a Course for the new user
+
+                    var course = new Course {UserId = user.Id};
+                    await _context.Courses.AddAsync(course);
+                    await _context.SaveChangesAsync();
+                    user.CourseId = course.Id;
+                    await _userManager.UpdateAsync(user);
+                    _logger.LogInformation("Course created for new account");
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     var callbackUrl = Url.Page(

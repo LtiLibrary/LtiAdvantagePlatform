@@ -8,12 +8,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AdvantagePlatform.Areas.Identity.Pages.Account.Manage
 {
-    public class PlatformModel : PageModel
+    public class CourseModel : PageModel
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<AdvantagePlatformUser> _userManager;
 
-        public PlatformModel(
+        public CourseModel(
             ApplicationDbContext context,
             UserManager<AdvantagePlatformUser> userManager)
         {
@@ -21,7 +21,8 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account.Manage
             _userManager = userManager;
         }
 
-        public Platform Platform { get; set; }
+        [BindProperty]
+        public Course Course { get; set; }
 
         public async Task<IActionResult> OnGet()
         {
@@ -31,13 +32,13 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account.Manage
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            Platform = await _context.Platforms.SingleOrDefaultAsync(p => p.UserId == user.Id);
-            if (Platform == null)
+            Course = await _context.Courses.SingleOrDefaultAsync(c => c.UserId == user.Id);
+            if (Course == null)
             {
-                Platform = new Platform {UserId = user.Id};
-                await _context.Platforms.AddAsync(Platform);
+                Course = new Course { UserId = user.Id };
+                await _context.Courses.AddAsync(Course);
                 await _context.SaveChangesAsync();
-                user.PlatformId = Platform.Id;
+                user.CourseId = Course.Id;
                 await _userManager.UpdateAsync(user);
             }
 
@@ -46,17 +47,12 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account.Manage
 
         public async Task<IActionResult> OnPostAsync()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
+            if (!ModelState.IsValid)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return Page();
             }
 
-            Platform = await _context.Platforms.SingleOrDefaultAsync(p => p.UserId == user.Id);
-            var keyPair = RsaHelper.GenerateRsaKeyPair();
-            Platform.PublicKey = keyPair.PublicKey;
-            Platform.PrivateKey = keyPair.PrivateKey;
-            _context.Platforms.Update(Platform);
+            _context.Attach(Course).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
             return Page();
