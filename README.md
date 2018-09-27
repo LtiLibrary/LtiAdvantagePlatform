@@ -1,4 +1,2 @@
 # LtiAdvantagePlatform
-Sample LTI Advantage Platform.
-
-- Each registered user has their own Platform ID.
+Sample LTI Advantage Platform for .NET Core.
