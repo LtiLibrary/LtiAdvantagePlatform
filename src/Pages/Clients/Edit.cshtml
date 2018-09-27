@@ -9,29 +9,29 @@
     <h4>Client</h4>
     <hr />
     <div class="row">
-            <div class="col">
-                <form method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <input type="hidden" asp-for="Client.UserId" />
-                    <input type="hidden" asp-for="Client.PublicKey" />
-                    <input type="hidden" asp-for="Client.PrivateKey" />
-                    <div class="form-group">
-                        <label asp-for="Client.ClientId"></label>
-                        <input asp-for="Client.ClientId" class="form-control" readonly="readonly" />
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="Client.Name"></label>
-                        <input asp-for="Client.Name" class="form-control" />
-                        <span asp-validation-for="Client.Name" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <input type="submit" value="Save" class="btn btn-secondary" asp-page-handler="Save" />
-                    </div>
-                </form>
-                <div>
-                    <a asp-page="./Index">Back to List</a>
+        <div class="col">
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="Client.UserId" />
+                <input type="hidden" asp-for="Client.PublicKey" />
+                <input type="hidden" asp-for="Client.PrivateKey" />
+                <div class="form-group">
+                    <label asp-for="Client.ClientId"></label>
+                    <input asp-for="Client.ClientId" class="form-control" readonly="readonly" />
                 </div>
+                <div class="form-group">
+                    <label asp-for="Client.Name"></label>
+                    <input asp-for="Client.Name" class="form-control" />
+                    <span asp-validation-for="Client.Name" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-secondary" asp-page-handler="Save" />
+                </div>
+            </form>
+            <div>
+                <a asp-page="./Index">Back to List</a>
             </div>
+        </div>
         <div class="col">
             <form method="post">
                 <input type="hidden" asp-for="Client.UserId" />

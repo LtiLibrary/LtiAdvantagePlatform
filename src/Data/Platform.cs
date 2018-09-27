@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace AdvantagePlatform.Data
 {
@@ -7,9 +6,12 @@ namespace AdvantagePlatform.Data
     {
         public Platform()
         {
-            Id = Guid.NewGuid().ToString("N");
+            Id = System.Guid.NewGuid().ToString("N");
         }
 
+        /// <summary>
+        /// Issuer (iss) for messages that originate from this platform.
+        /// </summary>
         [Display(Name = "Platform ID")]
         public string Id { get; set; }
 
@@ -19,10 +21,32 @@ namespace AdvantagePlatform.Data
         [Display(Name = "Platform Public Key")]
         public string PublicKey { get; set; }
 
+        [EmailAddress]
+        [Display(Name = "Contact Email")]
+        public string ContactEmail { get; set; }
+
+        [Display(Name = "Description")]
+        public string Description { get; set; }
+
+        [Display(Name = "GUID")]
+        public string Guid { get; set; }
+
+        [Display(Name = "Name")]
+        public string Name { get; set; }
+
+        [Display(Name = "Product Family Code")]
+        public string ProductFamilyCode { get; set; }
+
+        [Url]
+        [Display(Name = "URL")]
+        public string Url { get; set; }
+
+        [Display(Name = "Version")]
+        public string Version { get; set; }
+
         /// <summary>
         /// The ID of the AdvantagePlatformUser that created this Platform.
         /// </summary>
-        [Display(Name = "User ID")]
         public string UserId { get; set; }
     }
 }

@@ -2,6 +2,7 @@
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
+using LtiAdvantageLibrary.NetCore.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -74,9 +75,21 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account
                 {
                     _logger.LogInformation("User created a new account with password.");
 
-                    // Create a Platform for the new user
+                    // Create a Platform for the new user and generate keys
 
-                    var platform = new Platform {UserId = user.Id};
+                    var keypair = RsaHelper.GenerateRsaKeyPair();
+                    var platform = new Platform
+                    {
+                        UserId = user.Id,
+                        PrivateKey = keypair.PrivateKey,
+                        PublicKey = keypair.PublicKey,
+
+                        ContactEmail = user.Email,
+                        Description = "Auto generated platform",
+                        Guid = $"{Request.Host}",
+                        ProductFamilyCode = "LTI Advantage Platform",
+                        Url = $"{Request.Scheme}://{Request.Host}/"
+                    };
                     await _context.Platforms.AddAsync(platform);
                     await _context.SaveChangesAsync();
                     user.PlatformId = platform.Id;

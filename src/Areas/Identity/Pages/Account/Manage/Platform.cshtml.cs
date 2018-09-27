@@ -21,6 +21,7 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account.Manage
             _userManager = userManager;
         }
 
+        [BindProperty]
         public Platform Platform { get; set; }
 
         public async Task<IActionResult> OnGet()
@@ -34,7 +35,19 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account.Manage
             Platform = await _context.Platforms.SingleOrDefaultAsync(p => p.UserId == user.Id);
             if (Platform == null)
             {
-                Platform = new Platform {UserId = user.Id};
+                var keypair = RsaHelper.GenerateRsaKeyPair();
+                Platform = new Platform
+                {
+                    UserId = user.Id,
+                    PrivateKey = keypair.PrivateKey,
+                    PublicKey = keypair.PublicKey,
+
+                    ContactEmail = user.Email,
+                    Description = "Auto generated platform",
+                    Guid = $"{Request.Host}",
+                    ProductFamilyCode = "LTI Advantage Platform",
+                    Url = $"{Request.Scheme}://{Request.Host}/"
+                };
                 await _context.Platforms.AddAsync(Platform);
                 await _context.SaveChangesAsync();
                 user.PlatformId = Platform.Id;
@@ -44,18 +57,29 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account.Manage
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostSaveAsync()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
+            if (!ModelState.IsValid)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return Page();
             }
 
-            Platform = await _context.Platforms.SingleOrDefaultAsync(p => p.UserId == user.Id);
+            _context.Attach(Platform).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return Page();
+        }
+
+        public async Task<IActionResult> OnPostRegenerateKeysAsync()
+        {
+            // Retrieve the full Platform object
+            Platform = _context.Platforms.Find(Platform.Id);
+
+            // Replace the keys
             var keyPair = RsaHelper.GenerateRsaKeyPair();
             Platform.PublicKey = keyPair.PublicKey;
             Platform.PrivateKey = keyPair.PrivateKey;
+
             _context.Platforms.Update(Platform);
             await _context.SaveChangesAsync();
 
