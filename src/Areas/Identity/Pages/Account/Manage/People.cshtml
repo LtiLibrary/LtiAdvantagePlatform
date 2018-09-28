@@ -1,0 +1,79 @@
+﻿@page
+@model PeopleModel
+@{
+    ViewData["Title"] = "People";
+    ViewData["ActivePage"] = "People";
+}
+
+<h4>@ViewData["Title"]</h4>
+<p>
+    These people were created for you when you registered. They will
+    be used for all interactions with Tools.
+</p>
+
+
+<form method="post">
+    <div class="row">
+        <div class="col-md-3">
+            <h4>Student</h4>
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <input type="hidden" asp-for="Student.UserId"/>
+            <input type="hidden" asp-for="Student.IsStudent"/>
+            <div class="form-group">
+                <label asp-for="Student.Id"></label>
+                <input asp-for="Student.Id" class="form-control" readonly="readonly"/>
+            </div>
+            <div class="form-group">
+                <label asp-for="Student.FirstName"></label>
+                <input asp-for="Student.FirstName" class="form-control"/>
+                <span asp-validation-for="Student.FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Student.LastName"></label>
+                <input asp-for="Student.LastName" class="form-control"/>
+                <span asp-validation-for="Student.LastName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Student.SisId"></label>
+                <input asp-for="Student.SisId" class="form-control"/>
+                <span asp-validation-for="Student.SisId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <h4>Teacher</h4>
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <input type="hidden" asp-for="Teacher.UserId"/>
+            <input type="hidden" asp-for="Teacher.IsStudent"/>
+            <div class="form-group">
+                <label asp-for="Teacher.Id"></label>
+                <input asp-for="Teacher.Id" class="form-control" readonly="readonly"/>
+            </div>
+            <div class="form-group">
+                <label asp-for="Teacher.FirstName"></label>
+                <input asp-for="Teacher.FirstName" class="form-control"/>
+                <span asp-validation-for="Teacher.FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Teacher.LastName"></label>
+                <input asp-for="Teacher.LastName" class="form-control"/>
+                <span asp-validation-for="Teacher.LastName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Teacher.SisId"></label>
+                <input asp-for="Teacher.SisId" class="form-control"/>
+                <span asp-validation-for="Teacher.SisId" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <button class="btn btn-secondary" type="submit">Save</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

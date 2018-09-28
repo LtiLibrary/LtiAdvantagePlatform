@@ -8,21 +8,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AdvantagePlatform.Areas.Identity.Pages.Account.Manage
 {
-    public class CourseModel : PageModel
+    public class PeopleModel : PageModel
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<AdvantagePlatformUser> _userManager;
 
-        public CourseModel(
-            ApplicationDbContext context,
-            UserManager<AdvantagePlatformUser> userManager)
+        public PeopleModel(ApplicationDbContext context, UserManager<AdvantagePlatformUser> userManager)
         {
             _context = context;
             _userManager = userManager;
         }
 
         [BindProperty]
-        public Course Course { get; set; }
+        public Person Student { get; set; }
+
+        [BindProperty]
+        public Person Teacher { get; set; }
 
         public async Task<IActionResult> OnGet()
         {
@@ -32,13 +33,25 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account.Manage
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            Course = await _context.Courses.SingleOrDefaultAsync(c => c.UserId == user.Id);
-            if (Course == null)
+            Student = await _context.People.SingleOrDefaultAsync(
+                c => c.UserId == user.Id && c.IsStudent);
+            if (Student == null)
             {
-                Course = RegisterModel.CreateCourse(user);
-                await _context.Courses.AddAsync(Course);
+                Student = RegisterModel.CreatePerson(user, true);
+                await _context.People.AddAsync(Student);
                 await _context.SaveChangesAsync();
-                user.CourseId = Course.Id;
+                user.StudentId = Student.Id;
+                await _userManager.UpdateAsync(user);
+            }
+
+            Teacher = await _context.People.SingleOrDefaultAsync(
+                c => c.UserId == user.Id && !c.IsStudent);
+            if (Teacher == null)
+            {
+                Teacher = RegisterModel.CreatePerson(user, false);
+                await _context.People.AddAsync(Teacher);
+                await _context.SaveChangesAsync();
+                user.TeacherId = Teacher.Id;
                 await _userManager.UpdateAsync(user);
             }
 
@@ -52,7 +65,8 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account.Manage
                 return Page();
             }
 
-            _context.Attach(Course).State = EntityState.Modified;
+            _context.Attach(Student).State = EntityState.Modified;
+            _context.Attach(Teacher).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
             return Page();

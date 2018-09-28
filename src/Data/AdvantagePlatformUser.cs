@@ -7,5 +7,7 @@ namespace AdvantagePlatform.Data
     {
         public string CourseId { get; set; }
         public string PlatformId { get; set; }
+        public string StudentId { get; set; }
+        public string TeacherId { get; set; }
     }
 }

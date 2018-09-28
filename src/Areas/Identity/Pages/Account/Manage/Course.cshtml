@@ -6,24 +6,19 @@
 }
 
 <h4>@ViewData["Title"]</h4>
+<p>
+    This Course was created for you when you registered. It will be used
+    for all interactions with Tools.
+</p>
 
 <div class="row">
     <div class="col-md-6">
-        <p>
-            This Course was created for you when you registered. All Resource Links in
-            this sample will be launched from this course.
-        </p>
         <form method="post">
             <div asp-validation-summary="All" class="text-danger"></div>
             <input type="hidden" asp-for="Course.UserId"/>
             <div class="form-group">
                 <label asp-for="Course.Id"></label>
                 <input asp-for="Course.Id" class="form-control" readonly="readonly"/>
-            </div>
-            <div class="form-group">
-                <label asp-for="Course.Label"></label>
-                <input asp-for="Course.Label" class="form-control"/>
-                <span asp-validation-for="Course.Label" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Course.Title"></label>

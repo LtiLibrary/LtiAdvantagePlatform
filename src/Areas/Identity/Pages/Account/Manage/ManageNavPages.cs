@@ -23,6 +23,8 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account.Manage
 
         public static string Course => "Course";
 
+        public static string People => "People";
+
         public static string IndexNavClass(ViewContext viewContext) => PageNavClass(viewContext, Index);
 
         public static string ChangePasswordNavClass(ViewContext viewContext) => PageNavClass(viewContext, ChangePassword);
@@ -40,6 +42,8 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account.Manage
         public static string PlatformClass(ViewContext viewContext) => PageNavClass(viewContext, Platform);
 
         public static string CourseClass(ViewContext viewContext) => PageNavClass(viewContext, Course);
+
+        public static string PeopleClass(ViewContext viewContext) => PageNavClass(viewContext, People);
     
         public static string PageNavClass(ViewContext viewContext, string page)
         {

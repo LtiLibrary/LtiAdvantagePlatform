@@ -35,19 +35,7 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account.Manage
             Platform = await _context.Platforms.SingleOrDefaultAsync(p => p.UserId == user.Id);
             if (Platform == null)
             {
-                var keypair = RsaHelper.GenerateRsaKeyPair();
-                Platform = new Platform
-                {
-                    UserId = user.Id,
-                    PrivateKey = keypair.PrivateKey,
-                    PublicKey = keypair.PublicKey,
-
-                    ContactEmail = user.Email,
-                    Description = "Auto generated platform",
-                    Guid = $"{Request.Host}",
-                    ProductFamilyCode = "LTI Advantage Platform",
-                    Url = $"{Request.Scheme}://{Request.Host}/"
-                };
+                Platform = RegisterModel.CreatePlatform(Request, user);
                 await _context.Platforms.AddAsync(Platform);
                 await _context.SaveChangesAsync();
                 user.PlatformId = Platform.Id;

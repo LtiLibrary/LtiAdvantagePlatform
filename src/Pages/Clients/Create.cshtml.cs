@@ -47,7 +47,7 @@ namespace AdvantagePlatform.Pages.Clients
             Client.PrivateKey = keypair.PrivateKey;
             Client.PublicKey = keypair.PublicKey;
 
-            _context.Clients.Add(Client);
+            await _context.Clients.AddAsync(Client);
             await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");

@@ -6,9 +6,13 @@
 }
 
 <h4>@ViewData["Title"]</h4>
+<p>
+    This platform was created for you when you registered. It will be used for
+    all interactions with Tools.
+</p>
 
 <div class="row">
-    <div class="col">
+    <div class="col-md-3">
         <form method="post">
             <div asp-validation-summary="All" class="text-danger"></div>
             <input type="hidden" asp-for="Platform.PrivateKey" />
@@ -62,7 +66,7 @@
             </div>
         </form>
     </div>
-    <div class="col">
+    <div class="col-md-6">
         <form method="post">
             <input type="hidden" asp-for="Platform.Id"/>
             <div asp-validation-summary="All" class="text-danger"></div>

@@ -14,8 +14,8 @@ namespace AdvantagePlatform.Data
         public DbSet<Client> Clients { get; set; }
         public DbSet<Course> Courses { get; set; }
         public DbSet<Deployment> Deployments { get; set; }
+        public DbSet<Person> People { get; set; }
         public DbSet<Platform> Platforms { get; set; }
         public DbSet<Tool> Tools { get; set; }
-
     }
 }

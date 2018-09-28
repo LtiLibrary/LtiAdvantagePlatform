@@ -4,11 +4,13 @@ using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using LtiAdvantageLibrary.NetCore.Utilities;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using RandomNameGeneratorLibrary;
 
 namespace AdvantagePlatform.Areas.Identity.Pages.Account
 {
@@ -76,34 +78,30 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account
                     _logger.LogInformation("User created a new account with password.");
 
                     // Create a Platform for the new user and generate keys
-
-                    var keypair = RsaHelper.GenerateRsaKeyPair();
-                    var platform = new Platform
-                    {
-                        UserId = user.Id,
-                        PrivateKey = keypair.PrivateKey,
-                        PublicKey = keypair.PublicKey,
-
-                        ContactEmail = user.Email,
-                        Description = "Auto generated platform",
-                        Guid = $"{Request.Host}",
-                        ProductFamilyCode = "LTI Advantage Platform",
-                        Url = $"{Request.Scheme}://{Request.Host}/"
-                    };
+                    var platform = CreatePlatform(Request, user);
                     await _context.Platforms.AddAsync(platform);
-                    await _context.SaveChangesAsync();
-                    user.PlatformId = platform.Id;
-                    await _userManager.UpdateAsync(user);
-                    _logger.LogInformation("Platform created for new account.");
 
                     // Create a Course for the new user
-
-                    var course = new Course {UserId = user.Id};
+                    var course = CreateCourse(user);
                     await _context.Courses.AddAsync(course);
+
+                    // Create a student
+                    var student = CreatePerson(user, true);
+                    await _context.People.AddAsync(student);
+
+                    // Create a teacher
+                    var teacher = CreatePerson(user, false);
+                    await _context.People.AddAsync(teacher);
+
+                    // Save the platform, course, student, and teacher
                     await _context.SaveChangesAsync();
+
+                    // Attach the platform, course, student, and teacher to local user
+                    user.PlatformId = platform.Id;
                     user.CourseId = course.Id;
+                    user.StudentId = student.Id;
+                    user.TeacherId = teacher.Id;
                     await _userManager.UpdateAsync(user);
-                    _logger.LogInformation("Course created for new account");
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     var callbackUrl = Url.Page(
@@ -126,6 +124,49 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account
 
             // If we got this far, something failed, redisplay form
             return Page();
+        }
+
+        public static Platform CreatePlatform(HttpRequest request, AdvantagePlatformUser user)
+        {
+            var keypair = RsaHelper.GenerateRsaKeyPair();
+            var platform = new Platform
+            {
+                UserId = user.Id,
+                PrivateKey = keypair.PrivateKey,
+                PublicKey = keypair.PublicKey,
+
+                ContactEmail = user.Email,
+                Description = "Auto generated platform",
+                Guid = $"{request.Host}",
+                ProductFamilyCode = "LTI Advantage Platform",
+                Url = $"{request.Scheme}://{request.Host}/"
+            };
+            return platform;
+        }
+
+        public static Course CreateCourse(AdvantagePlatformUser user)
+        {
+            var placeGenerator = new PlaceNameGenerator();
+            var course = new Course
+            {
+                Title = $"{placeGenerator.GenerateRandomPlaceName()} Studies",
+                UserId = user.Id
+            };
+            return course;
+        }
+
+        public static Person CreatePerson(AdvantagePlatformUser user, bool isStudent)
+        {
+            var nameGenerator = new PersonNameGenerator();
+            var person = new Person
+            {
+                FirstName = nameGenerator.GenerateRandomFirstName(),
+                LastName = nameGenerator.GenerateRandomLastName(),
+                IsStudent = isStudent
+            };
+            person.SisId = person.GetHashCode().ToString();
+            person.UserId = user.Id;
+            return person;
         }
     }
 }
