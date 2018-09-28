@@ -13,6 +13,9 @@ namespace AdvantagePlatform.Data
         [Display(Name = "Course ID")]
         public string Id { get; set; }
 
+        [Display(Name = "Course SID ID")]
+        public string SidId { get; set; }
+
         [Display(Name = "Course Title")]
         public string Title { get; set; }
 

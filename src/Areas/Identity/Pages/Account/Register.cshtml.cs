@@ -152,6 +152,7 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account
                 Title = $"{placeGenerator.GenerateRandomPlaceName()} Studies",
                 UserId = user.Id
             };
+            course.SidId = course.GetHashCode().ToString();
             return course;
         }
 

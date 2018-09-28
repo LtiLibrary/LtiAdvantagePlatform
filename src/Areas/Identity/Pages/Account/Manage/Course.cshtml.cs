@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using AdvantagePlatform.Data;
-using LtiAdvantageLibrary.NetCore.Utilities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -13,9 +12,7 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account.Manage
         private readonly ApplicationDbContext _context;
         private readonly UserManager<AdvantagePlatformUser> _userManager;
 
-        public CourseModel(
-            ApplicationDbContext context,
-            UserManager<AdvantagePlatformUser> userManager)
+        public CourseModel(ApplicationDbContext context, UserManager<AdvantagePlatformUser> userManager)
         {
             _context = context;
             _userManager = userManager;

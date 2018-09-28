@@ -13,16 +13,16 @@ namespace AdvantagePlatform.Data
         [Display(Name = "Person ID")]
         public string Id { get; set; }
 
-        [Display(Name = "Student")]
+        [Display(Name = "Person is a Student")]
         public bool IsStudent { get; set; }
         
-        [Display(Name = "First Name")]
+        [Display(Name = "Person First Name")]
         public string FirstName { get; set; }
 
-        [Display(Name = "Last Name")]
+        [Display(Name = "Person Last Name")]
         public string LastName { get; set; }
 
-        [Display(Name = "SIS ID")]
+        [Display(Name = "Person SIS ID")]
         public string SisId { get; set; }
 
         /// <summary>
