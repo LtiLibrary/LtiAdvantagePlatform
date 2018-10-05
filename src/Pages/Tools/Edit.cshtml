@@ -1,0 +1,40 @@
+﻿@page
+@model EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<div class="container">
+    <h4>Tool</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-4">
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="Tool.Id" />
+                <div class="form-group">
+                    <label asp-for="Tool.Name"></label>
+                    <input asp-for="Tool.Name" class="form-control" />
+                    <span asp-validation-for="Tool.Name" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Tool.Url"></label>
+                    <input asp-for="Tool.Url" class="form-control" />
+                    <span asp-validation-for="Tool.Url" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-secondary" />
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div>
+        <a asp-page="./Index">Back to List</a>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
