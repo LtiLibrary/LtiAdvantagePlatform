@@ -14,7 +14,208 @@
 </style>
 
 <div class="container">
-    <div class="iframe-container">
-        <iframe src="@Url.Page("./ResourceLink")"></iframe>
-    </div>
+    
+    @if (!User.Identity.IsAuthenticated)
+    {
+        <h4>Welcome Stranger!</h4>
+        <p>
+            Please <a asp-area="Identity" asp-page="/Account/Register">Register</a> 
+            or <a asp-area="Identity" asp-page="/Account/Login">Sign In</a> to access
+            your personal instance of the .NET Core Advantage Platform sample.
+        </p>
+    }
+    else
+    {
+        <h4>Welcome!</h4>
+        <p>
+            Here is a diagram of your personal instance of the .NET Core Advantage 
+            Platform sample:
+        </p>
+        <div class="card text-white bg-info">
+            <div class="card-header">
+                <h4>Platform</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-4">
+                        <dl>
+                            <dt>@Html.DisplayNameFor(m => m.Platform.Id)</dt>
+                            <dd>@Html.DisplayFor(m => m.Platform.Id)</dd>
+                            <dt>@Html.DisplayNameFor(m => m.Platform.Name)</dt>
+                            <dd>@Html.DisplayFor(m => m.Platform.Name)</dd>
+                            <dt>@Html.DisplayNameFor(m => m.Platform.Description)</dt>
+                            <dd>@Html.DisplayFor(m => m.Platform.Description)</dd>
+                            <dt>@Html.DisplayNameFor(m => m.Platform.PublicKey)</dt>
+                            <dd>
+                                <button type="button" class="btn btn-sm btn-outline-light" data-toggle="modal" data-target="#platform-keys">
+                                    Display @Html.DisplayNameFor(m => m.Platform.PublicKey)
+                                </button>
+                                <div class="modal fade" id="platform-keys" tabindex="-1" role="dialog" aria-labelledby="platform-keys-label" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <div class="modal-title" id="platform-keys-label">@Html.DisplayNameFor(m => m.Platform.PublicKey)</div>
+                                                <button type="button" class="close" data-dismiss="modal" area-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <pre>@Html.DisplayFor(m => m.Platform.PublicKey)</pre>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </dd>
+                        </dl>
+                        <p>
+                            <a class="text-dark" asp-area="Identity" asp-page="Account/Manage/Platform">Edit Platform Details</a>
+                        </p>
+                        <h5>Platform Tools</h5>
+                        <div class="card bg-warning mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title">Tool Name</h5>
+                            </div>
+                            <div class="card-body">
+                                <p>Some supporting text.</p>
+                                <button type="button" class="btn btn-sm btn-secondary">Teacher Launch</button>
+                                <button type="button" class="btn btn-sm btn-secondary">Student Launch</button>
+                            </div>
+                        </div>
+                        <div class="card bg-warning mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title">Tool Name</h5>
+                            </div>
+                            <div class="card-body">
+                                <p>Some supporting text.</p>
+                                <button type="button" class="btn btn-sm btn-secondary">Teacher Launch</button>
+                                <button type="button" class="btn btn-sm btn-secondary">Student Launch</button>
+                            </div>
+                        </div>
+                        <div class="card bg-warning mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title">Tool Name</h5>
+                            </div>
+                            <div class="card-body">
+                                <p>Some supporting text.</p>
+                                <button type="button" class="btn btn-sm btn-secondary">Teacher Launch</button>
+                                <button type="button" class="btn btn-sm btn-secondary">Student Launch</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-8">
+                        <div class="card bg-secondary">
+                            <div class="card-header">
+                                <h4>Course</h4>
+                            </div>
+                            <div class="card-body">
+                                <dl>
+                                    <dt>@Html.DisplayNameFor(m => m.Course.Id)</dt>
+                                    <dd>@Html.DisplayFor(m => m.Course.Id)</dd>
+                                    <dt>@Html.DisplayNameFor(m => m.Course.SisId)</dt>
+                                    <dd>@Html.DisplayFor(m => m.Course.SisId)</dd>
+                                    <dt>@Html.DisplayNameFor(m => m.Course.Title)</dt>
+                                    <dd>@Html.DisplayFor(m => m.Course.Title)</dd>
+                                </dl>
+                                <p>
+                                    <a class="text-dark" asp-area="Identity" asp-page="Account/Manage/Course">Edit Course Details</a>
+                                </p>
+                                <h5>People</h5>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="card bg-success mb-4">
+                                            <div class="card-header">
+                                                <h5 class="card-title">Teacher</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <dl>
+                                                    <dt>@Html.DisplayNameFor(m => m.Teacher.Id)</dt>
+                                                    <dd>@Html.DisplayFor(m => m.Teacher.Id)</dd>
+                                                    <dt>@Html.DisplayNameFor(m => m.Teacher.SisId)</dt>
+                                                    <dd>@Html.DisplayFor(m => m.Teacher.SisId)</dd>
+                                                    <dt>@Html.DisplayNameFor(m => m.Teacher.FirstName)</dt>
+                                                    <dd>@Html.DisplayFor(m => m.Teacher.FirstName)</dd>
+                                                    <dt>@Html.DisplayNameFor(m => m.Teacher.LastName)</dt>
+                                                    <dd>@Html.DisplayFor(m => m.Teacher.LastName)</dd>
+                                                </dl>
+                                                <p>
+                                                    <a class="text-dark" asp-area="Identity" asp-page="Account/Manage/People">Edit Teacher Details</a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="card bg-success mb-4">
+                                            <div class="card-header">
+                                                <h5 class="card-title">Student</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <dl>
+                                                    <dt>@Html.DisplayNameFor(m => m.Student.Id)</dt>
+                                                    <dd>@Html.DisplayFor(m => m.Student.Id)</dd>
+                                                    <dt>@Html.DisplayNameFor(m => m.Student.SisId)</dt>
+                                                    <dd>@Html.DisplayFor(m => m.Student.SisId)</dd>
+                                                    <dt>@Html.DisplayNameFor(m => m.Student.FirstName)</dt>
+                                                    <dd>@Html.DisplayFor(m => m.Student.FirstName)</dd>
+                                                    <dt>@Html.DisplayNameFor(m => m.Student.LastName)</dt>
+                                                    <dd>@Html.DisplayFor(m => m.Student.LastName)</dd>
+                                                </dl>
+                                                <p>
+                                                    <a class="text-dark" asp-area="Identity" asp-page="Account/Manage/People">Edit Student Details</a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h5>Course Tools</h5>
+                                <div class="row">
+                                    <div class="col-sm-6 mb-4">
+                                        <div class="card bg-warning">
+                                            <div class="card-header">
+                                                <h5 class="card-title">Tool Name</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <p>Some supporting text.</p>
+                                                <button type="button" class="btn btn-sm btn-secondary">Teacher Launch</button>
+                                                <button type="button" class="btn btn-sm btn-secondary">Student Launch</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 mb-4">
+                                        <div class="card bg-warning">
+                                            <div class="card-header">
+                                                <h5 class="card-title">Tool Name</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <p>Some supporting text.</p>
+                                                <button type="button" class="btn btn-sm btn-secondary">Teacher Launch</button>
+                                                <button type="button" class="btn btn-sm btn-secondary">Student Launch</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 mb-4">
+                                        <div class="card bg-warning">
+                                            <div class="card-header">
+                                                <h5 class="card-title">Tool Name</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <p>Some supporting text.</p>
+                                                <button type="button" class="btn btn-sm btn-secondary">Teacher Launch</button>
+                                                <button type="button" class="btn btn-sm btn-secondary">Student Launch</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="iframe-container">
+            <iframe src="@Url.Page("./ResourceLink")"></iframe>
+        </div>
+    }
 </div>

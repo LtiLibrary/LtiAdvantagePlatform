@@ -10,13 +10,13 @@ namespace AdvantagePlatform.Data
             Id = Guid.NewGuid().ToString("N");
         }
 
-        [Display(Name = "Course ID")]
+        [Display(Name = "ID")]
         public string Id { get; set; }
 
-        [Display(Name = "Course SID ID")]
-        public string SidId { get; set; }
+        [Display(Name = "SIS ID")]
+        public string SisId { get; set; }
 
-        [Display(Name = "Course Title")]
+        [Display(Name = "Title")]
         public string Title { get; set; }
 
         /// <summary>
