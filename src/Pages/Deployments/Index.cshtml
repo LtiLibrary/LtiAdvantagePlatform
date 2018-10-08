@@ -2,7 +2,7 @@
 @model IndexModel
 
 @{
-    ViewData["Title"] = "Clients";
+    ViewData["Title"] = "Deployments";
 }
 
 <div class="container">
@@ -13,25 +13,19 @@
     <table class="table">
         <thead>
             <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.Client[0].Id)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Client[0].Name)
-                </th>
+                <th>Tool @Html.DisplayNameFor(m => m.Deployments[0].Tool.Name)</th>
+                <th>Client @Html.DisplayNameFor(m => m.Deployments[0].Client.Name)</th>
+                <th>@Html.DisplayNameFor(m => m.Deployments[0].ToolPlacement)</th>
                 <th></th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model.Client)
+            @foreach (var item in Model.Deployments)
             {
                 <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Id)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Name)
-                    </td>
+                    <td>@Html.DisplayFor(m => item.Tool.Name)</td>
+                    <td>@Html.DisplayFor(m => item.Client.Name)</td>
+                    <td>@Html.DisplayFor(m => item.ToolPlacement)</td>
                     <td>
                         <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
                         <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |

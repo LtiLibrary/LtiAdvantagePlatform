@@ -1,0 +1,19 @@
+﻿@page
+@model DetailsModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Deployment</h4>
+    <hr />
+    <dl class="dl-horizontal">
+    </dl>
+</div>
+<div>
+    <a asp-page="./Edit" asp-route-id="@Model.Deployment.Id">Edit</a> |
+    <a asp-page="./Index">Back to List</a>
+</div>

@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
-using AdvantagePlatform.Data.Migrations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -29,10 +28,13 @@ namespace AdvantagePlatform.Pages
         public async Task OnGetAsync()
         {
             var user = await _userManager.GetUserAsync(User);
-            Platform = await _context.Platforms.FindAsync(user.PlatformId);
-            Course = await _context.Courses.FindAsync(user.CourseId);
-            Teacher = await _context.People.FindAsync(user.TeacherId);
-            Student = await _context.People.FindAsync(user.StudentId);
+            if (user != null)
+            {
+                Platform = await _context.Platforms.FindAsync(user.PlatformId);
+                Course = await _context.Courses.FindAsync(user.CourseId);
+                Teacher = await _context.People.FindAsync(user.TeacherId);
+                Student = await _context.People.FindAsync(user.StudentId);
+            }
         }
     }
 }

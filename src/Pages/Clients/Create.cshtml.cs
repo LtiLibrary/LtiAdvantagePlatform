@@ -14,7 +14,6 @@ namespace AdvantagePlatform.Pages.Clients
         private readonly UserManager<AdvantagePlatformUser> _userManager;
 
         public string ClientId { get; set; }
-        public string CreatorId { get; set; }
 
         [BindProperty]
         public Client Client { get; set; }
@@ -25,13 +24,9 @@ namespace AdvantagePlatform.Pages.Clients
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> OnGet()
+        public IActionResult OnGet()
         {
             ClientId = Guid.NewGuid().ToString("N");
-
-            var user = await _userManager.GetUserAsync(User);
-            CreatorId = user.Id;
-
             return Page();
         }
 
@@ -46,6 +41,10 @@ namespace AdvantagePlatform.Pages.Clients
             var keypair = RsaHelper.GenerateRsaKeyPair();
             Client.PrivateKey = keypair.PrivateKey;
             Client.PublicKey = keypair.PublicKey;
+
+            // Add the user ID
+            var user = await _userManager.GetUserAsync(User);
+            Client.UserId = user.Id;
 
             await _context.Clients.AddAsync(Client);
             await _context.SaveChangesAsync();

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using AdvantagePlatform.Data;
 
-namespace AdvantagePlatform.Pages.Tools
+namespace AdvantagePlatform.Pages.Deployments
 {
     public class EditModel : PageModel
     {
@@ -20,18 +20,18 @@ namespace AdvantagePlatform.Pages.Tools
         }
 
         [BindProperty]
-        public Tool Tool { get; set; }
+        public Deployment Deployment { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(int? id)
+        public async Task<IActionResult> OnGetAsync(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            Tool = await _context.Tools.FirstOrDefaultAsync(m => m.Id == id);
+            Deployment = await _context.Deployments.FirstOrDefaultAsync(m => m.Id == id);
 
-            if (Tool == null)
+            if (Deployment == null)
             {
                 return NotFound();
             }
@@ -45,7 +45,7 @@ namespace AdvantagePlatform.Pages.Tools
                 return Page();
             }
 
-            _context.Attach(Tool).State = EntityState.Modified;
+            _context.Attach(Deployment).State = EntityState.Modified;
 
             try
             {
@@ -53,7 +53,7 @@ namespace AdvantagePlatform.Pages.Tools
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ToolExists(Tool.Id))
+                if (!DeploymentExists(Deployment.Id))
                 {
                     return NotFound();
                 }
@@ -66,9 +66,9 @@ namespace AdvantagePlatform.Pages.Tools
             return RedirectToPage("./Index");
         }
 
-        private bool ToolExists(int id)
+        private bool DeploymentExists(string id)
         {
-            return _context.Tools.Any(e => e.Id == id);
+            return _context.Deployments.Any(e => e.Id == id);
         }
     }
 }

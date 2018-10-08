@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using AdvantagePlatform.Data;
 using Microsoft.AspNetCore.Identity;
 
-namespace AdvantagePlatform.Pages.Clients
+namespace AdvantagePlatform.Pages.Deployments
 {
     public class DeleteModel : PageModel
     {
@@ -19,7 +19,7 @@ namespace AdvantagePlatform.Pages.Clients
         }
 
         [BindProperty]
-        public Client Client { get; set; }
+        public Deployment Deployment { get; set; }
 
         public async Task<IActionResult> OnGetAsync(string id)
         {
@@ -30,27 +30,30 @@ namespace AdvantagePlatform.Pages.Clients
 
             var user = await _userManager.GetUserAsync(User);
 
-            Client = await _context.Clients.FirstOrDefaultAsync(m => m.Id == id && m.UserId == user.Id);
+            Deployment = await _context.Deployments
+                .Include(m => m.Client)
+                .Include(m => m.Tool)
+                .FirstOrDefaultAsync(m => m.Id == id && m.UserId == user.Id);
 
-            if (Client == null)
+            if (Deployment == null)
             {
                 return NotFound();
             }
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync(int? id)
+        public async Task<IActionResult> OnPostAsync(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            Client = await _context.Clients.FindAsync(id);
+            Deployment = await _context.Deployments.FindAsync(id);
 
-            if (Client != null)
+            if (Deployment != null)
             {
-                _context.Clients.Remove(Client);
+                _context.Deployments.Remove(Deployment);
                 await _context.SaveChangesAsync();
             }
 

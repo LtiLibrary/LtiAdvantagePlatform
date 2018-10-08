@@ -37,6 +37,8 @@ namespace AdvantagePlatform
 
             services.AddMvc()
                 .AddRazorPagesOptions(options => { options.Conventions.AuthorizeFolder("/Clients"); })
+                .AddRazorPagesOptions(options => { options.Conventions.AuthorizeFolder("/Tools"); })
+                .AddRazorPagesOptions(options => { options.Conventions.AuthorizeFolder("/Deployments"); })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 

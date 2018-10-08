@@ -11,14 +11,14 @@
         <div class="col-4">
             <dl>
                 <dt>
-                    @Html.DisplayNameFor(model => model.Client.ClientId)
+                    @Html.DisplayNameFor(model => model.Client.Id)
                     <span data-toggle="tooltip" data-placement="top" data-html="true"
-                          title="Tools should validate that messages sent by this Platform include the <b>@Html.DisplayNameFor(m => m.Client.ClientId)</b> in the Audience (aud) claim of the JWT.">
+                          title="Tools should validate that messages sent by this Platform include the <b>@Html.DisplayNameFor(m => m.Client.Id)</b> in the Audience (aud) claim of the JWT.">
                         <i class="fa fa-info-circle"></i>
                     </span>
                 </dt>
                 <dd>
-                    @Html.DisplayFor(model => model.Client.ClientId)
+                    @Html.DisplayFor(model => model.Client.Id)
                 </dd>
                 <dt>
                     @Html.DisplayNameFor(model => model.Client.Name)

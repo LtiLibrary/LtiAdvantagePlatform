@@ -1,28 +1,31 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace AdvantagePlatform.Data
 {
     public class Client
     {
-        public int Id { get; set; }
+        public Client()
+        {
+            Id = Guid.NewGuid().ToString("N");
+        }
 
-        [Display(Name = "Client ID")]
-        public string ClientId { get; set; }
-
-        [Required]
-        [Display(Name = "Client Name")]
-        public string Name { get; set; }
-
-        [Display(Name = "Client Private Key")]
-        public string PrivateKey { get; set; }
-
-        [Display(Name = "Client Public Key")]
-        public string PublicKey { get; set; }
+        [Display(Name = "ID")]
+        public string Id { get; set; }
 
         /// <summary>
         /// The ID of the AdvantagePlatformUser that created this Client.
         /// </summary>
-        [Display(Name = "User ID")]
         public string UserId { get; set; }
+
+        [Required]
+        [Display(Name = "Name")]
+        public string Name { get; set; }
+
+        [Display(Name = "Private Key")]
+        public string PrivateKey { get; set; }
+
+        [Display(Name = "Public Key")]
+        public string PublicKey { get; set; }
     }
 }

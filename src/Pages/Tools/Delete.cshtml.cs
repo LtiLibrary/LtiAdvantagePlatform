@@ -11,9 +11,9 @@ namespace AdvantagePlatform.Pages.Tools
 {
     public class DeleteModel : PageModel
     {
-        private readonly AdvantagePlatform.Data.ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public DeleteModel(AdvantagePlatform.Data.ApplicationDbContext context)
+        public DeleteModel(ApplicationDbContext context)
         {
             _context = context;
         }

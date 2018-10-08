@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using AdvantagePlatform.Data;
 
-namespace AdvantagePlatform.Pages.Tools
+namespace AdvantagePlatform.Pages.Deployments
 {
     public class DetailsModel : PageModel
     {
@@ -18,18 +18,18 @@ namespace AdvantagePlatform.Pages.Tools
             _context = context;
         }
 
-        public Tool Tool { get; set; }
+        public Deployment Deployment { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(int? id)
+        public async Task<IActionResult> OnGetAsync(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            Tool = await _context.Tools.FirstOrDefaultAsync(m => m.Id == id);
+            Deployment = await _context.Deployments.FirstOrDefaultAsync(m => m.Id == id);
 
-            if (Tool == null)
+            if (Deployment == null)
             {
                 return NotFound();
             }

@@ -1,12 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using AdvantagePlatform.Data;
 using Microsoft.AspNetCore.Identity;
 
-namespace AdvantagePlatform.Pages.Tools
+namespace AdvantagePlatform.Pages.Deployments
 {
     public class IndexModel : PageModel
     {
@@ -19,12 +21,17 @@ namespace AdvantagePlatform.Pages.Tools
             _userManager = userManager;
         }
 
-        public IList<Tool> Tools { get;set; }
+        public IList<Deployment> Deployments { get;set; }
 
         public async Task OnGetAsync()
         {
             var user = await _userManager.GetUserAsync(User);
-            Tools = await _context.Tools.Where(t => t.UserId == user.Id).ToListAsync();
+
+            Deployments = await _context.Deployments
+                .Where(d => d.UserId == user.Id)
+                .Include(d => d.Tool)
+                .Include(d => d.Client)
+                .ToListAsync();
         }
     }
 }

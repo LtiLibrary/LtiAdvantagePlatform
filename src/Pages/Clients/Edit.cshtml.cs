@@ -23,7 +23,7 @@ namespace AdvantagePlatform.Pages.Clients
         [BindProperty]
         public Client Client { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(int? id)
+        public async Task<IActionResult> OnGetAsync(string id)
         {
             if (id == null)
             {
@@ -96,7 +96,7 @@ namespace AdvantagePlatform.Pages.Clients
             return Page();
         }
 
-        private bool ClientExists(int id)
+        private bool ClientExists(string id)
         {
             return _context.Clients.Any(e => e.Id == id);
         }
