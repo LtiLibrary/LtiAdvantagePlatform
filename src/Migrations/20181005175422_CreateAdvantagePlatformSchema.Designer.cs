@@ -7,17 +7,17 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace AdvantagePlatform.Data.Migrations
+namespace AdvantagePlatform.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20180924022843_UserPlatformId")]
-    partial class UserPlatformId
+    [Migration("20181005175422_CreateAdvantagePlatformSchema")]
+    partial class CreateAdvantagePlatformSchema
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.1.3-rtm-32065")
+                .HasAnnotation("ProductVersion", "2.1.4-rtm-31024")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -30,6 +30,8 @@ namespace AdvantagePlatform.Data.Migrations
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken();
+
+                    b.Property<string>("CourseId");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256);
@@ -56,6 +58,10 @@ namespace AdvantagePlatform.Data.Migrations
 
                     b.Property<string>("SecurityStamp");
 
+                    b.Property<string>("StudentId");
+
+                    b.Property<string>("TeacherId");
+
                     b.Property<bool>("TwoFactorEnabled");
 
                     b.Property<string>("UserName")
@@ -76,67 +82,113 @@ namespace AdvantagePlatform.Data.Migrations
 
             modelBuilder.Entity("AdvantagePlatform.Data.Client", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("ClientId");
-
-                    b.Property<string>("CreatorId");
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("Name")
                         .IsRequired();
 
-                    b.Property<string>("RedirectUrl")
-                        .IsRequired();
+                    b.Property<string>("PrivateKey");
+
+                    b.Property<string>("PublicKey");
+
+                    b.Property<string>("UserId");
 
                     b.HasKey("Id");
 
                     b.ToTable("Clients");
                 });
 
-            modelBuilder.Entity("AdvantagePlatform.Data.Deployment", b =>
+            modelBuilder.Entity("AdvantagePlatform.Data.Course", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
 
-                    b.Property<int?>("KeySetId");
+                    b.Property<string>("SisId");
 
-                    b.Property<int?>("ToolId");
+                    b.Property<string>("Title");
+
+                    b.Property<string>("UserId");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("KeySetId");
+                    b.ToTable("Courses");
+                });
+
+            modelBuilder.Entity("AdvantagePlatform.Data.Deployment", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("ClientId");
+
+                    b.Property<string>("CourseId");
+
+                    b.Property<string>("PlatformId");
+
+                    b.Property<int?>("ToolId");
+
+                    b.Property<string>("UserId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("PlatformId");
 
                     b.HasIndex("ToolId");
 
                     b.ToTable("Deployments");
                 });
 
-            modelBuilder.Entity("AdvantagePlatform.Data.KeySet", b =>
+            modelBuilder.Entity("AdvantagePlatform.Data.Person", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
 
-                    b.Property<string>("PrivateKey");
+                    b.Property<string>("FirstName");
 
-                    b.Property<string>("PublicKey");
+                    b.Property<bool>("IsStudent");
+
+                    b.Property<string>("LastName");
+
+                    b.Property<string>("SisId");
+
+                    b.Property<string>("UserId");
 
                     b.HasKey("Id");
 
-                    b.ToTable("KeySets");
+                    b.ToTable("People");
                 });
 
             modelBuilder.Entity("AdvantagePlatform.Data.Platform", b =>
                 {
-                    b.Property<string>("PlatformId")
+                    b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<string>("ContactEmail");
+
+                    b.Property<string>("Description");
+
+                    b.Property<string>("Guid");
+
+                    b.Property<string>("Name");
+
+                    b.Property<string>("PrivateKey");
+
+                    b.Property<string>("ProductFamilyCode");
+
+                    b.Property<string>("PublicKey");
+
+                    b.Property<string>("Url");
 
                     b.Property<string>("UserId");
 
-                    b.HasKey("PlatformId");
+                    b.Property<string>("Version");
+
+                    b.HasKey("Id");
 
                     b.ToTable("Platforms");
                 });
@@ -150,6 +202,8 @@ namespace AdvantagePlatform.Data.Migrations
                     b.Property<string>("Name");
 
                     b.Property<string>("Url");
+
+                    b.Property<string>("UserId");
 
                     b.HasKey("Id");
 
@@ -272,9 +326,17 @@ namespace AdvantagePlatform.Data.Migrations
 
             modelBuilder.Entity("AdvantagePlatform.Data.Deployment", b =>
                 {
-                    b.HasOne("AdvantagePlatform.Data.KeySet", "KeySet")
+                    b.HasOne("AdvantagePlatform.Data.Client", "Client")
                         .WithMany()
-                        .HasForeignKey("KeySetId");
+                        .HasForeignKey("ClientId");
+
+                    b.HasOne("AdvantagePlatform.Data.Course", "Course")
+                        .WithMany()
+                        .HasForeignKey("CourseId");
+
+                    b.HasOne("AdvantagePlatform.Data.Platform", "Platform")
+                        .WithMany()
+                        .HasForeignKey("PlatformId");
 
                     b.HasOne("AdvantagePlatform.Data.Tool", "Tool")
                         .WithMany()
