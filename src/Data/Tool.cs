@@ -4,7 +4,6 @@ namespace AdvantagePlatform.Data
 {
     public class Tool
     {
-        [Required]
         [Display(Name = "ID")]
         public int Id { get; set; }
 
@@ -25,7 +24,6 @@ namespace AdvantagePlatform.Data
         /// <summary>
         /// The ID of the AdvantagePlatformUser that created this Tool.
         /// </summary>
-        [Required]
         public string UserId { get; set; }
     }
 }

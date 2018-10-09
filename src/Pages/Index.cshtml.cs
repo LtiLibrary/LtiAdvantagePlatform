@@ -1,11 +1,10 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Platform = AdvantagePlatform.Data.Platform;
 
 namespace AdvantagePlatform.Pages
 {
@@ -24,6 +23,8 @@ namespace AdvantagePlatform.Pages
         public Course Course { get; set; }
         public Person Teacher { get; set; }
         public Person Student { get; set; }
+        public IList<Deployment> PlatformTools { get; set; }
+        public IList<Deployment> CourseTools { get; set; }
 
         public async Task OnGetAsync()
         {
@@ -34,6 +35,26 @@ namespace AdvantagePlatform.Pages
                 Course = await _context.Courses.FindAsync(user.CourseId);
                 Teacher = await _context.People.FindAsync(user.TeacherId);
                 Student = await _context.People.FindAsync(user.StudentId);
+
+                PlatformTools = await _context.Deployments
+                    .Include(d => d.Client)
+                    .Include(d => d.Tool)
+                    .Where
+                    (
+                        d => d.ToolPlacement == Deployment.ToolPlacements.Platform
+                             && d.UserId == user.Id
+                    )
+                    .ToListAsync();
+
+                CourseTools = await _context.Deployments
+                    .Include(d => d.Client)
+                    .Include(d => d.Tool)
+                    .Where
+                    (
+                        d => d.ToolPlacement == Deployment.ToolPlacements.Course
+                             && d.UserId == user.Id
+                    )
+                    .ToListAsync();
             }
         }
     }

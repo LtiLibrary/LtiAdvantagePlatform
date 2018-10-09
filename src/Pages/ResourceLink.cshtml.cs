@@ -46,7 +46,7 @@ namespace AdvantagePlatform.Pages
                     CourseOfferingSourcedId = "off12345",
                     CourseSectionSourcedId = "sec12345"
                 },
-                Roles = new[] {Role.ContextLearner, Role.InstituionStudent, Role.ContextMentor},
+                Roles = new[] {Role.ContextLearner, Role.InstitutionStudent, Role.ContextMentor},
                 LaunchPresentation = new LaunchPresentationClaimValueType
                 {
                     DocumentTarget = DocumentTarget.iframe,

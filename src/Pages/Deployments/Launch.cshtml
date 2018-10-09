@@ -1,0 +1,12 @@
+﻿@page
+@model LaunchModel
+@{
+    ViewData["Title"] = "Launch";
+}
+
+<div class="container">
+    <form action="@Model.ToolUrl" method="post">
+        <input type="hidden" name="id_token" id="id_token" value="@Model.IdToken" />
+        <input type="submit" name="launch" value="Launch" class="btn btn-primary" data-disable-with="Launch" />
+    </form>
+</div>

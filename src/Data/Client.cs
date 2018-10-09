@@ -27,7 +27,6 @@ namespace AdvantagePlatform.Data
         /// <summary>
         /// The ID of the AdvantagePlatformUser that created this Client.
         /// </summary>
-        [Required]
         public string UserId { get; set; }
     }
 }

@@ -30,8 +30,6 @@ namespace AdvantagePlatform.Data
         /// <summary>
         /// The local ID of the AdvantagePlatformUser that created this Person.
         /// </summary>
-        [Required]
-        [Display(Name = "User ID")]
         public string UserId { get; set; }
     }
 }

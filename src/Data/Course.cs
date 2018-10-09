@@ -23,7 +23,6 @@ namespace AdvantagePlatform.Data
         /// <summary>
         /// The local ID of the AdvantagePlatformUser that created this Course.
         /// </summary>
-        [Required]
         public string UserId { get; set; }
     }
 }

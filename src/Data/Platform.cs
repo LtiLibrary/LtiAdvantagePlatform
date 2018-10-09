@@ -51,7 +51,6 @@ namespace AdvantagePlatform.Data
         /// <summary>
         /// The ID of the AdvantagePlatformUser that created this Platform.
         /// </summary>
-        [Required]
         public string UserId { get; set; }
     }
 }

@@ -17,13 +17,11 @@ namespace AdvantagePlatform.Data
         /// <summary>
         /// The Client to use with this Deployment.
         /// </summary>
-        [Required]
         public Client Client { get; set; }
 
         /// <summary>
         /// The Tool to use with this Deployment.
         /// </summary>
-        [Required]
         public Tool Tool { get; set; }
 
         /// <summary>
@@ -37,7 +35,6 @@ namespace AdvantagePlatform.Data
         /// <summary>
         /// The ID of the AdvantagePlatformUser that created this Deployment.
         /// </summary>
-        [Required]
         public string UserId { get; set; }
 
         public enum ToolPlacements
