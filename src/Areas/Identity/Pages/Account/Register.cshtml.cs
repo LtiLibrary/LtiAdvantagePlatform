@@ -149,7 +149,7 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account
             var placeGenerator = new PlaceNameGenerator();
             var course = new Course
             {
-                Title = $"The People of {placeGenerator.GenerateRandomPlaceName()}",
+                Name = $"The People of {placeGenerator.GenerateRandomPlaceName()}",
                 UserId = user.Id
             };
             course.SisId = course.GetHashCode().ToString();

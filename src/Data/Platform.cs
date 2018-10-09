@@ -12,12 +12,15 @@ namespace AdvantagePlatform.Data
         /// <summary>
         /// Issuer (iss) for messages that originate from this platform.
         /// </summary>
+        [Required]
         [Display(Name = "ID")]
         public string Id { get; set; }
 
+        [Required]
         [Display(Name = "Private Key")]
         public string PrivateKey { get; set; }
 
+        [Required]
         [Display(Name = "Public Key")]
         public string PublicKey { get; set; }
 
@@ -31,6 +34,7 @@ namespace AdvantagePlatform.Data
         [Display(Name = "GUID")]
         public string Guid { get; set; }
 
+        [Required]
         [Display(Name = "Name")]
         public string Name { get; set; }
 
@@ -47,6 +51,7 @@ namespace AdvantagePlatform.Data
         /// <summary>
         /// The ID of the AdvantagePlatformUser that created this Platform.
         /// </summary>
+        [Required]
         public string UserId { get; set; }
     }
 }

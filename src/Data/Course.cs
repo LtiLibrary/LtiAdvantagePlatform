@@ -10,18 +10,20 @@ namespace AdvantagePlatform.Data
             Id = Guid.NewGuid().ToString("N");
         }
 
+        [Required]
         [Display(Name = "ID")]
         public string Id { get; set; }
 
         [Display(Name = "SIS ID")]
         public string SisId { get; set; }
 
-        [Display(Name = "Title")]
-        public string Title { get; set; }
+        [Required]
+        public string Name { get; set; }
 
         /// <summary>
         /// The local ID of the AdvantagePlatformUser that created this Course.
         /// </summary>
+        [Required]
         public string UserId { get; set; }
     }
 }

@@ -5,15 +5,19 @@
     ViewData["Title"] = "Details";
 }
 
-<h2>Details</h2>
-
-<div>
+<div class="container">
     <h4>Deployment</h4>
     <hr />
-    <dl class="dl-horizontal">
+    <dl>
+        <dt>Tool @Html.DisplayNameFor(m => m.Deployment.Tool.Name)</dt>
+        <dd>@Html.DisplayFor(m => m.Deployment.Tool.Name)</dd>
+        <dt>Client @Html.DisplayNameFor(m => m.Deployment.Client.Name)</dt>
+        <dd>@Html.DisplayFor(m => m.Deployment.Client.Name)</dd>
+        <dt>@Html.DisplayNameFor(m => m.Deployment.ToolPlacement)</dt>
+        <dd>@Html.DisplayFor(m => m.Deployment.ToolPlacement)</dd>
     </dl>
-</div>
-<div>
-    <a asp-page="./Edit" asp-route-id="@Model.Deployment.Id">Edit</a> |
-    <a asp-page="./Index">Back to List</a>
+    <div>
+        <a asp-page="./Edit" asp-route-id="@Model.Deployment.Id">Edit</a> |
+        <a asp-page="./Index">Back to List</a>
+    </div>
 </div>
