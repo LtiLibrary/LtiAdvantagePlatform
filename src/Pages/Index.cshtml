@@ -43,18 +43,16 @@
                             <dd>@Html.DisplayFor(m => m.Platform.Id)</dd>
                             <dt>@Html.DisplayNameFor(m => m.Platform.Name)</dt>
                             <dd>@Html.DisplayFor(m => m.Platform.Name)</dd>
-                            <dt>@Html.DisplayNameFor(m => m.Platform.Description)</dt>
-                            <dd>@Html.DisplayFor(m => m.Platform.Description)</dd>
                             <dt>@Html.DisplayNameFor(m => m.Platform.PublicKey)</dt>
                             <dd>
                                 <button type="button" class="btn btn-sm btn-outline-light" data-toggle="modal" data-target="#platform-keys">
-                                    Display @Html.DisplayNameFor(m => m.Platform.PublicKey)
+                                    @Html.DisplayNameFor(m => m.Platform.PublicKey)
                                 </button>
                                 <div class="modal fade" id="platform-keys" tabindex="-1" role="dialog" aria-labelledby="platform-keys-label" aria-hidden="true">
                                     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <div class="modal-title" id="platform-keys-label">@Html.DisplayNameFor(m => m.Platform.PublicKey)</div>
+                                                <div class="modal-title text-dark" id="platform-keys-label">@Html.DisplayNameFor(m => m.Platform.PublicKey)</div>
                                                 <button type="button" class="close" data-dismiss="modal" area-label="Close">
                                                     <span aria-hidden="true">&times;</span>
                                                 </button>
