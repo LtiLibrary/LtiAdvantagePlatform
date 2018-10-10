@@ -14,12 +14,12 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace AdvantagePlatform.Pages.Deployments
 {
-    public class LaunchModel : PageModel
+    public class LaunchFrameModel : PageModel
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<AdvantagePlatformUser> _userManager;
 
-        public LaunchModel(ApplicationDbContext context, UserManager<AdvantagePlatformUser> userManager)
+        public LaunchFrameModel(ApplicationDbContext context, UserManager<AdvantagePlatformUser> userManager)
         {
             _context = context;
             _userManager = userManager;
@@ -130,5 +130,5 @@ namespace AdvantagePlatform.Pages.Deployments
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-    }
+     }
 }

@@ -4,15 +4,6 @@
     ViewData["Title"] = "Home page";
 }
 
-<style>
-    .iframe-container iframe {
-        width: 100%;
-        height: 600px;
-        margin-top: 10px;
-        border: thin solid black;
-    }
-</style>
-
 <div class="container">
     
     @if (!User.Identity.IsAuthenticated)
@@ -86,8 +77,14 @@
                                                 <dt>Client Name</dt>
                                                 <dd>@deployment.Client.Name</dd>
                                             </dl>
-                                            <button type="button" class="btn btn-sm btn-secondary">Launch as Teacher</button>
-                                            <button type="button" class="btn btn-sm btn-secondary">Launch as Student</button>
+                                            <a class="btn btn-sm btn-secondary" target="_blank" 
+                                               asp-page="Deployments/LaunchPage" 
+                                               asp-route-id="@deployment.Id" 
+                                               asp-route-persona="teacher">Launch as Teacher</a>
+                                            <a class="btn btn-sm btn-secondary" target="_blank" 
+                                               asp-page="Deployments/LaunchPage" 
+                                               asp-route-id="@deployment.Id" 
+                                               asp-route-persona="student">Launch as Student</a>
                                         </div>
                                         <div class="card-footer">
                                             <a class="text-dark" asp-page="Deployments/Edit" asp-route-id="@deployment.Id">Edit Deployment Details</a>
@@ -162,8 +159,14 @@
                                                         <dt>Client Name</dt>
                                                         <dd>@deployment.Client.Name</dd>
                                                     </dl>
-                                                    <a class="btn btn-sm btn-secondary" target="_blank" asp-page="Deployments/Launch" asp-route-id="@deployment.Id" asp-route-persona="teacher">Launch as Teacher</a>
-                                                    <a class="btn btn-sm btn-secondary" target="_blank" asp-page="Deployments/Launch" asp-route-id="@deployment.Id" asp-route-persona="student">Launch as Student</a>
+                                                    <a class="btn btn-sm btn-secondary" target="_blank" 
+                                                       asp-page="Deployments/LaunchPage" 
+                                                       asp-route-id="@deployment.Id" 
+                                                       asp-route-persona="teacher">Launch as Teacher</a>
+                                                    <a class="btn btn-sm btn-secondary" target="_blank" 
+                                                       asp-page="Deployments/LaunchPage" 
+                                                       asp-route-id="@deployment.Id" 
+                                                       asp-route-persona="student">Launch as Student</a>
                                                 </div>
                                                 <div class="card-footer">
                                                     <a class="text-dark" asp-page="Deployments/Edit" asp-route-id="@deployment.Id">Edit Deployment Details</a>
@@ -181,9 +184,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="iframe-container">
-            <iframe src="@Url.Page("./ResourceLink")"></iframe>
         </div>
     }
 </div>

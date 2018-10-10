@@ -1,0 +1,20 @@
+﻿@page
+@model LaunchPageModel
+@{
+    ViewData["Title"] = "Launch";
+}
+
+<style>
+    .iframe-container iframe {
+        width: 100%;
+        height: 600px;
+        margin-top: 10px;
+        border: thin solid black;
+    }
+</style>
+
+<div class="container">
+    <div class="iframe-container">
+        <iframe src="@Url.Page("./LaunchFrame", new { id = @Model.Request.Query["id"], persona = @Model.Request.Query["persona"] })"></iframe>
+    </div>
+</div>

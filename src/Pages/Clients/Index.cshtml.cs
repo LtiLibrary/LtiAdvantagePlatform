@@ -19,12 +19,14 @@ namespace AdvantagePlatform.Pages.Clients
             _userManager = userManager;
         }
 
-        public IList<Client> Client { get;set; }
+        public IList<Client> Clients { get;set; }
 
         public async Task OnGetAsync()
         {
             var user = await _userManager.GetUserAsync(User);
-            Client = await _context.Clients.Where(c => c.UserId == user.Id).ToListAsync();
+            Clients = await _context.Clients
+                .Where(c => c.UserId == user.Id)
+                .ToListAsync();
         }
     }
 }

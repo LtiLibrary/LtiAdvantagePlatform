@@ -12,15 +12,12 @@ namespace AdvantagePlatform.Data
         /// <summary>
         /// Issuer (iss) for messages that originate from this platform.
         /// </summary>
-        [Required]
         [Display(Name = "ID")]
         public string Id { get; set; }
 
-        [Required]
         [Display(Name = "Private Key")]
         public string PrivateKey { get; set; }
 
-        [Required]
         [Display(Name = "Public Key")]
         public string PublicKey { get; set; }
 

@@ -1,12 +1,20 @@
 ﻿@page
-@model LaunchModel
+@model LaunchFrameModel
 @{
-    ViewData["Title"] = "Launch";
+    Layout = null;
 }
 
-<div class="container">
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+</head>
+<body>
     <form action="@Model.ToolUrl" method="post">
         <input type="hidden" name="id_token" id="id_token" value="@Model.IdToken" />
         <input type="submit" name="launch" value="Launch" class="btn btn-primary" data-disable-with="Launch" />
     </form>
-</div>
+</body>
+</html>
