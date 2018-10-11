@@ -102,6 +102,12 @@ namespace AdvantagePlatform.Pages.Deployments
                     ? new[] {Role.ContextLearner, Role.InstitutionStudent}
                     : new[] {Role.ContextInstructor, Role.InstitutionFaculty};
             }
+            else
+            {
+                request.Roles = person.IsStudent
+                    ? new[] {Role.InstitutionLearner}
+                    : new[] {Role.InstitutionFaculty};
+            }
 
             request.UserId = person.Id;
             request.Platform = new PlatformClaimValueType
