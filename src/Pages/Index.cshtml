@@ -4,149 +4,79 @@
     ViewData["Title"] = "Home page";
 }
 
-<div class="container">
-    
-    @if (!User.Identity.IsAuthenticated)
-    {
-        <h4>Welcome Stranger!</h4>
-        <p>
-            Please <a asp-area="Identity" asp-page="/Account/Register">Register</a> 
-            or <a asp-area="Identity" asp-page="/Account/Login">Sign In</a> to access
-            your personal instance of the .NET Core Advantage Platform sample.
-        </p>
-    }
-    else
-    {
-        <h4>Welcome!</h4>
-        <p>
-            Here is a diagram of your personal instance of the .NET Core Advantage 
-            Platform sample:
-        </p>
-        <div class="card text-white bg-info">
-            <div class="card-header">
-                <h4>Platform</h4>
+<div class="container-fluid">
+    <div class="row">
+        @if (!User.Identity.IsAuthenticated)
+        {
+            <h4>Welcome Stranger!</h4>
+            <p>
+                Please <a asp-area="Identity" asp-page="/Account/Register">Register</a>
+                or <a asp-area="Identity" asp-page="/Account/Login">Sign In</a> to access
+                your personal instance of the .NET Core Advantage Platform sample.
+            </p>
+        }
+        else
+        {
+            <div class="col-3">
+                <h4>Welcome!</h4>
+                <p>
+                    On the right is a diagram of your personal instance of an LTI Advantage
+                    Test Platform, which includes a test Course, and two people (one teacher and
+                    one student). You can issue Client keys for your Tool Platform, define your
+                    Tools, deployment them to the Platform or Course, and launch them with
+                    either the student or teacher accounts.
+                </p>
+                <h4>Getting Started</h4>
+                <ol>
+                    <li>
+                        Copy the Platform <code>id</code> and <code>public key</code> to your
+                        Tool Platform. The <code>id</code> will appear in the <code>LtiResourceLinkRequest</code>
+                        as the Issuer Claim (iss), and the <code>public key</code> can be used
+                        to verify the signature on your Tool Platform.
+                    </li>
+                    <li>
+                        <a asp-page="./Clients">Create a Client</a> for your Tool Platform.
+                        This will generate a <code>client_id</code>, <code>public key</code>,
+                        and <code>private key</code>. Copy these to your Tool Platform. The
+                        <code>client_id</code> will appear in the <code>LtiResourceLinkRequest</code>
+                        as the Audience Claim (aud).
+                    </li>
+                    <li>
+                        <a asp-page="./Tools">Create a Tool</a> to represent your Tool on
+                        your Tool Platform.
+                    </li>
+                    <li>
+                        <a asp-page="./Deployments">Create a Deployment</a> to place your Tool
+                        in the Platform or Course context, and associate it with a Client.
+                    </li>
+                    <li>
+                        Launch your Tool as the Teacher or Student and watch your Tool
+                        appear!
+                    </li>
+                </ol>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-4">
-                        <dl>
-                            <dt>@Html.DisplayNameFor(m => m.Platform.Name)</dt>
-                            <dd>@Html.DisplayFor(m => m.Platform.Name)</dd>
-                            <dt>@Html.DisplayNameFor(m => m.Platform.PublicKey)</dt>
-                            <dd>
-                                <button type="button" class="btn btn-sm btn-outline-light" data-toggle="modal" data-target="#platform-keys">
-                                    @Html.DisplayNameFor(m => m.Platform.PublicKey)
-                                </button>
-                                <div class="modal fade" id="platform-keys" tabindex="-1" role="dialog" aria-labelledby="platform-keys-label" aria-hidden="true">
-                                    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <div class="modal-title text-dark" id="platform-keys-label">@Html.DisplayNameFor(m => m.Platform.PublicKey)</div>
-                                                <button type="button" class="close" data-dismiss="modal" area-label="Close">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <pre>@Html.DisplayFor(m => m.Platform.PublicKey)</pre>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </dd>
-                        </dl>
-                        <p>
-                            <a class="text-dark" asp-area="Identity" asp-page="Account/Manage/Platform">Edit Platform Details</a>
-                        </p>
-                        <h5>Platform Tools</h5>
-                        @if (Model.PlatformTools.Any())
-                        {
-                            <div class="row">
-                                @foreach (var deployment in Model.PlatformTools)
-                                {
-                                    <div class="card bg-warning m-3">
-                                        <div class="card-header">
-                                            @deployment.Tool.Name
-                                        </div>
-                                        <div class="card-body">
-                                            <dl>
-                                                <dt>@Html.DisplayNameFor(m => m.PlatformTools[0].Tool.Url)</dt>
-                                                <dd>@deployment.Tool.Url</dd>
-                                                <dt>Client Name</dt>
-                                                <dd>@deployment.Client.Name</dd>
-                                            </dl>
-                                            <a class="btn btn-sm btn-secondary" target="_blank" 
-                                               asp-page="Deployments/LaunchPage" 
-                                               asp-route-id="@deployment.Id" 
-                                               asp-route-persona="teacher">Launch as Teacher</a>
-                                            <a class="btn btn-sm btn-secondary" target="_blank" 
-                                               asp-page="Deployments/LaunchPage" 
-                                               asp-route-id="@deployment.Id" 
-                                               asp-route-persona="student">Launch as Student</a>
-                                        </div>
-                                        <div class="card-footer">
-                                            <a class="text-dark" asp-page="Deployments/Edit" asp-route-id="@deployment.Id">Edit Deployment Details</a>
-                                        </div>
-                                    </div>
-                                }
-                            </div>
-                        }
-                        else
-                        {
-                            <p>No tools deployed to the platform yet.</p>
-                        }
-                    </div>
-                    <div class="col-8">
-                        <div class="card bg-secondary">
-                            <div class="card-header">
-                                <h4>Course</h4>
-                            </div>
-                            <div class="card-body">
-                                <dl>
-                                    <dt>@Html.DisplayNameFor(m => m.Course.Name)</dt>
-                                    <dd>@Html.DisplayFor(m => m.Course.Name)</dd>
-                                </dl>
-                                <p>
-                                    <a class="text-dark" asp-area="Identity" asp-page="Account/Manage/Course">Edit Course Details</a>
-                                </p>
-                                <h5>People</h5>
+            <div class="col-9">
+                <div class="card text-white bg-info">
+                    <h4 class="card-header">Platform</h4>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-4">
                                 <div class="row">
-                                    <div class="card bg-success m-3">
-                                        <div class="card-header">
-                                            <h5 class="card-title">Teacher</h5>
-                                        </div>
-                                        <div class="card-body">
-                                            <dl>
-                                                <dt>@Html.DisplayNameFor(m => m.Teacher.LastName), @Html.DisplayNameFor(m => m.Teacher.FirstName)</dt>
-                                                <dd>@Html.DisplayFor(m => m.Teacher.LastName), @Html.DisplayFor(m => m.Teacher.FirstName)</dd>
-                                            </dl>
-                                        </div>
-                                        <div class="card-footer">
-                                            <a class="text-dark" asp-area="Identity" asp-page="Account/Manage/People">Edit Teacher Details</a>
-                                        </div>
-                                    </div>
-                                    <div class="card bg-success m-3">
-                                        <div class="card-header">
-                                            <h5 class="card-title">Student</h5>
-                                        </div>
-                                        <div class="card-body">
-                                            <dl>
-                                                <dt>@Html.DisplayNameFor(m => m.Student.LastName), @Html.DisplayNameFor(m => m.Student.FirstName)</dt>
-                                                <dd>@Html.DisplayFor(m => m.Student.LastName), @Html.DisplayFor(m => m.Student.FirstName)</dd>
-                                            </dl>
-                                        </div>
-                                        <div class="card-footer">
-                                            <a class="text-dark" asp-area="Identity" asp-page="Account/Manage/People">Edit Student Details</a>
-                                        </div>
-                                    </div>
+                                    <dl class="col-sm-6">
+                                        <dt>@Html.DisplayNameFor(m => m.Platform.Name)</dt>
+                                        <dd>
+                                            @Html.DisplayFor(m => m.Platform.Name)
+                                        </dd>
+                                    </dl>
+                                    <p class="ml-auto mr-3">
+                                        <a class="text-dark" asp-area="Identity" asp-page="Account/Manage/Platform">Edit Platform Details</a>
+                                    </p>
                                 </div>
-                                <h5>Course Tools</h5>
-                                @if (Model.CourseTools.Any())
+                                <h5>Tools</h5>
+                                @if (Model.PlatformTools.Any())
                                 {
                                     <div class="row">
-                                        @foreach (var deployment in Model.CourseTools)
+                                        @foreach (var deployment in Model.PlatformTools)
                                         {
                                             <div class="card bg-warning m-3">
                                                 <div class="card-header">
@@ -159,17 +89,14 @@
                                                         <dt>Client Name</dt>
                                                         <dd>@deployment.Client.Name</dd>
                                                     </dl>
-                                                    <a class="btn btn-sm btn-secondary" target="_blank" 
-                                                       asp-page="Deployments/LaunchPage" 
-                                                       asp-route-id="@deployment.Id" 
+                                                    <a class="btn btn-sm btn-secondary mt-2 mb-2" target="_blank"
+                                                       asp-page="Deployments/LaunchPage"
+                                                       asp-route-id="@deployment.Id"
                                                        asp-route-persona="teacher">Launch as Teacher</a>
-                                                    <a class="btn btn-sm btn-secondary" target="_blank" 
-                                                       asp-page="Deployments/LaunchPage" 
-                                                       asp-route-id="@deployment.Id" 
+                                                    <a class="btn btn-sm btn-secondary" target="_blank"
+                                                       asp-page="Deployments/LaunchPage"
+                                                       asp-route-id="@deployment.Id"
                                                        asp-route-persona="student">Launch as Student</a>
-                                                </div>
-                                                <div class="card-footer">
-                                                    <a class="text-dark" asp-page="Deployments/Edit" asp-route-id="@deployment.Id">Edit Deployment Details</a>
                                                 </div>
                                             </div>
                                         }
@@ -177,13 +104,77 @@
                                 }
                                 else
                                 {
-                                    <p>No tools deployed to the course yet.</p>
+                                    <p>No tools deployed to the platform yet.</p>
                                 }
+                            </div>
+                            <div class="col-8">
+                                <div class="card bg-secondary">
+                                    <h4 class="card-header">Course</h4>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <dl class="col-sm-4">
+                                                <dt>@Html.DisplayNameFor(m => m.Course.Name)</dt>
+                                                <dd>@Html.DisplayFor(m => m.Course.Name)</dd>
+                                            </dl>
+                                            <p class="ml-auto mr-3">
+                                                <a class="text-dark" asp-area="Identity" asp-page="Account/Manage/Course">Edit Course Details</a>
+                                            </p>
+                                        </div>
+                                        <h5>Members</h5>
+                                        <div class="row">
+                                            <dl class="col-sm-4">
+                                                <dt>Teacher</dt>
+                                                <dd>@Html.DisplayFor(m => m.Teacher.FirstName) @Html.DisplayFor(m => m.Teacher.LastName)</dd>
+                                            </dl>
+                                            <dl class="col-sm-4">
+                                                <dt>Student</dt>
+                                                <dd>@Html.DisplayFor(m => m.Student.FirstName) @Html.DisplayFor(m => m.Student.LastName)</dd>
+                                            </dl>
+                                            <p class="ml-auto mr-3">
+                                                <a class="text-dark" asp-area="Identity" asp-page="Account/Manage/People">Edit Member Details</a>
+                                            </p>
+                                        </div>
+                                        <h5>Tools</h5>
+                                        @if (Model.CourseTools.Any())
+                                        {
+                                            <div class="row">
+                                                @foreach (var deployment in Model.CourseTools)
+                                                {
+                                                    <div class="card bg-warning m-3">
+                                                        <div class="card-header">
+                                                            @deployment.Tool.Name
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <dl>
+                                                                <dt>@Html.DisplayNameFor(m => m.PlatformTools[0].Tool.Url)</dt>
+                                                                <dd>@deployment.Tool.Url</dd>
+                                                                <dt>Client Name</dt>
+                                                                <dd>@deployment.Client.Name</dd>
+                                                            </dl>
+                                                            <a class="btn btn-sm btn-secondary mb-2 mt-2" target="_blank"
+                                                               asp-page="Deployments/LaunchPage"
+                                                               asp-route-id="@deployment.Id"
+                                                               asp-route-persona="teacher">Launch as Teacher</a>
+                                                            <a class="btn btn-sm btn-secondary mb-2 mt-2" target="_blank"
+                                                               asp-page="Deployments/LaunchPage"
+                                                               asp-route-id="@deployment.Id"
+                                                               asp-route-persona="student">Launch as Student</a>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <p>No tools deployed to the course yet.</p>
+                                        }
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    }
+        }
+    </div>
 </div>
