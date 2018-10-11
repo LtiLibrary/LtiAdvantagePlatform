@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using AdvantagePlatform.Data;
-using LtiAdvantageLibrary.NetCore.Utilities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;

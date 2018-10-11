@@ -111,10 +111,8 @@ namespace AdvantagePlatform.Pages.Deployments
                 {
                     return NotFound();
                 }
-                else
-                {
-                    throw;
-                }
+
+                throw;
             }
 
             return RedirectToPage("./Index");
