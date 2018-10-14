@@ -12,7 +12,7 @@
 </p>
 
 <div class="row">
-    <div class="col-md-3">
+    <div class="col-4">
         <form method="post">
             <div asp-validation-summary="All" class="text-danger"></div>
             <input type="hidden" asp-for="Platform.PrivateKey" />
@@ -20,10 +20,6 @@
             <input type="hidden" asp-for="Platform.UserId" />
             <div class="form-group">
                 <label asp-for="Platform.Id"></label>
-                <span data-toggle="tooltip" data-placement="top" data-html="true"
-                      title="The <b>@Html.DisplayNameFor(m => m.Platform.Id)</b> is the Issuer for messages that originate from the Platform such as an LtiResourceLinkRequest.">
-                    <i class="fa fa-info-circle"></i>
-                </span>
                 <input asp-for="Platform.Id" class="form-control" readonly="readonly" />
             </div>
             <div class="form-group">
@@ -66,41 +62,15 @@
             </div>
         </form>
     </div>
-    <div class="col-md-5">
+    <div class="col-8">
         <form method="post">
             <input type="hidden" asp-for="Platform.Id"/>
             <div asp-validation-summary="All" class="text-danger"></div>
             <dl>
-                <dt>
-                    <a class="text-body" data-toggle="collapse" href="#publickey">
-                        <i class="fa fa-chevron-down"></i>
-                    </a>
-                    @Html.DisplayNameFor(model => model.Platform.PublicKey)
-                    <span data-toggle="tooltip" data-placement="top" data-html="true"
-                          title="Tools validate the JWT signature of messages sent by the platform using the <b>@Html.DisplayNameFor(m => m.Platform.PublicKey)</b>.">
-                        <i class="fa fa-info-circle"></i>
-                    </span>
-                </dt>
-                <dd>
-                    <div id="publickey">
-                        <pre>@Model.Platform.PublicKey</pre>
-                    </div>
-                </dd>
-                <dt>
-                    <a class="text-body" data-toggle="collapse" href="#privatekey">
-                        <i class="fa fa-chevron-down"></i>
-                    </a>
-                    @Html.DisplayNameFor(model => model.Platform.PrivateKey)
-                    <span data-toggle="tooltip" data-placement="top" data-html="true"
-                          title="The Platform will sign the JWT of messages it sends using the <b>@Html.DisplayNameFor(m => m.Platform.PrivateKey)</b>.">
-                        <i class="fa fa-info-circle"></i>
-                    </span>
-                </dt>
-                <dd>
-                    <div class="collapse" id="privatekey">
-                        <pre>@Model.Platform.PrivateKey</pre>
-                    </div>
-                </dd>
+                <dt>@Html.DisplayNameFor(model => model.Platform.PublicKey)</dt>
+                <dd><pre>@Model.Platform.PublicKey</pre></dd>
+                <dt>@Html.DisplayNameFor(model => model.Platform.PrivateKey)</dt>
+                <dd><pre>@Model.Platform.PrivateKey</pre></dd>
             </dl>
             <div class="form-group">
                 <button class="btn btn-danger" type="submit" asp-page-handler="RegenerateKeys">Regenerate Platform Keys</button>

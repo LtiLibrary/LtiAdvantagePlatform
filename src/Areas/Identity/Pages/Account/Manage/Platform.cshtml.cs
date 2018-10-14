@@ -32,7 +32,7 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account.Manage
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            Platform = await _context.Platforms.SingleOrDefaultAsync(p => p.UserId == user.Id);
+            Platform = await _context.Platforms.FindAsync(user.PlatformId);
             if (Platform == null)
             {
                 Platform = RegisterModel.CreatePlatform(Request, user);

@@ -8,12 +8,14 @@
     <div class="row">
         @if (!User.Identity.IsAuthenticated)
         {
+            <div class="col">
             <h4>Welcome Stranger!</h4>
-            <p>
-                Please <a asp-area="Identity" asp-page="/Account/Register">Register</a>
-                or <a asp-area="Identity" asp-page="/Account/Login">Sign In</a> to access
-                your personal instance of the .NET Core Advantage Platform sample.
-            </p>
+                <p>
+                    Please <a asp-area="Identity" asp-page="/Account/Register">Register</a>
+                    or <a asp-area="Identity" asp-page="/Account/Login">Sign In</a> to create
+                    your own instance of the .NET Core Advantage Platform for testing.
+                </p>
+            </div>
         }
         else
         {
