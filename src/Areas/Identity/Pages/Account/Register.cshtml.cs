@@ -138,6 +138,7 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account
                 ContactEmail = user.Email,
                 Description = "Auto generated platform",
                 Guid = $"{request.Host}",
+                Name = ".NET Core Test Platform",
                 ProductFamilyCode = "LTI Advantage Platform",
                 Url = $"{request.Scheme}://{request.Host}/"
             };
