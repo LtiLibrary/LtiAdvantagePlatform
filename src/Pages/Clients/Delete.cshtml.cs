@@ -39,7 +39,7 @@ namespace AdvantagePlatform.Pages.Clients
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync(int? id)
+        public async Task<IActionResult> OnPostAsync(string id)
         {
             if (id == null)
             {
