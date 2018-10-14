@@ -10,87 +10,23 @@
     <div class="row">
         <div class="col-4">
             <dl>
-                <dt>
-                    @Html.DisplayNameFor(model => model.Client.Id)
-                    <span data-toggle="tooltip" data-placement="top" data-html="true"
-                          title="Tools should validate that messages sent by this Platform include the <b>@Html.DisplayNameFor(m => m.Client.Id)</b> in the Audience (aud) claim of the JWT.">
-                        <i class="fa fa-info-circle"></i>
-                    </span>
-                </dt>
-                <dd>
-                    @Html.DisplayFor(model => model.Client.Id)
-                </dd>
-                <dt>
-                    @Html.DisplayNameFor(model => model.Client.Name)
-                </dt>
-                <dd>
-                    @Html.DisplayFor(model => model.Client.Name)
-                </dd>
+                <dt>@Html.DisplayNameFor(model => model.Client.Id)</dt>
+                <dd>@Html.DisplayFor(model => model.Client.Id)</dd>
+                <dt>@Html.DisplayNameFor(model => model.Client.Name)</dt>
+                <dd>@Html.DisplayFor(model => model.Client.Name)</dd>
             </dl>
             <div>
                 <a asp-page="./Edit" asp-route-id="@Model.Client.Id">Edit</a> |
                 <a asp-page="./Index">Back to List</a>
             </div>
         </div>
-        <div class="col-4">
+        <div class="col-8">
             <dl>
-                <dt>
-                    @Html.DisplayNameFor(model => model.Client.PublicKey)
-                    <span data-toggle="tooltip" data-placement="top" data-html="true"
-                          title="The Platform will validate the JWT signature of messages sent by this
-                          Client using the <b>@Html.DisplayNameFor(m => m.Client.PublicKey)</b>.">
-                        <i class="fa fa-info-circle"></i>
-                    </span>
-                </dt>
-                <dd>
-                    <pre>@Model.Client.PublicKey</pre>
-                </dd>
-                <dt>
-                    @Html.DisplayNameFor(model => model.Client.PrivateKey)
-                    <span data-toggle="tooltip" data-placement="top" data-html="true"
-                          title="Tools should sign the JWT of messages sent to this Platform
-                          using the <b>@Html.DisplayNameFor(m => m.Client.PrivateKey)</b>.">
-                        <i class="fa fa-info-circle"></i>
-                    </span>
-                </dt>
-                <dd>
-                    <pre>@Model.Client.PrivateKey</pre>
-                </dd>
+                <dt>@Html.DisplayNameFor(model => model.Client.PublicKey)</dt>
+                <dd><pre>@Model.Client.PublicKey</pre></dd>
+                <dt>@Html.DisplayNameFor(model => model.Client.PrivateKey)</dt>
+                <dd><pre>@Model.Client.PrivateKey</pre></dd>
             </dl>
-        </div>
-        <div class="col-4">
-            <dl>
-                <dt>
-                    @Html.DisplayNameFor(model => model.Platform.Id)
-                    <span data-toggle="tooltip" data-placement="top" data-html="true"
-                          title="Tools should validate that messages from this Platform
-                          include the <b>@Html.DisplayNameFor(m => m.Platform.Id)</b>
-                            in the Issuer (iss) claim of the JWT.">
-                        <i class="fa fa-info-circle"></i>
-                    </span>
-                </dt>
-                <dd>
-                    <pre>@Model.Platform.Id</pre>
-                </dd>
-                <dt>
-                    @Html.DisplayNameFor(model => model.Platform.PublicKey)
-                    <span data-toggle="tooltip" data-placement="top" data-html="true"
-                          title="Tools should validate the JWT signature of messages sent by this
-                          platform using the <b>@Html.DisplayNameFor(m => m.Platform.PublicKey)</b>.">
-                        <i class="fa fa-info-circle"></i>
-                    </span>
-                </dt>
-                <dd>
-                    <pre>@Model.Platform.PublicKey</pre>
-                </dd>
-            </dl>
-            <div>
-                <a asp-area="Identity" asp-page="/Account/Manage/Platform">Manage Platform</a>
-            </div>
         </div>
     </div>
 </div>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}

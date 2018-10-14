@@ -9,7 +9,7 @@
     <h4>Edit Client</h4>
     <hr />
     <div class="row">
-        <div class="col">
+        <div class="col-4">
             <form method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <input type="hidden" asp-for="Client.UserId" />
@@ -32,7 +32,7 @@
                 <a asp-page="./Index">Back to List</a>
             </div>
         </div>
-        <div class="col">
+        <div class="col-8">
             <form method="post">
                 <input type="hidden" asp-for="Client.UserId" />
                 <input type="hidden" asp-for="Client.Id" />
@@ -40,26 +40,10 @@
                 <input type="hidden" asp-for="Client.PrivateKey" />
                 <input type="hidden" asp-for="Client.PublicKey" />
                 <dl>
-                    <dt>
-                        @Html.DisplayNameFor(m => m.Client.PublicKey)
-                        <span data-toggle="tooltip" data-placement="top" data-html="true"
-                              title="The Platform will validate the JWT signature of messages sent by this Client using the <b>@Html.DisplayNameFor(m => m.Client.PublicKey)</b>.">
-                            <i class="fa fa-info-circle"></i>
-                        </span>
-                    </dt>
-                    <dd>
-                        <pre>@Model.Client.PublicKey</pre>
-                    </dd>
-                    <dt>
-                        @Html.DisplayNameFor(m => m.Client.PrivateKey)
-                        <span data-toggle="tooltip" data-placement="top" data-html="true"
-                              title="Tools should sign the JWT of messages sent to this Platform using the <b>@Html.DisplayNameFor(m => m.Client.PrivateKey)</b>.">
-                            <i class="fa fa-info-circle"></i>
-                        </span>
-                    </dt>
-                    <dd>
-                        <pre>@Model.Client.PrivateKey</pre>
-                    </dd>
+                    <dt>@Html.DisplayNameFor(m => m.Client.PublicKey)</dt>
+                    <dd><pre>@Model.Client.PublicKey</pre></dd>
+                    <dt>@Html.DisplayNameFor(m => m.Client.PrivateKey)</dt>
+                    <dd><pre>@Model.Client.PrivateKey</pre></dd>
                 </dl>
                 <div class="form-group">
                     <input type="submit" value="Regenerate Client Keys" class="btn btn-danger" asp-page-handler="Regenerate"/>
