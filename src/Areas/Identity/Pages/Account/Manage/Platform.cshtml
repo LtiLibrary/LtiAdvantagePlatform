@@ -15,8 +15,8 @@
     <div class="col-4">
         <form method="post">
             <div asp-validation-summary="All" class="text-danger"></div>
-            <input type="hidden" asp-for="Platform.PrivateKey" />
-            <input type="hidden" asp-for="Platform.PublicKey" />
+            <input type="hidden" asp-for="Platform.KeyPair.PublicKey" />
+            <input type="hidden" asp-for="Platform.KeyPair.PublicKey" />
             <input type="hidden" asp-for="Platform.UserId" />
             <div class="form-group">
                 <label asp-for="Platform.Id"></label>
@@ -67,10 +67,10 @@
             <input type="hidden" asp-for="Platform.Id"/>
             <div asp-validation-summary="All" class="text-danger"></div>
             <dl>
-                <dt>@Html.DisplayNameFor(model => model.Platform.PublicKey)</dt>
-                <dd><pre>@Model.Platform.PublicKey</pre></dd>
-                <dt>@Html.DisplayNameFor(model => model.Platform.PrivateKey)</dt>
-                <dd><pre>@Model.Platform.PrivateKey</pre></dd>
+                <dt>@Html.DisplayNameFor(model => model.Platform.KeyPair.PublicKey)</dt>
+                <dd><pre>@Model.Platform.KeyPair.PublicKey</pre></dd>
+                <dt>@Html.DisplayNameFor(model => model.Platform.KeyPair.PrivateKey)</dt>
+                <dd><pre>@Model.Platform.KeyPair.PrivateKey</pre></dd>
             </dl>
             <div class="form-group">
                 <button class="btn btn-danger" type="submit" asp-page-handler="RegenerateKeys">Regenerate Platform Keys</button>

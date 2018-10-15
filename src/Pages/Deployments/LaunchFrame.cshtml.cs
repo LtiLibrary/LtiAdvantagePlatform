@@ -55,7 +55,9 @@ namespace AdvantagePlatform.Pages.Deployments
                 ? await _context.Courses.FindAsync(user.CourseId)
                 : null;
 
-            var platform = await _context.Platforms.FindAsync(user.PlatformId);
+            var platform = await _context.Platforms
+                .Include(p => p.KeyPair)
+                .SingleOrDefaultAsync(p => p.Id == user.PlatformId);
 
             IdToken = GetJwt(deployment, person, course, platform);
             ToolUrl = deployment.Tool.Url;
@@ -121,7 +123,7 @@ namespace AdvantagePlatform.Pages.Deployments
                 Version = "1.0"
             };
 
-            var key = new RsaSecurityKey(RsaHelper.PrivateKeyFromPemString(platform.PrivateKey));
+            var key = new RsaSecurityKey(RsaHelper.PrivateKeyFromPemString(platform.KeyPair.PrivateKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.RsaSha256);
 
             request.Nonce = LtiResourceLinkRequest.GenerateCryptographicNonce();

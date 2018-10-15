@@ -15,12 +15,6 @@ namespace AdvantagePlatform.Data
         [Display(Name = "ID")]
         public string Id { get; set; }
 
-        [Display(Name = "Private Key")]
-        public string PrivateKey { get; set; }
-
-        [Display(Name = "Public Key")]
-        public string PublicKey { get; set; }
-
         [EmailAddress]
         [Display(Name = "Contact Email")]
         public string ContactEmail { get; set; }
@@ -30,6 +24,8 @@ namespace AdvantagePlatform.Data
 
         [Display(Name = "GUID")]
         public string Guid { get; set; }
+
+        public KeyPair KeyPair { get; set; }
 
         [Required]
         [Display(Name = "Name")]

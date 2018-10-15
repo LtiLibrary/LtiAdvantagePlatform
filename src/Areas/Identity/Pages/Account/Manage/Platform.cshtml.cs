@@ -32,10 +32,14 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account.Manage
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            Platform = await _context.Platforms.FindAsync(user.PlatformId);
+            Platform = await _context.Platforms
+                .Include(p => p.KeyPair)
+                .SingleOrDefaultAsync(p => p.Id == user.PlatformId);
+            
             if (Platform == null)
             {
                 Platform = RegisterModel.CreatePlatform(Request, user);
+                await _context.KeyPairs.AddAsync(Platform.KeyPair);
                 await _context.Platforms.AddAsync(Platform);
                 await _context.SaveChangesAsync();
                 user.PlatformId = Platform.Id;
@@ -64,10 +68,14 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account.Manage
             Platform = _context.Platforms.Find(Platform.Id);
 
             // Replace the keys
-            var keyPair = RsaHelper.GenerateRsaKeyPair();
-            Platform.PublicKey = keyPair.PublicKey;
-            Platform.PrivateKey = keyPair.PrivateKey;
-
+            var rsaKeyPair = RsaHelper.GenerateRsaKeyPair();
+            var keyPair = new KeyPair()
+            {
+                PublicKey = rsaKeyPair.PublicKey,
+                PrivateKey = rsaKeyPair.PrivateKey
+            };
+            await _context.KeyPairs.AddAsync(keyPair);
+            Platform.KeyPair = keyPair;
             _context.Platforms.Update(Platform);
             await _context.SaveChangesAsync();
 
