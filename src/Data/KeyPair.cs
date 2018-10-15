@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using LtiAdvantageLibrary.NetCore.Utilities;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 
 namespace AdvantagePlatform.Data
 {
@@ -22,16 +23,30 @@ namespace AdvantagePlatform.Data
         [Display(Name = "Public Key")]
         public string PublicKey { get; set; }
 
-        public JsonWebKey ToPublicJwt()
+        public string ToPrivateJwt()
+        {
+            if (string.IsNullOrEmpty(PrivateKey))
+            {
+                return null;
+            }
+
+            var jwk = RsaHelper.PrivateJsonWebKeyFromPemString(PrivateKey);
+            jwk.KeyId = $"{Id}-0";
+
+            return JsonConvert.SerializeObject(jwk, Formatting.Indented);
+        }
+
+        public string ToPublicJwt()
         {
             if (string.IsNullOrEmpty(PublicKey))
             {
                 return null;
             }
 
-            var rsaPublicKey = new RsaSecurityKey(RsaHelper.PublicKeyFromPemString(PublicKey));
-            var jwk = JsonWebKeyConverter.ConvertFromRSASecurityKey(rsaPublicKey);
-            return jwk;
+            var jwk = RsaHelper.PublicJsonWebKeyFromPemString(PublicKey);
+            jwk.KeyId = $"{Id}-1";
+
+            return JsonConvert.SerializeObject(jwk, Formatting.Indented);
         }
     }
 }
