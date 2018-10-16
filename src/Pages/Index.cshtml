@@ -59,7 +59,15 @@
             </div>
             <div class="col-9">
                 <div class="card text-white bg-info">
-                    <h4 class="card-header">Platform</h4>
+                    <h4 class="card-header">
+                        Platform
+                        <a class="btn text-light float-sm-right fas fa-edit"
+                           data-toggle="tooltip"
+                           title="Edit the Platform Settings"
+                           asp-area="Identity"
+                           asp-page="Account/Manage/Platform">
+                        </a>
+                    </h4>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-4">
@@ -70,20 +78,15 @@
                                             @Html.DisplayFor(m => m.Platform.Name)
                                         </dd>
                                     </dl>
-                                    <p class="ml-auto mr-3">
-                                        <a class="text-dark" asp-area="Identity" asp-page="Account/Manage/Platform">Edit Platform Details</a>
-                                    </p>
                                 </div>
-                                <h5>Tools</h5>
+                                <h4>Tools</h4>
                                 @if (Model.PlatformTools.Any())
                                 {
                                     <div class="row">
                                         @foreach (var deployment in Model.PlatformTools)
                                         {
                                             <div class="card bg-warning m-3">
-                                                <div class="card-header">
-                                                    @deployment.Tool.Name
-                                                </div>
+                                                <h5 class="card-header">@deployment.Tool.Name</h5>
                                                 <div class="card-body">
                                                     <dl>
                                                         <dt>@Html.DisplayNameFor(m => m.PlatformTools[0].Tool.Url)</dt>
@@ -111,18 +114,31 @@
                             </div>
                             <div class="col-8">
                                 <div class="card bg-secondary">
-                                    <h4 class="card-header">Course</h4>
+                                    <h4 class="card-header">
+                                        Course 
+                                        <a class="btn text-light float-sm-right fas fa-edit"
+                                           data-toggle="tooltip"
+                                           title="Edit the Course Settings"
+                                           asp-area="Identity"
+                                           asp-page="Account/Manage/Course">
+                                        </a>
+                                    </h4>
                                     <div class="card-body">
                                         <div class="row">
                                             <dl class="col-sm-4">
                                                 <dt>@Html.DisplayNameFor(m => m.Course.Name)</dt>
                                                 <dd>@Html.DisplayFor(m => m.Course.Name)</dd>
                                             </dl>
-                                            <p class="ml-auto mr-3">
-                                                <a class="text-dark" asp-area="Identity" asp-page="Account/Manage/Course">Edit Course Details</a>
-                                            </p>
                                         </div>
-                                        <h5>Members</h5>
+                                        <h4>
+                                            Members 
+                                            <a class="btn text-light float-sm-right fas fa-edit"
+                                               data-toggle="tooltip"
+                                               title="Edit the Member Settings"
+                                               asp-area="Identity"
+                                               asp-page="Account/Manage/People">
+                                            </a>
+                                        </h4>
                                         <div class="row">
                                             <dl class="col-sm-4">
                                                 <dt>Teacher</dt>
@@ -132,20 +148,15 @@
                                                 <dt>Student</dt>
                                                 <dd>@Html.DisplayFor(m => m.Student.FirstName) @Html.DisplayFor(m => m.Student.LastName)</dd>
                                             </dl>
-                                            <p class="ml-auto mr-3">
-                                                <a class="text-dark" asp-area="Identity" asp-page="Account/Manage/People">Edit Member Details</a>
-                                            </p>
                                         </div>
-                                        <h5>Tools</h5>
+                                        <h4>Tools</h4>
                                         @if (Model.CourseTools.Any())
                                         {
                                             <div class="row">
                                                 @foreach (var deployment in Model.CourseTools)
                                                 {
-                                                    <div class="card bg-warning m-3">
-                                                        <div class="card-header">
-                                                            @deployment.Tool.Name
-                                                        </div>
+                                                    <div class="card bg-warning m-3 text-dark">
+                                                        <h5 class="card-header">@deployment.Tool.Name</h5>
                                                         <div class="card-body">
                                                             <dl>
                                                                 <dt>@Html.DisplayNameFor(m => m.PlatformTools[0].Tool.Url)</dt>
