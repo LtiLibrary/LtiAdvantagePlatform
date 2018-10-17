@@ -8,7 +8,7 @@
     <h4>Client Details</h4>
     <hr />
     <div class="row">
-        <div class="col-4">
+        <div class="col">
             <dl>
                 <dt>@Html.DisplayNameFor(model => model.Client.Id)</dt>
                 <dd>@Html.DisplayFor(model => model.Client.Id)</dd>
@@ -19,14 +19,6 @@
                 <a asp-page="./Edit" asp-route-id="@Model.Client.Id">Edit</a> |
                 <a asp-page="./Index">Back to List</a>
             </div>
-        </div>
-        <div class="col-8">
-            <dl>
-                <dt>@Html.DisplayNameFor(model => model.Client.PublicKey)</dt>
-                <dd><pre>@Model.Client.PublicKey</pre></dd>
-                <dt>@Html.DisplayNameFor(model => model.Client.PrivateKey)</dt>
-                <dd><pre>@Model.Client.PrivateKey</pre></dd>
-            </dl>
         </div>
     </div>
 </div>

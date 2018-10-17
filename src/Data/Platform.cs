@@ -9,9 +9,6 @@ namespace AdvantagePlatform.Data
             Id = System.Guid.NewGuid().ToString("N");
         }
 
-        /// <summary>
-        /// Issuer (iss) for messages that originate from this platform.
-        /// </summary>
         [Display(Name = "ID")]
         public string Id { get; set; }
 
@@ -25,9 +22,6 @@ namespace AdvantagePlatform.Data
         [Display(Name = "GUID")]
         public string Guid { get; set; }
 
-        public KeyPair KeyPair { get; set; }
-
-        [Required]
         [Display(Name = "Name")]
         public string Name { get; set; }
 
@@ -42,7 +36,7 @@ namespace AdvantagePlatform.Data
         public string Version { get; set; }
 
         /// <summary>
-        /// The ID of the AdvantagePlatformUser that created this Platform.
+        /// The ID of the AdvantagePlatformUser that owns this Platform instance.
         /// </summary>
         public string UserId { get; set; }
     }

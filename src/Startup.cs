@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AdvantagePlatform.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -29,17 +30,34 @@ namespace AdvantagePlatform
             });
 
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
             services.AddDefaultIdentity<AdvantagePlatformUser>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
+            services.ConfigureApplicationCookie(options => { options.Cookie.Name = "AdvantagePlatform"; });
 
             services.AddMvc()
                 .AddRazorPagesOptions(options => { options.Conventions.AuthorizeFolder("/Clients"); })
                 .AddRazorPagesOptions(options => { options.Conventions.AuthorizeFolder("/Tools"); })
                 .AddRazorPagesOptions(options => { options.Conventions.AuthorizeFolder("/Deployments"); })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            // Use Identity Server
+            // https://github.com/IdentityServer/IdentityServer4/issues/2373#issuecomment-398824428
+            services.AddIdentityServer(options =>
+                {
+                    options.UserInteraction.LoginUrl = "/Identity/Account/Login";
+                    options.UserInteraction.LogoutUrl = "/Identity/Account/Logout";
+                })
+                .AddDeveloperSigningCredential()
+                .AddInMemoryPersistedGrants()
+                .AddInMemoryIdentityResources(Config.GetIdentityResources())
+                .AddInMemoryApiResources(Config.GetApiResources())
+                .AddInMemoryClients(Config.GetClients())
+                .AddAspNetIdentity<AdvantagePlatformUser>();
+            // https://github.com/IdentityServer/IdentityServer4/issues/2510#issuecomment-411871543
+            services.AddAuthentication(IdentityConstants.ApplicationScheme);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -60,7 +78,8 @@ namespace AdvantagePlatform
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
-            app.UseAuthentication();
+            //app.UseAuthentication();
+            app.UseIdentityServer();
 
             app.UseMvc();
         }

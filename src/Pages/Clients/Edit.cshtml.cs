@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using AdvantagePlatform.Data;
-using LtiAdvantageLibrary.NetCore.Utilities;
 using Microsoft.AspNetCore.Identity;
 
 namespace AdvantagePlatform.Pages.Clients
@@ -41,7 +40,7 @@ namespace AdvantagePlatform.Pages.Clients
             return Page();
         }
 
-        public async Task<IActionResult> OnPostSaveAsync()
+        public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
             {
@@ -65,35 +64,6 @@ namespace AdvantagePlatform.Pages.Clients
             }
 
             return RedirectToPage("./Index");
-        }
-
-        public async Task<IActionResult> OnPostRegenerateAsync()
-        {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
-
-            _context.Attach(Client).State = EntityState.Modified;
-
-            var keypair = RsaHelper.GenerateRsaKeyPair();
-            Client.PrivateKey = keypair.PrivateKey;
-            Client.PublicKey = keypair.PublicKey;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ClientExists(Client.Id))
-                {
-                    return NotFound();
-                }
-
-                throw;
-            }
-            return Page();
         }
 
         private bool ClientExists(string id)

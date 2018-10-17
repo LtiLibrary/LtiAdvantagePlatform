@@ -8,6 +8,7 @@
   
   <ItemGroup>
     <PackageReference Include="BuildBundlerMinifier" Version="2.8.391" />
+    <PackageReference Include="IdentityServer4.AspNetIdentity" Version="2.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.1.4">
       <PrivateAssets>all</PrivateAssets>
@@ -21,15 +22,6 @@
   <ItemGroup>
     <Folder Include="Areas\Identity\Services\" />
     <Folder Include="Properties\PublishProfiles\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="wwwroot\lib\fontawesome\webfonts\fa-brands-400.svg" />
-    <None Include="wwwroot\lib\fontawesome\webfonts\fa-brands-400.woff2" />
-    <None Include="wwwroot\lib\fontawesome\webfonts\fa-regular-400.svg" />
-    <None Include="wwwroot\lib\fontawesome\webfonts\fa-regular-400.woff2" />
-    <None Include="wwwroot\lib\fontawesome\webfonts\fa-solid-900.svg" />
-    <None Include="wwwroot\lib\fontawesome\webfonts\fa-solid-900.woff2" />
   </ItemGroup>
 
   <ItemGroup>

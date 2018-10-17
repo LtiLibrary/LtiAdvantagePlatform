@@ -2,7 +2,6 @@
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
-using LtiAdvantageLibrary.NetCore.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -128,19 +127,12 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account
 
         public static Platform CreatePlatform(HttpRequest request, AdvantagePlatformUser user)
         {
-            var rsaKeyPair = RsaHelper.GenerateRsaKeyPair();
-            var keyPair = new KeyPair()
-            {
-                PrivateKey = rsaKeyPair.PrivateKey,
-                PublicKey = rsaKeyPair.PublicKey,
-            };
             var platform = new Platform
             {
                 UserId = user.Id,
                 ContactEmail = user.Email,
                 Description = "Auto generated platform",
                 Guid = $"{request.Host}",
-                KeyPair = keyPair,
                 Name = ".NET Core Test Platform",
                 ProductFamilyCode = "LTI Advantage Platform",
                 Url = $"{request.Scheme}://{request.Host}/"

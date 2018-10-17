@@ -1,16 +1,13 @@
-﻿using System;
-using System.Globalization;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.Globalization;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
+using IdentityServer4;
 using LtiAdvantageLibrary.NetCore.Lti;
-using LtiAdvantageLibrary.NetCore.Utilities;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 
 namespace AdvantagePlatform.Pages.Deployments
 {
@@ -18,11 +15,13 @@ namespace AdvantagePlatform.Pages.Deployments
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<AdvantagePlatformUser> _userManager;
+        private readonly IdentityServerTools _tools;
 
-        public LaunchFrameModel(ApplicationDbContext context, UserManager<AdvantagePlatformUser> userManager)
+        public LaunchFrameModel(ApplicationDbContext context, UserManager<AdvantagePlatformUser> userManager, IdentityServerTools tools)
         {
             _context = context;
             _userManager = userManager;
+            _tools = tools;
         }
 
         public string IdToken { get; private set; }
@@ -55,17 +54,15 @@ namespace AdvantagePlatform.Pages.Deployments
                 ? await _context.Courses.FindAsync(user.CourseId)
                 : null;
 
-            var platform = await _context.Platforms
-                .Include(p => p.KeyPair)
-                .SingleOrDefaultAsync(p => p.Id == user.PlatformId);
+            var platform = await _context.Platforms.FindAsync(user.PlatformId);
 
-            IdToken = GetJwt(deployment, person, course, platform);
+            IdToken = await GetJwtAsync(deployment, person, course, platform);
             ToolUrl = deployment.Tool.Url;
 
             return Page();
         }
 
-        private string GetJwt(Deployment deployment, Person person, Course course, Platform platform)
+        private async Task<string> GetJwtAsync(Deployment deployment, Person person, Course course, Platform platform)
         {
             var request = new LtiResourceLinkRequest
             {
@@ -123,20 +120,11 @@ namespace AdvantagePlatform.Pages.Deployments
                 Version = "1.0"
             };
 
-            var key = new RsaSecurityKey(RsaHelper.PrivateKeyFromPemString(platform.KeyPair.PrivateKey));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.RsaSha256);
-
             request.Nonce = LtiResourceLinkRequest.GenerateCryptographicNonce();
 
-            var token = new JwtSecurityToken(
-                issuer: platform.Id,
-                audience: deployment.Client.Id,
-                claims: request.Claims,
-                expires: DateTime.UtcNow.AddHours(1.0),
-                signingCredentials: creds
-            );
+            request.Audiences = new [] { deployment.Client.Id };
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            return await _tools.IssueJwtAsync(3600, request.Claims);
         }
      }
 }

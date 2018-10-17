@@ -37,11 +37,6 @@ namespace AdvantagePlatform.Pages.Clients
                 return Page();
             }
 
-            // Add the public and private keys
-            var keypair = RsaHelper.GenerateRsaKeyPair();
-            Client.PrivateKey = keypair.PrivateKey;
-            Client.PublicKey = keypair.PublicKey;
-
             // Add the user ID
             var user = await _userManager.GetUserAsync(User);
             Client.UserId = user.Id;
