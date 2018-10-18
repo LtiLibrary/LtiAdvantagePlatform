@@ -11,11 +11,11 @@ namespace AdvantagePlatform.Data
         }
 
         [Required]
-        [Display(Name = "ID")]
+        [Display(Name = "Client ID")]
         public string Id { get; set; }
 
         [Required]
-        [Display(Name = "Name")]
+        [Display(Name = "Display Name")]
         public string Name { get; set; }
 
         /// <summary>
