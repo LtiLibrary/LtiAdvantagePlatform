@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AdvantagePlatform.Data
 {
-    public class Client
+    public class MyClient
     {
-        public Client()
+        public MyClient()
         {
             Id = Guid.NewGuid().ToString("N");
         }

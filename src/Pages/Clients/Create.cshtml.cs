@@ -15,7 +15,7 @@ namespace AdvantagePlatform.Pages.Clients
         public string ClientId { get; set; }
 
         [BindProperty]
-        public Client Client { get; set; }
+        public MyClient MyClient { get; set; }
 
         public CreateModel(ApplicationDbContext context, UserManager<AdvantagePlatformUser> userManager)
         {
@@ -38,9 +38,9 @@ namespace AdvantagePlatform.Pages.Clients
 
             // Add the user ID
             var user = await _userManager.GetUserAsync(User);
-            Client.UserId = user.Id;
+            MyClient.UserId = user.Id;
 
-            await _context.MyClients.AddAsync(Client);
+            await _context.MyClients.AddAsync(MyClient);
             await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");

@@ -37,7 +37,7 @@ namespace AdvantagePlatform.Pages.Deployments
             var user = await _userManager.GetUserAsync(User);
 
             var deployment = await _context.Deployments
-                .Include(m => m.Client)
+                .Include(m => m.MyClient)
                 .Include(m => m.Tool)
                 .FirstOrDefaultAsync(m => m.Id == id && m.UserId == user.Id);
 
@@ -122,7 +122,7 @@ namespace AdvantagePlatform.Pages.Deployments
 
             request.Nonce = LtiResourceLinkRequest.GenerateCryptographicNonce();
 
-            request.Audiences = new [] { deployment.Client.Id };
+            request.Audiences = new [] { deployment.MyClient.Id };
 
             return await _tools.IssueJwtAsync(3600, request.Claims);
         }

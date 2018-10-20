@@ -18,7 +18,7 @@ namespace AdvantagePlatform.Pages.Clients
             _userManager = userManager;
         }
 
-        public Client Client { get; set; }
+        public MyClient MyClient { get; set; }
         public Platform Platform { get; set; }
 
         public async Task<IActionResult> OnGetAsync(string id)
@@ -29,12 +29,12 @@ namespace AdvantagePlatform.Pages.Clients
             }
 
             var user = await _userManager.GetUserAsync(User);
-            Client = await _context.MyClients
+            MyClient = await _context.MyClients
                 .SingleOrDefaultAsync(m => m.Id == id && m.UserId == user.Id);
 
             Platform = await _context.Platforms.FindAsync(user.PlatformId);
 
-            if (Client == null)
+            if (MyClient == null)
             {
                 return NotFound();
             }

@@ -13,13 +13,13 @@
             <form method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group">
-                    <label asp-for="Client.Id"></label>
-                    <input asp-for="Client.Id" class="form-control" value="@Model.ClientId" readonly="readonly" />
+                    <label asp-for="MyClient.Id"></label>
+                    <input asp-for="MyClient.Id" class="form-control" value="@Model.ClientId" readonly="readonly" />
                 </div>
                 <div class="form-group">
-                    <label asp-for="Client.Name"></label>
-                    <input asp-for="Client.Name" class="form-control" />
-                    <span asp-validation-for="Client.Name" class="text-danger"></span>
+                    <label asp-for="MyClient.Name"></label>
+                    <input asp-for="MyClient.Name" class="form-control" />
+                    <span asp-validation-for="MyClient.Name" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <input type="submit" value="Create" class="btn btn-secondary" />

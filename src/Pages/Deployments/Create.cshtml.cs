@@ -83,7 +83,7 @@ namespace AdvantagePlatform.Pages.Deployments
             var user = await _userManager.GetUserAsync(User);
             Deployment.UserId = user.Id;
             Deployment.Tool = await _context.Tools.FindAsync(ToolId);
-            Deployment.Client = await _context.MyClients.FindAsync(ClientId);
+            Deployment.MyClient = await _context.MyClients.FindAsync(ClientId);
 
             _context.Deployments.Add(Deployment);
             await _context.SaveChangesAsync();

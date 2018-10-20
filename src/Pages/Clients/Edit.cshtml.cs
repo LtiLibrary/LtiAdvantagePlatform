@@ -20,7 +20,7 @@ namespace AdvantagePlatform.Pages.Clients
         }
 
         [BindProperty]
-        public Client Client { get; set; }
+        public MyClient MyClient { get; set; }
 
         public async Task<IActionResult> OnGetAsync(string id)
         {
@@ -30,10 +30,10 @@ namespace AdvantagePlatform.Pages.Clients
             }
 
             var user = await _userManager.GetUserAsync(User);
-            Client = await _context.MyClients
+            MyClient = await _context.MyClients
                 .FirstOrDefaultAsync(m => m.Id == id && m.UserId == user.Id);
 
-            if (Client == null)
+            if (MyClient == null)
             {
                 return NotFound();
             }
@@ -47,7 +47,7 @@ namespace AdvantagePlatform.Pages.Clients
                 return Page();
             }
 
-            _context.Attach(Client).State = EntityState.Modified;
+            _context.Attach(MyClient).State = EntityState.Modified;
 
             try
             {
@@ -55,7 +55,7 @@ namespace AdvantagePlatform.Pages.Clients
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ClientExists(Client.Id))
+                if (!ClientExists(MyClient.Id))
                 {
                     return NotFound();
                 }

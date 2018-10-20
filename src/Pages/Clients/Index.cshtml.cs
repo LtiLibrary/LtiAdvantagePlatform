@@ -19,7 +19,7 @@ namespace AdvantagePlatform.Pages.Clients
             _userManager = userManager;
         }
 
-        public IList<Client> Clients { get;set; }
+        public IList<MyClient> Clients { get;set; }
 
         public async Task OnGetAsync()
         {
