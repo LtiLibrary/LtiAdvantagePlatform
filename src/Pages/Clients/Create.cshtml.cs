@@ -40,7 +40,7 @@ namespace AdvantagePlatform.Pages.Clients
             var user = await _userManager.GetUserAsync(User);
             Client.UserId = user.Id;
 
-            await _context.Clients.AddAsync(Client);
+            await _context.MyClients.AddAsync(Client);
             await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");

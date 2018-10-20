@@ -5,13 +5,13 @@ namespace AdvantagePlatform.Data
 {
     public class ApplicationDbContext : IdentityDbContext<AdvantagePlatformUser>
     {
-        public ApplicationDbContext(DbContextOptions options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
         }
 
         // In this sample, AdvantagePlatform is responsible for issuing client_ids
-        public DbSet<Client> Clients { get; set; }
+        public DbSet<Client> MyClients { get; set; }
         public DbSet<Course> Courses { get; set; }
         public DbSet<Deployment> Deployments { get; set; }
         public DbSet<Person> People { get; set; }

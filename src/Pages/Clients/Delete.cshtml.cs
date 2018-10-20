@@ -29,7 +29,7 @@ namespace AdvantagePlatform.Pages.Clients
             }
 
             var user = await _userManager.GetUserAsync(User);
-            Client = await _context.Clients
+            Client = await _context.MyClients
                 .FirstOrDefaultAsync(m => m.Id == id && m.UserId == user.Id);
 
             if (Client == null)
@@ -46,11 +46,11 @@ namespace AdvantagePlatform.Pages.Clients
                 return NotFound();
             }
 
-            Client = await _context.Clients.FindAsync(id);
+            Client = await _context.MyClients.FindAsync(id);
 
             if (Client != null)
             {
-                _context.Clients.Remove(Client);
+                _context.MyClients.Remove(Client);
                 await _context.SaveChangesAsync();
             }
 

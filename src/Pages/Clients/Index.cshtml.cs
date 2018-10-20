@@ -24,7 +24,7 @@ namespace AdvantagePlatform.Pages.Clients
         public async Task OnGetAsync()
         {
             var user = await _userManager.GetUserAsync(User);
-            Clients = await _context.Clients
+            Clients = await _context.MyClients
                 .Where(c => c.UserId == user.Id)
                 .ToListAsync();
         }

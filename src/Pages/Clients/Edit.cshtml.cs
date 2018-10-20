@@ -30,7 +30,7 @@ namespace AdvantagePlatform.Pages.Clients
             }
 
             var user = await _userManager.GetUserAsync(User);
-            Client = await _context.Clients
+            Client = await _context.MyClients
                 .FirstOrDefaultAsync(m => m.Id == id && m.UserId == user.Id);
 
             if (Client == null)
@@ -68,7 +68,7 @@ namespace AdvantagePlatform.Pages.Clients
 
         private bool ClientExists(string id)
         {
-            return _context.Clients.Any(e => e.Id == id);
+            return _context.MyClients.Any(e => e.Id == id);
         }
     }
 }

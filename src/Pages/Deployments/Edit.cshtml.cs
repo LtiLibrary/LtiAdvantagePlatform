@@ -69,7 +69,7 @@ namespace AdvantagePlatform.Pages.Deployments
                 .ToListAsync();
 
             ClientId = Deployment.Client.Id;
-            Clients = await _context.Clients
+            Clients = await _context.MyClients
                 .Where(c => c.UserId == user.Id)
                 .Select(c => new SelectListItem
                 {
@@ -96,7 +96,7 @@ namespace AdvantagePlatform.Pages.Deployments
                 return Page();
             }
 
-            Deployment.Client = await _context.Clients.FindAsync(ClientId);
+            Deployment.Client = await _context.MyClients.FindAsync(ClientId);
             Deployment.Tool = await _context.Tools.FindAsync(ToolId);
 
             _context.Attach(Deployment).State = EntityState.Modified;

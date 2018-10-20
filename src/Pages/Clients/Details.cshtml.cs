@@ -29,7 +29,7 @@ namespace AdvantagePlatform.Pages.Clients
             }
 
             var user = await _userManager.GetUserAsync(User);
-            Client = await _context.Clients
+            Client = await _context.MyClients
                 .SingleOrDefaultAsync(m => m.Id == id && m.UserId == user.Id);
 
             Platform = await _context.Platforms.FindAsync(user.PlatformId);

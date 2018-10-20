@@ -39,6 +39,20 @@ namespace AdvantagePlatform
                 {
                     ClientId = "client",
                     AllowedGrantTypes = GrantTypes.ClientCredentials,
+                    AllowOfflineAccess = true,
+
+                    ClientSecrets = 
+                    {
+                        new Secret("secret".Sha256())
+                    },
+                    AllowedScopes = { "api1" }
+                },
+
+                new Client
+                {
+                    ClientId = "tool",
+                    AllowedGrantTypes = GrantTypes.ClientCredentials,
+                    AllowOfflineAccess = true,
 
                     ClientSecrets = 
                     {
