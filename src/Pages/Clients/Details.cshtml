@@ -10,13 +10,15 @@
     <div class="row">
         <div class="col">
             <dl>
-                <dt>@Html.DisplayNameFor(model => model.MyClient.Id)</dt>
-                <dd>@Html.DisplayFor(model => model.MyClient.Id)</dd>
-                <dt>@Html.DisplayNameFor(model => model.MyClient.Name)</dt>
-                <dd>@Html.DisplayFor(model => model.MyClient.Name)</dd>
+                <dt>@Html.DisplayNameFor(model => model.Client.ClientId)</dt>
+                <dd>@Html.DisplayFor(model => model.Client.ClientId)</dd>
+                <dt>@Html.DisplayNameFor(model => model.Client.ClientSecret)</dt>
+                <dd>@Html.DisplayFor(model => model.Client.ClientSecret)</dd>
+                <dt>@Html.DisplayNameFor(model => model.Client.ClientName)</dt>
+                <dd>@Html.DisplayFor(model => model.Client.ClientName)</dd>
             </dl>
             <div>
-                <a asp-page="./Edit" asp-route-id="@Model.MyClient.Id">Edit</a> |
+                <a asp-page="./Edit" asp-route-id="@Model.Client.Id">Edit</a> |
                 <a asp-page="./Index">Back to List</a>
             </div>
         </div>

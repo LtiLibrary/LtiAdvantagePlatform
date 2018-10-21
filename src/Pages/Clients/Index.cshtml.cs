@@ -11,12 +11,12 @@ namespace AdvantagePlatform.Pages.Clients
 {
     public class IndexModel : PageModel
     {
-        private readonly IConfigurationDbContext _configuration;
+        private readonly IConfigurationDbContext _context;
         private readonly UserManager<AdvantagePlatformUser> _userManager;
 
-        public IndexModel(IConfigurationDbContext configuration, UserManager<AdvantagePlatformUser> userManager)
+        public IndexModel(IConfigurationDbContext context, UserManager<AdvantagePlatformUser> userManager)
         {
-            _configuration = configuration;
+            _context = context;
             _userManager = userManager;
         }
 
@@ -31,8 +31,9 @@ namespace AdvantagePlatform.Pages.Clients
         {
             var user = await _userManager.GetUserAsync(User);
 
-            var clients = _configuration.Clients
-                .Where(client => user.ClientIds.Contains(client.Id));
+            var clients = _context.Clients
+                .Where(client => user.ClientIds.Contains(client.Id))
+                .OrderBy(client => client.ClientId);
 
             var list = new List<ClientViewModel>();
             foreach (var client in clients)
@@ -57,7 +58,7 @@ namespace AdvantagePlatform.Pages.Clients
             [Display(Name = "Client ID")]
             public string ClientId { get; set; }
 
-            [Display(Name = "Display Name")]
+            [Display(Name = "Name")]
             public string ClientName { get; set; }
         }
     }
