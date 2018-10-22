@@ -43,7 +43,7 @@ namespace AdvantagePlatform.Pages.Deployments
         
         public IList<SelectListItem> ToolPlacements { get; private set; }
 
-        public async Task<IActionResult> OnGetAsync(string id)
+        public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null)
             {
@@ -121,7 +121,7 @@ namespace AdvantagePlatform.Pages.Deployments
             return RedirectToPage("./Index");
         }
 
-        private bool DeploymentExists(string id)
+        private bool DeploymentExists(int id)
         {
             return _appContext.Deployments.Any(e => e.Id == id);
         }

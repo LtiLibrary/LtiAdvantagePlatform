@@ -1,18 +1,10 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace AdvantagePlatform.Data
 {
     public class Deployment
     {
-        public Deployment()
-        {
-            Id = Guid.NewGuid().ToString("N");
-        }
-
-        [Required]
-        [Display(Name = "ID")]
-        public string Id { get; set; }
+        public int Id { get; set; }
 
         /// <summary>
         /// The Client to use with this Deployment.

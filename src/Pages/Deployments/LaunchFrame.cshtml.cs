@@ -35,7 +35,7 @@ namespace AdvantagePlatform.Pages.Deployments
         public string IdToken { get; private set; }
         public string ToolUrl { get; private set; }
 
-        public async Task<IActionResult> OnGetAsync(string id, string persona)
+        public async Task<IActionResult> OnGetAsync(int? id, string persona)
         {
             if (id == null)
             {
@@ -80,10 +80,10 @@ namespace AdvantagePlatform.Pages.Deployments
             {
                 MessageType = LtiConstants.LtiResourceLinkRequestMessageType,
                 Version = LtiConstants.Version,
-                DeploymentId = deployment.Id,
+                DeploymentId = deployment.Id.ToString(),
                 ResourceLink = new ResourceLinkClaimValueType
                 {
-                    Id = deployment.Id,
+                    Id = deployment.Id.ToString(),
                     Title = deployment.Tool.Name
                 },
                 GivenName = person.FirstName,

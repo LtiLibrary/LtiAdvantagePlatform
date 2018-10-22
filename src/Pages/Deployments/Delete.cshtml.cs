@@ -21,7 +21,7 @@ namespace AdvantagePlatform.Pages.Deployments
         [BindProperty]
         public Deployment Deployment { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(string id)
+        public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null)
             {
