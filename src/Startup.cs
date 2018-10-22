@@ -159,6 +159,7 @@ namespace AdvantagePlatform
                 app.UseHsts();
             }
 
+            app.UseStatusCodePagesWithRedirects("/Error?httpStatusCode={0}");
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
