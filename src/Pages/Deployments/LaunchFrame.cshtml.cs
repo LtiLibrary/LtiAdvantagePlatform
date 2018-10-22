@@ -2,6 +2,8 @@
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using IdentityServer4;
+using IdentityServer4.EntityFramework.Entities;
+using IdentityServer4.EntityFramework.Interfaces;
 using LtiAdvantageLibrary.NetCore.Lti;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
@@ -13,15 +15,21 @@ namespace AdvantagePlatform.Pages.Deployments
 {
     public class LaunchFrameModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<AdvantagePlatformUser> _userManager;
+        private readonly ApplicationDbContext _appContext;
+        private readonly IConfigurationDbContext _identityContext;
         private readonly IdentityServerTools _tools;
+        private readonly UserManager<AdvantagePlatformUser> _userManager;
 
-        public LaunchFrameModel(ApplicationDbContext context, UserManager<AdvantagePlatformUser> userManager, IdentityServerTools tools)
+        public LaunchFrameModel(
+            ApplicationDbContext appContext, 
+            IConfigurationDbContext identityContext,
+            IdentityServerTools tools,
+            UserManager<AdvantagePlatformUser> userManager)
         {
-            _context = context;
-            _userManager = userManager;
+            _appContext = appContext;
+            _identityContext = identityContext;
             _tools = tools;
+            _userManager = userManager;
         }
 
         public string IdToken { get; private set; }
@@ -36,32 +44,37 @@ namespace AdvantagePlatform.Pages.Deployments
 
             var user = await _userManager.GetUserAsync(User);
 
-            var deployment = await _context.Deployments
+            var deployment = await _appContext.Deployments
                 .Include(m => m.Tool)
                 .FirstOrDefaultAsync(m => m.Id == id && m.UserId == user.Id);
-
             if (deployment == null)
             {
                 return NotFound();
             }
 
+            var client = await _identityContext.Clients.FindAsync(deployment.ClientId);
+            if (client == null)
+            {
+                return NotFound();
+            }
+
             var person = persona == "teacher"
-                ? await _context.People.FindAsync(user.TeacherId)
-                : await _context.People.FindAsync(user.StudentId);
+                ? await _appContext.People.FindAsync(user.TeacherId)
+                : await _appContext.People.FindAsync(user.StudentId);
 
             var course = deployment.ToolPlacement == Deployment.ToolPlacements.Course
-                ? await _context.Courses.FindAsync(user.CourseId)
+                ? await _appContext.Courses.FindAsync(user.CourseId)
                 : null;
 
-            var platform = await _context.Platforms.FindAsync(user.PlatformId);
+            var platform = await _appContext.Platforms.FindAsync(user.PlatformId);
 
-            IdToken = await GetJwtAsync(deployment, person, course, platform);
+            IdToken = await GetJwtAsync(deployment, client, person, course, platform);
             ToolUrl = deployment.Tool.Url;
 
             return Page();
         }
 
-        private async Task<string> GetJwtAsync(Deployment deployment, Person person, Course course, Platform platform)
+        private async Task<string> GetJwtAsync(Deployment deployment, Client client, Person person, Course course, Platform platform)
         {
             var request = new LtiResourceLinkRequest
             {
@@ -121,7 +134,7 @@ namespace AdvantagePlatform.Pages.Deployments
 
             request.Nonce = LtiResourceLinkRequest.GenerateCryptographicNonce();
 
-            request.Audiences = new [] { deployment.ClientId.ToString() };
+            request.Audiences = new [] { client.ClientId };
 
             return await _tools.IssueJwtAsync(3600, request.Claims);
         }
