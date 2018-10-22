@@ -5,11 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using AdvantagePlatform.Data;
-using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Interfaces;
-using IdentityServer4.EntityFramework.Mappers;
 using Microsoft.AspNetCore.Identity;
-using ClientSecret = AdvantagePlatform.Data.ClientSecret;
 
 namespace AdvantagePlatform.Pages.Clients
 {
