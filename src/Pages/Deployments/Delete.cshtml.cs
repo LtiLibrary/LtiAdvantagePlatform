@@ -31,7 +31,6 @@ namespace AdvantagePlatform.Pages.Deployments
             var user = await _userManager.GetUserAsync(User);
 
             Deployment = await _context.Deployments
-                .Include(m => m.Tool)
                 .FirstOrDefaultAsync(m => m.Id == id && m.UserId == user.Id);
 
             if (Deployment == null)

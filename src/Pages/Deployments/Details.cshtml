@@ -9,12 +9,14 @@
     <h4>Deployment</h4>
     <hr />
     <dl>
-        <dt>Tool @Html.DisplayNameFor(m => m.Deployment.Tool.Name)</dt>
-        <dd>@Html.DisplayFor(m => m.Deployment.Tool.Name)</dd>
-        <dt>Client @Html.DisplayNameFor(m => m.Deployment.ClientId)</dt>
-        <dd>@Html.DisplayFor(m => m.Deployment.ClientId)</dd>
+        <dt>@Html.DisplayNameFor(m => m.Deployment.ToolName)</dt>
+        <dd>@Html.DisplayFor(m => m.Deployment.ToolName)</dd>
+        <dt>@Html.DisplayNameFor(m => m.Deployment.ToolUrl)</dt>
+        <dd>@Html.DisplayFor(m => m.Deployment.ToolUrl)</dd>
         <dt>@Html.DisplayNameFor(m => m.Deployment.ToolPlacement)</dt>
         <dd>@Html.DisplayFor(m => m.Deployment.ToolPlacement)</dd>
+        <dt>@Html.DisplayNameFor(m => m.Deployment.ClientId)</dt>
+        <dd>@Html.DisplayFor(m => m.Deployment.ClientId)</dd>
     </dl>
     <div>
         <a asp-page="./Edit" asp-route-id="@Model.Deployment.Id">Edit</a> |

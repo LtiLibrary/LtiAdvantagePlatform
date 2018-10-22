@@ -86,13 +86,13 @@
                                         @foreach (var deployment in Model.PlatformTools)
                                         {
                                             <div class="card bg-warning m-3 text-dark">
-                                                <h5 class="card-header">@deployment.Tool.Name</h5>
+                                                <h5 class="card-header">@deployment.ToolName</h5>
                                                 <div class="card-body">
                                                     <dl>
-                                                        <dt>@Html.DisplayNameFor(m => m.PlatformTools[0].Tool.Url)</dt>
-                                                        <dd>@deployment.Tool.Url</dd>
-                                                        <dt>@Html.DisplayNameFor(m => m.PlatformTools[0].ClientId)</dt>
-                                                        <dd>@deployment.ClientId</dd>
+                                                        <dt>@Html.DisplayNameFor(m => m.PlatformTools[0].ToolUrl)</dt>
+                                                        <dd>@deployment.ToolUrl</dd>
+                                                        <dt>@Html.DisplayNameFor(m => m.PlatformTools[0].ClientName)</dt>
+                                                        <dd>@deployment.ClientName</dd>
                                                     </dl>
                                                     <a class="btn btn-sm btn-secondary mt-2 mb-2" target="_blank"
                                                        asp-page="Deployments/LaunchPage"
@@ -156,13 +156,13 @@
                                                 @foreach (var deployment in Model.CourseTools)
                                                 {
                                                     <div class="card bg-warning m-3 text-dark">
-                                                        <h5 class="card-header">@deployment.Tool.Name</h5>
+                                                        <h5 class="card-header">@deployment.ToolName</h5>
                                                         <div class="card-body">
                                                             <dl>
-                                                                <dt>@Html.DisplayNameFor(m => m.CourseTools[0].Tool.Url)</dt>
-                                                                <dd>@deployment.Tool.Url</dd>
-                                                                <dt>@Html.DisplayNameFor(m => m.CourseTools[0].ClientId)</dt>
-                                                                <dd>@deployment.ClientId</dd>
+                                                                <dt>@Html.DisplayNameFor(m => m.CourseTools[0].ToolUrl)</dt>
+                                                                <dd>@deployment.ToolUrl</dd>
+                                                                <dt>@Html.DisplayNameFor(m => m.CourseTools[0].ClientName)</dt>
+                                                                <dd>@deployment.ClientName</dd>
                                                             </dl>
                                                             <a class="btn btn-sm btn-secondary mb-2 mt-2" target="_blank"
                                                                asp-page="Deployments/LaunchPage"

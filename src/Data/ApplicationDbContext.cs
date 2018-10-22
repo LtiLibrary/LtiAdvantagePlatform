@@ -16,6 +16,5 @@ namespace AdvantagePlatform.Data
         public DbSet<Deployment> Deployments { get; set; }
         public DbSet<Person> People { get; set; }
         public DbSet<Platform> Platforms { get; set; }
-        public DbSet<Tool> Tools { get; set; }
     }
 }

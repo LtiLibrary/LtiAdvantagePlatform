@@ -45,7 +45,6 @@ namespace AdvantagePlatform.Pages.Deployments
             var user = await _userManager.GetUserAsync(User);
 
             var deployment = await _appContext.Deployments
-                .Include(m => m.Tool)
                 .FirstOrDefaultAsync(m => m.Id == id && m.UserId == user.Id);
             if (deployment == null)
             {
@@ -69,7 +68,7 @@ namespace AdvantagePlatform.Pages.Deployments
             var platform = await _appContext.Platforms.FindAsync(user.PlatformId);
 
             IdToken = await GetJwtAsync(deployment, client, person, course, platform);
-            ToolUrl = deployment.Tool.Url;
+            ToolUrl = deployment.ToolUrl;
 
             return Page();
         }
@@ -84,7 +83,7 @@ namespace AdvantagePlatform.Pages.Deployments
                 ResourceLink = new ResourceLinkClaimValueType
                 {
                     Id = deployment.Id.ToString(),
-                    Title = deployment.Tool.Name
+                    Title = deployment.ToolName
                 },
                 GivenName = person.FirstName,
                 FamilyName = person.LastName,

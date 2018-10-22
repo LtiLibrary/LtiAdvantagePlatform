@@ -28,12 +28,6 @@ namespace AdvantagePlatform.Pages.Deployments
 
         [BindProperty]
         public Deployment Deployment { get; set; }
-        
-        [BindProperty]
-        [Required]
-        [Display(Name = "Tool")]
-        public int ToolId { get; set; }
-        public IList<SelectListItem> Tools { get; private set; }
 
         [BindProperty]
         [Required]
@@ -52,23 +46,12 @@ namespace AdvantagePlatform.Pages.Deployments
 
             var user = await _userManager.GetUserAsync(User);
             Deployment = await _appContext.Deployments
-                .Include(m => m.Tool)
                 .FirstOrDefaultAsync(m => m.Id == id && m.UserId == user.Id);
 
             if (Deployment == null)
             {
                 return NotFound();
             }
-
-            ToolId = Deployment.Tool.Id;
-            Tools = await _appContext.Tools
-                .Where(t => t.UserId == user.Id)
-                .Select(t => new SelectListItem
-                {
-                    Value = t.Id.ToString(),
-                    Text = t.Name
-                })
-                .ToListAsync();
 
             ClientId = Deployment.ClientId;
             Clients = await _identityContext.Clients
@@ -100,7 +83,6 @@ namespace AdvantagePlatform.Pages.Deployments
             }
 
             Deployment.ClientId = ClientId;
-            Deployment.Tool = await _appContext.Tools.FindAsync(ToolId);
 
             _appContext.Attach(Deployment).State = EntityState.Modified;
 

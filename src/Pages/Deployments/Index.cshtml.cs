@@ -27,7 +27,6 @@ namespace AdvantagePlatform.Pages.Deployments
 
             Deployments = await _context.Deployments
                 .Where(d => d.UserId == user.Id)
-                .Include(d => d.Tool)
                 .ToListAsync();
         }
     }

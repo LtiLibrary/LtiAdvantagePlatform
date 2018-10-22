@@ -13,20 +13,16 @@
             <form method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <input type="hidden" asp-for="Deployment.Id" />
-                <input type="hidden" asp-for="Deployment.UserId"/>
+                <input type="hidden" asp-for="Deployment.UserId" />
                 <div class="form-group">
-                    <label asp-for="ToolId"></label>
-                    <select asp-for="ToolId" asp-items="Model.Tools" asp- class="form-control">
-                        <option value="">Select a Tool</option>
-                    </select>
-                    <span asp-validation-for="ToolId" class="text-danger"></span>
+                    <label asp-for="Deployment.ToolName"></label>
+                    <input asp-for="Deployment.ToolName" class="form-control" />
+                    <span asp-validation-for="Deployment.ToolName" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="ClientId"></label>
-                    <select asp-for="ClientId" asp-items="Model.Clients" asp- class="form-control">
-                        <option value="">Select a Client</option>
-                    </select>
-                    <span asp-validation-for="ClientId" class="text-danger"></span>
+                    <label asp-for="Deployment.ToolUrl"></label>
+                    <input asp-for="Deployment.ToolUrl" class="form-control" />
+                    <span asp-validation-for="Deployment.ToolUrl" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="Deployment.ToolPlacement"></label>
@@ -34,6 +30,13 @@
                         <option value="">Select a Target</option>
                     </select>
                     <span asp-validation-for="Deployment.ToolPlacement" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ClientId"></label>
+                    <select asp-for="ClientId" asp-items="Model.Clients" asp- class="form-control">
+                        <option value="">Select a Client</option>
+                    </select>
+                    <span asp-validation-for="ClientId" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <input type="submit" value="Save" class="btn btn-secondary" />

@@ -1,21 +1,28 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
+using IdentityServer4.EntityFramework.Entities;
+using IdentityServer4.EntityFramework.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 
 namespace AdvantagePlatform.Pages
 {
     public class IndexModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _appContext;
+        private readonly IConfigurationDbContext _identityContext;
         private readonly UserManager<AdvantagePlatformUser> _userManager;
 
-        public IndexModel(ApplicationDbContext context, UserManager<AdvantagePlatformUser> userManager)
+        public IndexModel(
+            ApplicationDbContext appContext, 
+            IConfigurationDbContext identityContext,
+            UserManager<AdvantagePlatformUser> userManager)
         {
-            _context = context;
+            _appContext = appContext;
+            _identityContext = identityContext;
             _userManager = userManager;
         }
 
@@ -23,37 +30,68 @@ namespace AdvantagePlatform.Pages
         public Course Course { get; set; }
         public Person Teacher { get; set; }
         public Person Student { get; set; }
-        public IList<Deployment> PlatformTools { get; set; }
-        public IList<Deployment> CourseTools { get; set; }
+        public IList<DeploymentModel> PlatformTools { get; set; }
+        public IList<DeploymentModel> CourseTools { get; set; }
 
         public async Task OnGetAsync()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user != null)
             {
-                Platform = await _context.Platforms.FindAsync(user.PlatformId);
-                Course = await _context.Courses.FindAsync(user.CourseId);
-                Teacher = await _context.People.FindAsync(user.TeacherId);
-                Student = await _context.People.FindAsync(user.StudentId);
+                Platform = await _appContext.Platforms.FindAsync(user.PlatformId);
+                Course = await _appContext.Courses.FindAsync(user.CourseId);
+                Teacher = await _appContext.People.FindAsync(user.TeacherId);
+                Student = await _appContext.People.FindAsync(user.StudentId);
 
-                PlatformTools = await _context.Deployments
-                    .Include(d => d.Tool)
-                    .Where
-                    (
-                        d => d.ToolPlacement == Deployment.ToolPlacements.Platform
-                             && d.UserId == user.Id
-                    )
-                    .ToListAsync();
-
-                CourseTools = await _context.Deployments
-                    .Include(d => d.Tool)
-                    .Where
-                    (
-                        d => d.ToolPlacement == Deployment.ToolPlacements.Course
-                             && d.UserId == user.Id
-                    )
-                    .ToListAsync();
+                PlatformTools = await GetDeplomentModelsAsync(Deployment.ToolPlacements.Platform, user.Id);
+                CourseTools = await GetDeplomentModelsAsync(Deployment.ToolPlacements.Course, user.Id);
             }
+        }
+
+        private async Task<IList<DeploymentModel>> GetDeplomentModelsAsync(Deployment.ToolPlacements placement,
+            string userId)
+        {
+            var list = new List<DeploymentModel>();
+
+            var deployments = _appContext.Deployments
+                .Where(d => d.ToolPlacement == placement
+                            && d.UserId == userId)
+                .OrderBy(d => d.ClientId);
+
+            Client client = null;
+            foreach (var deployment in deployments)
+            {
+                if (client == null || client.Id != deployment.ClientId)
+                {
+                    client = await _identityContext.Clients.FindAsync(deployment.ClientId);
+                }
+
+                list.Add(new DeploymentModel
+                {
+                    Id = deployment.Id,
+                    ToolName = deployment.ToolName,
+                    ToolUrl = deployment.ToolUrl,
+                    ClientName = client.ClientName
+                });
+            }
+
+            list = list.OrderBy(d => d.ToolName).ToList();
+
+            return list;
+        }
+
+        public class DeploymentModel
+        {
+            public int Id { get; set; }
+
+            [Display(Name = "Client Name")]
+            public string ClientName { get; set; }
+
+            [Display(Name = "Tool Name")]
+            public string ToolName { get; set; }
+
+            [Display(Name = "Tool URL")]
+            public string ToolUrl { get; set; }
         }
     }
 }
