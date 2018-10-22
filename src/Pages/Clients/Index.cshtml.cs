@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -20,14 +19,14 @@ namespace AdvantagePlatform.Pages.Clients
             _userManager = userManager;
         }
 
-        public IList<ClientViewModel> Clients { get;set; }
+        public IList<ClientModel> Clients { get;set; }
 
         public async Task OnGetAsync()
         {
             Clients = await BuildViewModelAsync();
         }
 
-        private async Task<IList<ClientViewModel>> BuildViewModelAsync()
+        private async Task<IList<ClientModel>> BuildViewModelAsync()
         {
             var user = await _userManager.GetUserAsync(User);
 
@@ -35,10 +34,10 @@ namespace AdvantagePlatform.Pages.Clients
                 .Where(client => user.ClientIds.Contains(client.Id))
                 .OrderBy(client => client.ClientId);
 
-            var list = new List<ClientViewModel>();
+            var list = new List<ClientModel>();
             foreach (var client in clients)
             {
-                var item = new ClientViewModel
+                var item = new ClientModel
                 {
                     Id = client.Id,
                     ClientId = client.ClientId,
@@ -49,17 +48,6 @@ namespace AdvantagePlatform.Pages.Clients
             }
 
             return list;
-        }
-
-        public class ClientViewModel
-        {
-            public int Id { get; set; }
-
-            [Display(Name = "Client ID")]
-            public string ClientId { get; set; }
-
-            [Display(Name = "Name")]
-            public string ClientName { get; set; }
         }
     }
 }

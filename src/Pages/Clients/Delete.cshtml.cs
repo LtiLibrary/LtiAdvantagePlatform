@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -91,20 +90,6 @@ namespace AdvantagePlatform.Pages.Clients
             }
 
             return RedirectToPage("./Index");
-        }
-
-        public class ClientModel
-        {
-            public int Id { get; set; }
-
-            [Display(Name = "Client ID")]
-            public string ClientId { get; set; }
-
-            [Display(Name = "Name")]
-            public string ClientName { get; set; }
-
-            [Display(Name = "Client Secret")]
-            public string ClientSecret { get; set; }
         }
     }
 }
