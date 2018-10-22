@@ -1,28 +1,33 @@
-﻿using System.Linq;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using AdvantagePlatform.Data;
+using IdentityServer4.EntityFramework.Interfaces;
+using IdentityServer4.EntityFramework.Mappers;
 using Microsoft.AspNetCore.Identity;
 
 namespace AdvantagePlatform.Pages.Clients
 {
     public class EditModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _appContext;
+        private readonly IConfigurationDbContext _identityContext;
         private readonly UserManager<AdvantagePlatformUser> _userManager;
 
-        public EditModel(ApplicationDbContext context, UserManager<AdvantagePlatformUser> userManager)
+        public EditModel(ApplicationDbContext appContext, IConfigurationDbContext identityContext, UserManager<AdvantagePlatformUser> userManager)
         {
-            _context = context;
+            _appContext = appContext;
+            _identityContext = identityContext;
             _userManager = userManager;
         }
 
         [BindProperty]
-        public MyClient MyClient { get; set; }
+        public ClientModel Client { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(string id)
+        public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null)
             {
@@ -30,13 +35,30 @@ namespace AdvantagePlatform.Pages.Clients
             }
 
             var user = await _userManager.GetUserAsync(User);
-            MyClient = await _context.MyClients
-                .FirstOrDefaultAsync(m => m.Id == id && m.UserId == user.Id);
-
-            if (MyClient == null)
+            var clientSecret = await _appContext.ClientSecretText
+                .Where(secret => user.ClientIds.Contains(secret.ClientId))
+                .SingleOrDefaultAsync(secret => secret.ClientId == id);
+            if (clientSecret == null)
             {
                 return NotFound();
             }
+            
+            var client = await _identityContext.Clients
+                .Where(c => user.ClientIds.Contains(c.Id))
+                .SingleOrDefaultAsync(c => c.Id == id);
+            if (client == null)
+            {
+                return NotFound();
+            }
+
+            Client = new ClientModel
+            {
+                Id = client.Id,
+                ClientId = client.ClientId,
+                ClientName = client.ClientName,
+                ClientSecret = clientSecret.Secret 
+            };
+
             return Page();
         }
 
@@ -47,28 +69,26 @@ namespace AdvantagePlatform.Pages.Clients
                 return Page();
             }
 
-            _context.Attach(MyClient).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ClientExists(MyClient.Id))
-                {
-                    return NotFound();
-                }
-
-                throw;
-            }
+            var clientEntity = await _identityContext.Clients.FindAsync(Client.Id);
+            clientEntity.ClientName = Client.ClientName;
+            _identityContext.Clients.Attach(clientEntity).State = EntityState.Modified;
+            await _identityContext.SaveChangesAsync();
 
             return RedirectToPage("./Index");
         }
 
-        private bool ClientExists(string id)
+        public class ClientModel
         {
-            return _context.MyClients.Any(e => e.Id == id);
+            public int Id { get; set; }
+
+            [Display(Name = "Client ID")]
+            public string ClientId { get; set; }
+
+            [Display(Name = "Name")]
+            public string ClientName { get; set; }
+
+            [Display(Name = "Client Secret")]
+            public string ClientSecret { get; set; }
         }
     }
 }
