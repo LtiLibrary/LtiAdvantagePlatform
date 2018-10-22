@@ -17,7 +17,7 @@ namespace AdvantagePlatform.Data
         /// <summary>
         /// The Client to use with this Deployment.
         /// </summary>
-        public MyClient MyClient { get; set; }
+        public int ClientId { get; set; }
 
         /// <summary>
         /// The Tool to use with this Deployment.

@@ -88,18 +88,5 @@ namespace AdvantagePlatform.Pages.Clients
                 return Base64UrlEncoder.Encode(buffer);
             }
         }
-
-        public class ClientModel
-        {
-            [Display(Name = "Client ID")]
-            public string ClientId { get; set; }
-
-            [Display(Name = "Client secret")]
-            public string ClientSecret { get; set; }
-
-            [Required]
-            [Display(Name = "Name")]
-            public string ClientName { get; set; }
-        }
     }
 }

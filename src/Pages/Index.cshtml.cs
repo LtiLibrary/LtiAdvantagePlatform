@@ -37,7 +37,6 @@ namespace AdvantagePlatform.Pages
                 Student = await _context.People.FindAsync(user.StudentId);
 
                 PlatformTools = await _context.Deployments
-                    .Include(d => d.MyClient)
                     .Include(d => d.Tool)
                     .Where
                     (
@@ -47,7 +46,6 @@ namespace AdvantagePlatform.Pages
                     .ToListAsync();
 
                 CourseTools = await _context.Deployments
-                    .Include(d => d.MyClient)
                     .Include(d => d.Tool)
                     .Where
                     (

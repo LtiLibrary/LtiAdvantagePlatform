@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using AdvantagePlatform.Data;
+using IdentityServer4.EntityFramework.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -14,12 +15,14 @@ namespace AdvantagePlatform.Pages.Deployments
 {
     public class CreateModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _appContext;
+        private readonly IConfigurationDbContext _identityContext;
         private readonly UserManager<AdvantagePlatformUser> _userManager;
 
-        public CreateModel(ApplicationDbContext context, UserManager<AdvantagePlatformUser> userManager)
+        public CreateModel(ApplicationDbContext appContext, IConfigurationDbContext identityContext, UserManager<AdvantagePlatformUser> userManager)
         {
-            _context = context;
+            _appContext = appContext;
+            _identityContext = identityContext;
             _userManager = userManager;
         }
 
@@ -35,7 +38,7 @@ namespace AdvantagePlatform.Pages.Deployments
         [BindProperty]
         [Required]
         [Display(Name = "Client")]
-        public string ClientId { get; set; }
+        public int ClientId { get; set; }
         public IList<SelectListItem> Clients { get; private set; }
 
         public IList<SelectListItem> ToolPlacements { get; private set; }
@@ -44,7 +47,7 @@ namespace AdvantagePlatform.Pages.Deployments
         {
             var user = await _userManager.GetUserAsync(User);
             
-            Tools = await _context.Tools
+            Tools = await _appContext.Tools
                 .Where(t => t.UserId == user.Id)
                 .Select(t => new SelectListItem
                 {
@@ -53,12 +56,13 @@ namespace AdvantagePlatform.Pages.Deployments
                 })
                 .ToListAsync();
 
-            Clients = await _context.MyClients
-                .Where(c => c.UserId == user.Id)
-                .Select(c => new SelectListItem
+            Clients = await _identityContext.Clients
+                .Where(client => user.ClientIds.Contains(client.Id))
+                .OrderBy(client => client.ClientId)
+                .Select(client => new SelectListItem
                 {
-                    Value = c.Id,
-                    Text = c.Name
+                    Text = client.ClientName,
+                    Value = client.Id.ToString()
                 })
                 .ToListAsync();
 
@@ -82,11 +86,11 @@ namespace AdvantagePlatform.Pages.Deployments
 
             var user = await _userManager.GetUserAsync(User);
             Deployment.UserId = user.Id;
-            Deployment.Tool = await _context.Tools.FindAsync(ToolId);
-            Deployment.MyClient = await _context.MyClients.FindAsync(ClientId);
+            Deployment.Tool = await _appContext.Tools.FindAsync(ToolId);
+            Deployment.ClientId = ClientId;
 
-            _context.Deployments.Add(Deployment);
-            await _context.SaveChangesAsync();
+            _appContext.Deployments.Add(Deployment);
+            await _appContext.SaveChangesAsync();
 
             return RedirectToPage("./Index");
         }

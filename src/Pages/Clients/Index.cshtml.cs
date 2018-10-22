@@ -10,12 +10,12 @@ namespace AdvantagePlatform.Pages.Clients
 {
     public class IndexModel : PageModel
     {
-        private readonly IConfigurationDbContext _context;
+        private readonly IConfigurationDbContext _identityContext;
         private readonly UserManager<AdvantagePlatformUser> _userManager;
 
-        public IndexModel(IConfigurationDbContext context, UserManager<AdvantagePlatformUser> userManager)
+        public IndexModel(IConfigurationDbContext identityContext, UserManager<AdvantagePlatformUser> userManager)
         {
-            _context = context;
+            _identityContext = identityContext;
             _userManager = userManager;
         }
 
@@ -23,14 +23,14 @@ namespace AdvantagePlatform.Pages.Clients
 
         public async Task OnGetAsync()
         {
-            Clients = await BuildViewModelAsync();
+            Clients = await BuildClientListAsync();
         }
 
-        private async Task<IList<ClientModel>> BuildViewModelAsync()
+        private async Task<IList<ClientModel>> BuildClientListAsync()
         {
             var user = await _userManager.GetUserAsync(User);
 
-            var clients = _context.Clients
+            var clients = _identityContext.Clients
                 .Where(client => user.ClientIds.Contains(client.Id))
                 .OrderBy(client => client.ClientId);
 
