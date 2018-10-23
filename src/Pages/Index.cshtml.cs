@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
+using AdvantagePlatform.Pages.Deployments;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Interfaces;
 using Microsoft.AspNetCore.Identity;
@@ -71,27 +72,13 @@ namespace AdvantagePlatform.Pages
                     Id = deployment.Id,
                     ToolName = deployment.ToolName,
                     ToolUrl = deployment.ToolUrl,
-                    ClientName = client.ClientName
+                    ClientName = client == null ? "[No Client]" : client.ClientName
                 });
             }
 
             list = list.OrderBy(d => d.ToolName).ToList();
 
             return list;
-        }
-
-        public class DeploymentModel
-        {
-            public int Id { get; set; }
-
-            [Display(Name = "Client Name")]
-            public string ClientName { get; set; }
-
-            [Display(Name = "Tool Name")]
-            public string ToolName { get; set; }
-
-            [Display(Name = "Tool URL")]
-            public string ToolUrl { get; set; }
         }
     }
 }

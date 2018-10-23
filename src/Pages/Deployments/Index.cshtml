@@ -16,7 +16,7 @@
                 <th>@Html.DisplayNameFor(m => m.Deployments[0].ToolName)</th>
                 <th>@Html.DisplayNameFor(m => m.Deployments[0].ToolUrl)</th>
                 <th>@Html.DisplayNameFor(m => m.Deployments[0].ToolPlacement)</th>
-                <th>@Html.DisplayNameFor(m => m.Deployments[0].ClientId)</th>
+                <th>@Html.DisplayNameFor(m => m.Deployments[0].ClientName)</th>
                 <th></th>
             </tr>
         </thead>
@@ -27,7 +27,7 @@
                 <td>@Html.DisplayFor(m => item.ToolName)</td>
                 <td>@Html.DisplayFor(m => item.ToolUrl)</td>
                 <td>@Html.DisplayFor(m => item.ToolPlacement)</td>
-                <td>@Html.DisplayFor(m => item.ClientId)</td>
+                <td>@Html.DisplayFor(m => item.ClientName)</td>
                 <td>
                     <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
                     <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |

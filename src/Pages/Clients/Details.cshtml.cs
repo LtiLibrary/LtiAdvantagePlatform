@@ -5,19 +5,18 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using AdvantagePlatform.Data;
 using IdentityServer4.EntityFramework.Interfaces;
+using IdentityServer4.Extensions;
 using Microsoft.AspNetCore.Identity;
 
 namespace AdvantagePlatform.Pages.Clients
 {
     public class DetailsModel : PageModel
     {
-        private readonly ApplicationDbContext _appContext;
         private readonly IConfigurationDbContext _identityContext;
         private readonly UserManager<AdvantagePlatformUser> _userManager;
 
-        public DetailsModel(ApplicationDbContext appContext, IConfigurationDbContext identityContext, UserManager<AdvantagePlatformUser> userManager)
+        public DetailsModel(IConfigurationDbContext identityContext, UserManager<AdvantagePlatformUser> userManager)
         {
-            _appContext = appContext;
             _identityContext = identityContext;
             _userManager = userManager;
         }
@@ -32,14 +31,6 @@ namespace AdvantagePlatform.Pages.Clients
             }
 
             var user = await _userManager.GetUserAsync(User);
-            var clientSecret = await _appContext.ClientSecretText
-                    //.Where(secret => user.ClientIds.Contains(secret.ClientId))
-                    .SingleOrDefaultAsync(secret => secret.ClientId == id);
-
-            if (clientSecret == null)
-            {
-                return NotFound();
-            }
 
             var client = await _identityContext.Clients
                 .Include(c => c.Properties)
@@ -56,7 +47,8 @@ namespace AdvantagePlatform.Pages.Clients
                 Id = client.Id,
                 ClientId = client.ClientId,
                 ClientName = client.ClientName,
-                ClientSecret = clientSecret.Secret 
+                ClientSecret = client.Properties.GetValue("secret"),
+                IssuerUri = HttpContext.GetIdentityServerIssuerUri()
             };
 
             return Page();

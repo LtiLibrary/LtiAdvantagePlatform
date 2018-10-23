@@ -15,5 +15,8 @@ namespace AdvantagePlatform.Pages.Clients
 
         [Display(Name = "Client Secret")]
         public string ClientSecret { get; set; }
+
+        [Display(Name = "Issuer")]
+        public string IssuerUri { get; set; }
     }
 }

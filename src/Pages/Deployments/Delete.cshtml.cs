@@ -3,23 +3,29 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using AdvantagePlatform.Data;
+using IdentityServer4.EntityFramework.Interfaces;
 using Microsoft.AspNetCore.Identity;
 
 namespace AdvantagePlatform.Pages.Deployments
 {
     public class DeleteModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _appContext;
+        private readonly IConfigurationDbContext _identityContext;
         private readonly UserManager<AdvantagePlatformUser> _userManager;
 
-        public DeleteModel(ApplicationDbContext context, UserManager<AdvantagePlatformUser> userManager)
+        public DeleteModel(
+            ApplicationDbContext appContext, 
+            IConfigurationDbContext identityContext,
+            UserManager<AdvantagePlatformUser> userManager)
         {
-            _context = context;
+            _appContext = appContext;
+            _identityContext = identityContext;
             _userManager = userManager;
         }
 
         [BindProperty]
-        public Deployment Deployment { get; set; }
+        public DeploymentModel Deployment { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -30,13 +36,25 @@ namespace AdvantagePlatform.Pages.Deployments
 
             var user = await _userManager.GetUserAsync(User);
 
-            Deployment = await _context.Deployments
+            var deployment = await _appContext.Deployments
                 .FirstOrDefaultAsync(m => m.Id == id && m.UserId == user.Id);
 
-            if (Deployment == null)
+            if (deployment == null)
             {
                 return NotFound();
             }
+
+            var client = await _identityContext.Clients.FindAsync(deployment.ClientId);
+
+            Deployment = new DeploymentModel
+            {
+                Id = deployment.Id,
+                ClientName = client?.ClientName,
+                ToolName = deployment.ToolName,
+                ToolPlacement = deployment.ToolPlacement,
+                ToolUrl = deployment.ToolUrl
+            };
+
             return Page();
         }
 
@@ -47,12 +65,12 @@ namespace AdvantagePlatform.Pages.Deployments
                 return NotFound();
             }
 
-            Deployment = await _context.Deployments.FindAsync(id);
+            var deployment = await _appContext.Deployments.FindAsync(id);
 
-            if (Deployment != null)
+            if (deployment != null)
             {
-                _context.Deployments.Remove(Deployment);
-                await _context.SaveChangesAsync();
+                _appContext.Deployments.Remove(deployment);
+                await _appContext.SaveChangesAsync();
             }
 
             return RedirectToPage("./Index");

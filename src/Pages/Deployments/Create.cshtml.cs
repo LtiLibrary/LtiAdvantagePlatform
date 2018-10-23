@@ -42,8 +42,9 @@ namespace AdvantagePlatform.Pages.Deployments
             var user = await _userManager.GetUserAsync(User);
 
             Clients = await _identityContext.Clients
-                //.Where(client => user.ClientIds.Contains(client.Id))
-                .OrderBy(client => client.ClientId)
+                .Include(client => client.Properties)
+                .Where(client => client.Properties.Any(prop => prop.Value == user.Id))
+                .OrderBy(client => client.ClientName)
                 .Select(client => new SelectListItem
                 {
                     Text = client.ClientName,

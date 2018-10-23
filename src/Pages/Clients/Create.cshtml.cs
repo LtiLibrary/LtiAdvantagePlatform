@@ -13,16 +13,14 @@ namespace AdvantagePlatform.Pages.Clients
 {
     public class CreateModel : PageModel
     {
-        private readonly ApplicationDbContext _appContext;
         private readonly IConfigurationDbContext _identityContext;
         private readonly UserManager<AdvantagePlatformUser> _userManager;
 
         [BindProperty]
         public ClientModel Client { get; set; }
 
-        public CreateModel(ApplicationDbContext appContext, IConfigurationDbContext identityContext, UserManager<AdvantagePlatformUser> userManager)
+        public CreateModel(IConfigurationDbContext identityContext, UserManager<AdvantagePlatformUser> userManager)
         {
-            _appContext = appContext;
             _identityContext = identityContext;
             _userManager = userManager;
         }
@@ -55,6 +53,11 @@ namespace AdvantagePlatform.Pages.Clients
                 AllowedScopes = new [] { "api1" }
             };
 
+            // Save the ClientSecret in plain text so Tool owner can retrieve it
+            // like Google does in their developer console
+            client.Properties.Add("secret", Client.ClientSecret);
+
+            // Record the user that created this client
             var user = await _userManager.GetUserAsync(User);
             client.Properties.Add("userid", user.Id);
 
@@ -62,16 +65,6 @@ namespace AdvantagePlatform.Pages.Clients
 
             await _identityContext.Clients.AddAsync(entity);
             await _identityContext.SaveChangesAsync();
-
-            // Save the ClientSecret in plain text so Tool owner can retrieve it
-            // like Google does in their developer console
-            var clientSecret = new ClientSecret
-            {
-                ClientId = entity.Id,
-                Secret = Client.ClientSecret
-            };
-            await _appContext.ClientSecretText.AddAsync(clientSecret);
-            await _appContext.SaveChangesAsync();
 
             return RedirectToPage("./Index");
         }

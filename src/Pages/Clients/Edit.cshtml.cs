@@ -11,13 +11,11 @@ namespace AdvantagePlatform.Pages.Clients
 {
     public class EditModel : PageModel
     {
-        private readonly ApplicationDbContext _appContext;
         private readonly IConfigurationDbContext _identityContext;
         private readonly UserManager<AdvantagePlatformUser> _userManager;
 
-        public EditModel(ApplicationDbContext appContext, IConfigurationDbContext identityContext, UserManager<AdvantagePlatformUser> userManager)
+        public EditModel(IConfigurationDbContext identityContext, UserManager<AdvantagePlatformUser> userManager)
         {
-            _appContext = appContext;
             _identityContext = identityContext;
             _userManager = userManager;
         }
@@ -33,14 +31,6 @@ namespace AdvantagePlatform.Pages.Clients
             }
 
             var user = await _userManager.GetUserAsync(User);
-            var clientSecret = await _appContext.ClientSecretText
-                //.Where(secret => user.ClientIds.Contains(secret.ClientId))
-                .SingleOrDefaultAsync(secret => secret.ClientId == id);
-
-            if (clientSecret == null)
-            {
-                return NotFound();
-            }
             
             var client = await _identityContext.Clients
                 .Include(c => c.Properties)
@@ -57,7 +47,7 @@ namespace AdvantagePlatform.Pages.Clients
                 Id = client.Id,
                 ClientId = client.ClientId,
                 ClientName = client.ClientName,
-                ClientSecret = clientSecret.Secret 
+                ClientSecret = client.Properties.GetValue("secret")
             };
 
             return Page();
