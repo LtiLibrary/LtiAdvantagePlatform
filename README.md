@@ -5,13 +5,15 @@ Sample LTI Advantage Platform using .NET Core 2.1. So that it has a purpose (oth
 ## Supported Features
 
 - LTI 1.3 Core (launch)
-- The rest of LTI Advantage is coming soon
+   - Register yourself on the Platform to access the Clients UI and create a Client ID for yourself (this is similar to Google's Developer Console).
+   - The Platform supports [OpenId Connect Discovery](https://openid.net/specs/openid-connect-discovery-1_0.html) so Tools can discover the JWKS URL by examining the response to [(Issuer)/.well-known/openid-configuration](https://advantageplatform.azurewebsites.net/.well-known/openid-configuration).
+- The rest of LTI Advantage is coming soon (that's the plan anyway)
 
 ## Dependencies
 
 This web application is based on the current .NET Core Web Application template for Razor Pages.
-Almost all the custom code is manage the data this test harness uses. The packages and projects
-below take care of all the actual Json Web Token (JWT) creation, signing, and validating.
+Almost all the custom code is for managing the Clients and inserting your Tool into the Platform or Course.
+The packages and projects below take care of all the core OpenId Connect and OAuth 2.0 stuff.
 
 <dl>
   <dt>Microsoft.AspNetCore.App (https://www.nuget.org/packages/Microsoft.AspNetCore.App)</dt>
