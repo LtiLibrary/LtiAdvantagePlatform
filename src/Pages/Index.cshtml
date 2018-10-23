@@ -23,37 +23,23 @@
                 <h4>Welcome!</h4>
                 <p>
                     On the right is a diagram of your personal instance of an LTI Advantage
-                    Test Platform, which includes a test Course, and two people (one teacher and
-                    one student). You can issue Client keys for your Tool Platform, define your
-                    Tools, deployment them to the Platform or Course, and launch them with
-                    either the student or teacher accounts.
+                    Test Platform, which includes a test Course and two people (one teacher and
+                    one student). After you define your Client and deploy your Tool, you can
+                    launch your tool as either the student or teacher.
                 </p>
                 <h4>Getting Started</h4>
                 <ol>
                     <li>
-                        Copy the Platform <code>id</code> and <code>public key</code> to your
-                        Tool Platform. The <code>id</code> will appear in the <code>LtiResourceLinkRequest</code>
-                        as the Issuer Claim (iss), and the <code>public key</code> can be used
-                        to verify the signature on your Tool Platform.
-                    </li>
-                    <li>
                         <a asp-page="./Clients/Index">Create a Client</a> for your Tool Platform.
-                        This will generate a <code>client_id</code>, <code>public key</code>,
-                        and <code>private key</code>. Copy these to your Tool Platform. The
-                        <code>client_id</code> will appear in the <code>LtiResourceLinkRequest</code>
-                        as the Audience Claim (aud).
-                    </li>
-                    <li>
-                        <a asp-page="./Tools/Index">Create a Tool</a> to represent your Tool on
-                        your Tool Platform.
+                        This will generate a <code>Client ID</code> and <code>Client Secret</code>.
+                        Copy these to your Tool Platform along with the <code>Issuer URL</code>.
                     </li>
                     <li>
                         <a asp-page="./Deployments/Index">Create a Deployment</a> to place your Tool
                         in the Platform or Course context, and associate it with a Client.
                     </li>
                     <li>
-                        Launch your Tool as the Teacher or Student and watch your Tool
-                        appear!
+                        Launch your Tool as the Teacher or Student and watch your Tool appear!
                     </li>
                 </ol>
             </div>
