@@ -34,16 +34,19 @@ namespace AdvantagePlatform.Pages.Clients
 
             var user = await _userManager.GetUserAsync(User);
             var clientSecret = await _appContext.ClientSecretText
-                .Where(secret => user.ClientIds.Contains(secret.ClientId))
+                //.Where(secret => user.ClientIds.Contains(secret.ClientId))
                 .SingleOrDefaultAsync(secret => secret.ClientId == id);
+
             if (clientSecret == null)
             {
                 return NotFound();
             }
             
             var client = await _identityContext.Clients
-                .Where(c => user.ClientIds.Contains(c.Id))
+                .Include(c => c.Properties)
+                .Where(c => c.Properties.Any(p => p.Value == user.Id))
                 .SingleOrDefaultAsync(c => c.Id == id);
+
             if (client == null)
             {
                 return NotFound();
@@ -68,7 +71,10 @@ namespace AdvantagePlatform.Pages.Clients
             }
 
             var clientEntity = await _identityContext.Clients.FindAsync(Client.Id);
-            clientEntity.ClientName = Client.ClientName;
+
+            // Can only change the ClientName
+            clientEntity.ClientName = Client.ClientName; 
+            
             _identityContext.Clients.Attach(clientEntity).State = EntityState.Modified;
             await _identityContext.SaveChangesAsync();
 

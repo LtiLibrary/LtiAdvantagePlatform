@@ -55,7 +55,7 @@ namespace AdvantagePlatform.Pages.Deployments
 
             ClientId = Deployment.ClientId;
             Clients = await _identityContext.Clients
-                .Where(client => user.ClientIds.Contains(client.Id))
+                //.Where(client => user.ClientIds.Contains(client.Id))
                 .OrderBy(client => client.ClientId)
                 .Select(client => new SelectListItem
                 {

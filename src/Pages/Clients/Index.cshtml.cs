@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using AdvantagePlatform.Data;
 using IdentityServer4.EntityFramework.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace AdvantagePlatform.Pages.Clients
 {
@@ -31,7 +32,8 @@ namespace AdvantagePlatform.Pages.Clients
             var user = await _userManager.GetUserAsync(User);
 
             var clients = _identityContext.Clients
-                .Where(client => user.ClientIds.Contains(client.Id))
+                .Include(client => client.Properties)
+                .Where(client => client.Properties.Any(prop => prop.Value == user.Id))
                 .OrderBy(client => client.ClientId);
 
             var list = new List<ClientModel>();

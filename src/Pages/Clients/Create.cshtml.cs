@@ -55,6 +55,9 @@ namespace AdvantagePlatform.Pages.Clients
                 AllowedScopes = new [] { "api1" }
             };
 
+            var user = await _userManager.GetUserAsync(User);
+            client.Properties.Add("userid", user.Id);
+
             var entity = client.ToEntity();
 
             await _identityContext.Clients.AddAsync(entity);
@@ -69,11 +72,6 @@ namespace AdvantagePlatform.Pages.Clients
             };
             await _appContext.ClientSecretText.AddAsync(clientSecret);
             await _appContext.SaveChangesAsync();
-
-            // Associate this client with the user that created it
-            var user = await _userManager.GetUserAsync(User);
-            user.ClientIds.Add(entity.Id);
-            await _userManager.UpdateAsync(user);
 
             return RedirectToPage("./Index");
         }

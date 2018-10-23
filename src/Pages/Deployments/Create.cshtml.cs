@@ -42,7 +42,7 @@ namespace AdvantagePlatform.Pages.Deployments
             var user = await _userManager.GetUserAsync(User);
 
             Clients = await _identityContext.Clients
-                .Where(client => user.ClientIds.Contains(client.Id))
+                //.Where(client => user.ClientIds.Contains(client.Id))
                 .OrderBy(client => client.ClientId)
                 .Select(client => new SelectListItem
                 {

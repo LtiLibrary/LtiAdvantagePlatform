@@ -33,16 +33,19 @@ namespace AdvantagePlatform.Pages.Clients
 
             var user = await _userManager.GetUserAsync(User);
             var clientSecret = await _appContext.ClientSecretText
-                .Where(secret => user.ClientIds.Contains(secret.ClientId))
+                //.Where(secret => user.ClientIds.Contains(secret.ClientId))
                 .SingleOrDefaultAsync(secret => secret.ClientId == id);
+
             if (clientSecret == null)
             {
                 return NotFound();
             }
 
             var client = await _identityContext.Clients
-                .Where(c => user.ClientIds.Contains(c.Id))
+                .Include(c => c.Properties)
+                .Where(c => c.Properties.Any(p => p.Value == user.Id))
                 .SingleOrDefaultAsync(c => c.Id == id);
+
             if (client == null)
             {
                 return NotFound();
@@ -78,15 +81,6 @@ namespace AdvantagePlatform.Pages.Clients
             {
                 _appContext.ClientSecretText.Remove(clientSecretEntity);
                 await _appContext.SaveChangesAsync();
-            }
-
-            var user = await _userManager.GetUserAsync(User);
-            var clientIds = user.ClientIds;
-            if (clientIds.Contains(id.Value))
-            {
-                clientIds.Remove(id.Value);
-                user.ClientIds = clientIds;
-                await _userManager.UpdateAsync(user);
             }
 
             return RedirectToPage("./Index");
