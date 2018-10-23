@@ -48,7 +48,8 @@ namespace AdvantagePlatform.Pages.Clients
                 ClientId = client.ClientId,
                 ClientName = client.ClientName,
                 ClientSecret = client.Properties.GetValue("secret"),
-                IssuerUri = HttpContext.GetIdentityServerIssuerUri()
+                IssuerUri = HttpContext.GetIdentityServerIssuerUri(),
+                OidcDiscoveryUri = HttpContext.GetIdentityServerIssuerUri() + "/.well-known/openid-configuration"
             };
 
             return Page();

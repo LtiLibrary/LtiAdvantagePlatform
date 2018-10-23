@@ -11,13 +11,11 @@ namespace AdvantagePlatform.Pages.Clients
 {
     public class DeleteModel : PageModel
     {
-        private readonly ApplicationDbContext _appContext;
         private readonly IConfigurationDbContext _identityContext;
         private readonly UserManager<AdvantagePlatformUser> _userManager;
 
-        public DeleteModel(ApplicationDbContext appContext, IConfigurationDbContext identityContext, UserManager<AdvantagePlatformUser> userManager)
+        public DeleteModel(IConfigurationDbContext identityContext, UserManager<AdvantagePlatformUser> userManager)
         {
-            _appContext = appContext;
             _identityContext = identityContext;
             _userManager = userManager;
         }

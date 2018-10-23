@@ -18,5 +18,7 @@ namespace AdvantagePlatform.Pages.Clients
 
         [Display(Name = "Issuer")]
         public string IssuerUri { get; set; }
+
+        public string OidcDiscoveryUri { get; set; }
     }
 }

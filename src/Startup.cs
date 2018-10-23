@@ -106,7 +106,7 @@ namespace AdvantagePlatform
                 });
         }
         
-        private void InitializeDatabase(IApplicationBuilder app)
+        private static void InitializeDatabase(IApplicationBuilder app)
         {
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {
@@ -114,14 +114,6 @@ namespace AdvantagePlatform
 
                 var context = serviceScope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
                 context.Database.Migrate();
-                //if (!EnumerableExtensions.Any(context.Clients))
-                //{
-                //    foreach (var client in Config.GetClients())
-                //    {
-                //        context.Clients.Add(client.ToEntity());
-                //    }
-                //    context.SaveChanges();
-                //}
 
                 if (!EnumerableExtensions.Any(context.IdentityResources))
                 {

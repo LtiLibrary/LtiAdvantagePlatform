@@ -1,5 +1,4 @@
 ﻿@page
-@using Microsoft.AspNetCore.Http
 @model DetailsModel
 
 @{
@@ -9,7 +8,7 @@
     <h4>Client Details</h4>
     <p>
         The Issuer supports 
-        <a href="@Model.Client.IssuerUri/.well-known/openid-configuration" target="_blank">OpenID Connect Discovery</a>.
+        <a href="@Model.Client.OidcDiscoveryUri" target="_blank">OpenID Connect Discovery</a>.
         If your Tool does not support OpenID Connect Discovery, click on the link to display
         the individual URLs you will need to configure your tool.
     </p>
