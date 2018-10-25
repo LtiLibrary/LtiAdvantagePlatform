@@ -6,15 +6,15 @@ using AdvantagePlatform.Data;
 using IdentityServer4.EntityFramework.Interfaces;
 using Microsoft.AspNetCore.Identity;
 
-namespace AdvantagePlatform.Pages.Deployments
+namespace AdvantagePlatform.Pages.ResourceLinks
 {
-    public class DetailsModel : PageModel
+    public class DeleteModel : PageModel
     {
         private readonly ApplicationDbContext _appContext;
         private readonly IConfigurationDbContext _identityContext;
         private readonly UserManager<AdvantagePlatformUser> _userManager;
 
-        public DetailsModel(
+        public DeleteModel(
             ApplicationDbContext appContext, 
             IConfigurationDbContext identityContext,
             UserManager<AdvantagePlatformUser> userManager)
@@ -24,7 +24,8 @@ namespace AdvantagePlatform.Pages.Deployments
             _userManager = userManager;
         }
 
-        public DeploymentModel Deployment { get; set; }
+        [BindProperty]
+        public ResourceLinkModel ResourceLink { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -35,26 +36,44 @@ namespace AdvantagePlatform.Pages.Deployments
 
             var user = await _userManager.GetUserAsync(User);
 
-            var deployment = await _appContext.Deployments
+            var resourceLink = await _appContext.ResourceLinks
                 .FirstOrDefaultAsync(m => m.Id == id && m.UserId == user.Id);
 
-            if (deployment == null)
+            if (resourceLink == null)
             {
                 return NotFound();
             }
 
-            var client = await _identityContext.Clients.FindAsync(deployment.ClientId);
+            var client = await _identityContext.Clients.FindAsync(resourceLink.ClientId);
 
-            Deployment = new DeploymentModel
+            ResourceLink = new ResourceLinkModel
             {
-                Id = deployment.Id,
+                Id = resourceLink.Id,
                 ClientName = client?.ClientName,
-                ToolName = deployment.ToolName,
-                ToolPlacement = deployment.ToolPlacement,
-                ToolUrl = deployment.ToolUrl
+                ToolName = resourceLink.ToolName,
+                ToolPlacement = resourceLink.ToolPlacement,
+                ToolUrl = resourceLink.ToolUrl
             };
 
             return Page();
+        }
+
+        public async Task<IActionResult> OnPostAsync(string id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var resourceLink = await _appContext.ResourceLinks.FindAsync(id);
+
+            if (resourceLink != null)
+            {
+                _appContext.ResourceLinks.Remove(resourceLink);
+                await _appContext.SaveChangesAsync();
+            }
+
+            return RedirectToPage("./Index");
         }
     }
 }

@@ -6,30 +6,30 @@
 }
 
 <div class="container">
-    <h4>Deployment</h4>
+    <h4>Resource Link</h4>
     <hr />
     <div class="row">
         <div class="col-md-4">
             <form method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <input type="hidden" asp-for="Deployment.Id" />
-                <input type="hidden" asp-for="Deployment.UserId" />
+                <input type="hidden" asp-for="ResourceLink.Id" />
+                <input type="hidden" asp-for="ResourceLink.UserId" />
                 <div class="form-group">
-                    <label asp-for="Deployment.ToolName"></label>
-                    <input asp-for="Deployment.ToolName" class="form-control" />
-                    <span asp-validation-for="Deployment.ToolName" class="text-danger"></span>
+                    <label asp-for="ResourceLink.ToolName"></label>
+                    <input asp-for="ResourceLink.ToolName" class="form-control" />
+                    <span asp-validation-for="ResourceLink.ToolName" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="Deployment.ToolUrl"></label>
-                    <input asp-for="Deployment.ToolUrl" class="form-control" />
-                    <span asp-validation-for="Deployment.ToolUrl" class="text-danger"></span>
+                    <label asp-for="ResourceLink.ToolUrl"></label>
+                    <input asp-for="ResourceLink.ToolUrl" class="form-control" />
+                    <span asp-validation-for="ResourceLink.ToolUrl" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="Deployment.ToolPlacement"></label>
-                    <select asp-for="Deployment.ToolPlacement" asp-items="Model.ToolPlacements" asp- class="form-control">
+                    <label asp-for="ResourceLink.ToolPlacement"></label>
+                    <select asp-for="ResourceLink.ToolPlacement" asp-items="Model.ToolPlacements" asp- class="form-control">
                         <option value="">Select a Target</option>
                     </select>
-                    <span asp-validation-for="Deployment.ToolPlacement" class="text-danger"></span>
+                    <span asp-validation-for="ResourceLink.ToolPlacement" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="ClientId"></label>

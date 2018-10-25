@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using AdvantagePlatform.Data;
+using IdentityServer4.EntityFramework.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using AdvantagePlatform.Data;
-using IdentityServer4.EntityFramework.Interfaces;
-using Microsoft.AspNetCore.Identity;
 
-namespace AdvantagePlatform.Pages.Deployments
+namespace AdvantagePlatform.Pages.ResourceLinks
 {
     public class EditModel : PageModel
     {
@@ -27,7 +27,7 @@ namespace AdvantagePlatform.Pages.Deployments
         }
 
         [BindProperty]
-        public Deployment Deployment { get; set; }
+        public ResourceLink ResourceLink { get; set; }
 
         [BindProperty]
         [Required]
@@ -46,15 +46,15 @@ namespace AdvantagePlatform.Pages.Deployments
 
             var user = await _userManager.GetUserAsync(User);
 
-            Deployment = await _appContext.Deployments
+            ResourceLink = await _appContext.ResourceLinks
                 .FirstOrDefaultAsync(m => m.Id == id && m.UserId == user.Id);
 
-            if (Deployment == null)
+            if (ResourceLink == null)
             {
                 return NotFound();
             }
 
-            ClientId = Deployment.ClientId;
+            ClientId = ResourceLink.ClientId;
             Clients = await _identityContext.Clients
                 .Include(client => client.Properties)
                 .Where(client => client.Properties.Any(prop => prop.Value == user.Id))
@@ -66,7 +66,7 @@ namespace AdvantagePlatform.Pages.Deployments
                 })
                 .ToListAsync();
 
-            ToolPlacements = Enum.GetNames(typeof(Deployment.ToolPlacements))
+            ToolPlacements = Enum.GetNames(typeof(ResourceLink.ToolPlacements))
                 .Select(t => new SelectListItem
                 {
                     Value = t,
@@ -84,9 +84,9 @@ namespace AdvantagePlatform.Pages.Deployments
                 return Page();
             }
 
-            Deployment.ClientId = ClientId;
+            ResourceLink.ClientId = ClientId;
 
-            _appContext.Attach(Deployment).State = EntityState.Modified;
+            _appContext.Attach(ResourceLink).State = EntityState.Modified;
 
             try
             {
@@ -94,7 +94,7 @@ namespace AdvantagePlatform.Pages.Deployments
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!DeploymentExists(Deployment.Id))
+                if (!ResourceLinkExists(ResourceLink.Id))
                 {
                     return NotFound();
                 }
@@ -105,9 +105,9 @@ namespace AdvantagePlatform.Pages.Deployments
             return RedirectToPage("./Index");
         }
 
-        private bool DeploymentExists(int id)
+        private bool ResourceLinkExists(int id)
         {
-            return _appContext.Deployments.Any(e => e.Id == id);
+            return _appContext.ResourceLinks.Any(e => e.Id == id);
         }
     }
 }

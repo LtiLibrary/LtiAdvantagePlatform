@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using AdvantagePlatform.Data;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace AdvantagePlatform.Pages.Deployments
+namespace AdvantagePlatform.Pages.ResourceLinks
 {
     public class IndexModel : PageModel
     {
@@ -25,37 +25,37 @@ namespace AdvantagePlatform.Pages.Deployments
             _userManager = userManager;
         }
 
-        public IList<DeploymentModel> Deployments { get;set; }
+        public IList<ResourceLinkModel> ResourceLinks { get;set; }
 
         public async Task OnGetAsync()
         {
             var user = await _userManager.GetUserAsync(User);
 
-            Deployments = await GetDeplomentModelsAsync(user.Id);
+            ResourceLinks = await GetDeplomentModelsAsync(user.Id);
         }
 
-        private async Task<IList<DeploymentModel>> GetDeplomentModelsAsync(string userId)
+        private async Task<IList<ResourceLinkModel>> GetDeplomentModelsAsync(string userId)
         {
-            var list = new List<DeploymentModel>();
+            var list = new List<ResourceLinkModel>();
 
-            var deployments = _appContext.Deployments
+            var resourceLinks = _appContext.ResourceLinks
                 .Where(d => d.UserId == userId)
                 .OrderBy(d => d.ClientId);
 
             Client client = null;
-            foreach (var deployment in deployments)
+            foreach (var resourceLink in resourceLinks)
             {
-                if (client == null || client.Id != deployment.ClientId)
+                if (client == null || client.Id != resourceLink.ClientId)
                 {
-                    client = await _identityContext.Clients.FindAsync(deployment.ClientId);
+                    client = await _identityContext.Clients.FindAsync(resourceLink.ClientId);
                 }
 
-                list.Add(new DeploymentModel
+                list.Add(new ResourceLinkModel
                 {
-                    Id = deployment.Id,
-                    ToolName = deployment.ToolName,
-                    ToolPlacement = deployment.ToolPlacement,
-                    ToolUrl = deployment.ToolUrl,
+                    Id = resourceLink.Id,
+                    ToolName = resourceLink.ToolName,
+                    ToolPlacement = resourceLink.ToolPlacement,
+                    ToolUrl = resourceLink.ToolUrl,
                     ClientName = client == null ? "[No Client]" : client.ClientName
                 });
             }

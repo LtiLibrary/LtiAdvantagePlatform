@@ -2,7 +2,7 @@
 @model IndexModel
 
 @{
-    ViewData["Title"] = "Deployments";
+    ViewData["Title"] = "Resource Links";
 }
 
 <div class="container">
@@ -13,15 +13,15 @@
     <table class="table">
         <thead>
             <tr>
-                <th>@Html.DisplayNameFor(m => m.Deployments[0].ToolName)</th>
-                <th>@Html.DisplayNameFor(m => m.Deployments[0].ToolUrl)</th>
-                <th>@Html.DisplayNameFor(m => m.Deployments[0].ToolPlacement)</th>
-                <th>@Html.DisplayNameFor(m => m.Deployments[0].ClientName)</th>
+                <th>@Html.DisplayNameFor(m => m.ResourceLinks[0].ToolName)</th>
+                <th>@Html.DisplayNameFor(m => m.ResourceLinks[0].ToolUrl)</th>
+                <th>@Html.DisplayNameFor(m => m.ResourceLinks[0].ToolPlacement)</th>
+                <th>@Html.DisplayNameFor(m => m.ResourceLinks[0].ClientName)</th>
                 <th></th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model.Deployments)
+            @foreach (var item in Model.ResourceLinks)
             {
             <tr>
                 <td>@Html.DisplayFor(m => item.ToolName)</td>

@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
-namespace AdvantagePlatform.Pages.Deployments
+namespace AdvantagePlatform.Pages.ResourceLinks
 {
     public class LaunchFrameModel : PageModel
     {
@@ -44,14 +44,14 @@ namespace AdvantagePlatform.Pages.Deployments
 
             var user = await _userManager.GetUserAsync(User);
 
-            var deployment = await _appContext.Deployments
+            var resourceLink = await _appContext.ResourceLinks
                 .FirstOrDefaultAsync(m => m.Id == id && m.UserId == user.Id);
-            if (deployment == null)
+            if (resourceLink == null)
             {
                 return NotFound();
             }
 
-            var client = await _identityContext.Clients.FindAsync(deployment.ClientId);
+            var client = await _identityContext.Clients.FindAsync(resourceLink.ClientId);
             if (client == null)
             {
                 return NotFound();
@@ -61,29 +61,29 @@ namespace AdvantagePlatform.Pages.Deployments
                 ? await _appContext.People.FindAsync(user.TeacherId)
                 : await _appContext.People.FindAsync(user.StudentId);
 
-            var course = deployment.ToolPlacement == Deployment.ToolPlacements.Course
+            var course = resourceLink.ToolPlacement == ResourceLink.ToolPlacements.Course
                 ? await _appContext.Courses.FindAsync(user.CourseId)
                 : null;
 
             var platform = await _appContext.Platforms.FindAsync(user.PlatformId);
 
-            IdToken = await GetJwtAsync(deployment, client, person, course, platform);
-            ToolUrl = deployment.ToolUrl;
+            IdToken = await GetJwtAsync(resourceLink, client, person, course, platform);
+            ToolUrl = resourceLink.ToolUrl;
 
             return Page();
         }
 
-        private async Task<string> GetJwtAsync(Deployment deployment, Client client, Person person, Course course, Platform platform)
+        private async Task<string> GetJwtAsync(ResourceLink resourceLink, Client client, Person person, Course course, Platform platform)
         {
             var request = new LtiResourceLinkRequest
             {
                 MessageType = LtiConstants.LtiResourceLinkRequestMessageType,
                 Version = LtiConstants.Version,
-                DeploymentId = deployment.Id.ToString(),
+                DeploymentId = resourceLink.Id.ToString(),
                 ResourceLink = new ResourceLinkClaimValueType
                 {
-                    Id = deployment.Id.ToString(),
-                    Title = deployment.ToolName
+                    Id = resourceLink.Id.ToString(),
+                    Title = resourceLink.ToolName
                 },
                 GivenName = person.FirstName,
                 FamilyName = person.LastName,

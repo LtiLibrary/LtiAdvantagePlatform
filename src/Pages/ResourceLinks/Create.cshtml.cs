@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using AdvantagePlatform.Data;
 using IdentityServer4.EntityFramework.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
-namespace AdvantagePlatform.Pages.Deployments
+namespace AdvantagePlatform.Pages.ResourceLinks
 {
     public class CreateModel : PageModel
     {
@@ -27,7 +27,7 @@ namespace AdvantagePlatform.Pages.Deployments
         }
 
         [BindProperty]
-        public Deployment Deployment { get; set; }
+        public ResourceLink ResourceLink { get; set; }
 
         [BindProperty]
         [Required]
@@ -52,7 +52,7 @@ namespace AdvantagePlatform.Pages.Deployments
                 })
                 .ToListAsync();
 
-            ToolPlacements = Enum.GetNames(typeof(Deployment.ToolPlacements))
+            ToolPlacements = Enum.GetNames(typeof(ResourceLink.ToolPlacements))
                 .Select(t => new SelectListItem
                 {
                     Value = t,
@@ -71,10 +71,10 @@ namespace AdvantagePlatform.Pages.Deployments
             }
 
             var user = await _userManager.GetUserAsync(User);
-            Deployment.UserId = user.Id;
-            Deployment.ClientId = ClientId;
+            ResourceLink.UserId = user.Id;
+            ResourceLink.ClientId = ClientId;
 
-            _appContext.Deployments.Add(Deployment);
+            _appContext.ResourceLinks.Add(ResourceLink);
             await _appContext.SaveChangesAsync();
 
             return RedirectToPage("./Index");

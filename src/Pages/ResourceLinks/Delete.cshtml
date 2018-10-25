@@ -1,0 +1,30 @@
+﻿@page
+@model DeleteModel
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<div class="container">
+    <h3>Are you sure you want to delete this?</h3>
+    <div>
+        <h4>Resource Link</h4>
+        <hr />
+        <dl>
+            <dt>@Html.DisplayNameFor(m => m.ResourceLink.ToolName)</dt>
+            <dd>@Html.DisplayFor(m => m.ResourceLink.ToolName)</dd>
+            <dt>@Html.DisplayNameFor(m => m.ResourceLink.ToolUrl)</dt>
+            <dd>@Html.DisplayFor(m => m.ResourceLink.ToolUrl)</dd>
+            <dt>@Html.DisplayNameFor(m => m.ResourceLink.ToolPlacement)</dt>
+            <dd>@Html.DisplayFor(m => m.ResourceLink.ToolPlacement)</dd>
+            <dt>@Html.DisplayNameFor(m => m.ResourceLink.ClientName)</dt>
+            <dd>@Html.DisplayFor(m => m.ResourceLink.ClientName)</dd>
+        </dl>
+
+        <form method="post">
+            <input type="hidden" asp-for="ResourceLink.Id" />
+            <input type="submit" value="Delete" class="btn btn-secondary" /> |
+            <a asp-page="./Index">Back to List</a>
+        </form>
+    </div>
+</div>

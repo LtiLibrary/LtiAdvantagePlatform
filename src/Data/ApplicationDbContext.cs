@@ -10,9 +10,8 @@ namespace AdvantagePlatform.Data
         {
         }
 
-        // In this sample, AdvantagePlatform is responsible for issuing client_ids
         public DbSet<Course> Courses { get; set; }
-        public DbSet<Deployment> Deployments { get; set; }
+        public DbSet<ResourceLink> ResourceLinks { get; set; }
         public DbSet<Person> People { get; set; }
         public DbSet<Platform> Platforms { get; set; }
     }

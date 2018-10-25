@@ -35,7 +35,7 @@
                         Copy these to your Tool Platform along with the <code>Issuer URL</code>.
                     </li>
                     <li>
-                        <a asp-page="./Deployments/Index">Create a Deployment</a> to place your Tool
+                        <a asp-page="./ResourceLinks/Index">Create a Resource Link</a> to place your Tool
                         in the Platform or Course context, and associate it with a Client.
                     </li>
                     <li>
@@ -69,24 +69,24 @@
                                 @if (Model.PlatformTools.Any())
                                 {
                                     <div class="row">
-                                        @foreach (var deployment in Model.PlatformTools)
+                                        @foreach (var resourceLink in Model.PlatformTools)
                                         {
                                             <div class="card bg-warning m-3 text-dark">
-                                                <h5 class="card-header">@deployment.ToolName</h5>
+                                                <h5 class="card-header">@resourceLink.ToolName</h5>
                                                 <div class="card-body">
                                                     <dl>
                                                         <dt>@Html.DisplayNameFor(m => m.PlatformTools[0].ToolUrl)</dt>
-                                                        <dd>@deployment.ToolUrl</dd>
+                                                        <dd>@resourceLink.ToolUrl</dd>
                                                         <dt>@Html.DisplayNameFor(m => m.PlatformTools[0].ClientName)</dt>
-                                                        <dd>@deployment.ClientName</dd>
+                                                        <dd>@resourceLink.ClientName</dd>
                                                     </dl>
                                                     <a class="btn btn-sm btn-secondary mt-2 mb-2" target="_blank"
-                                                       asp-page="Deployments/LaunchPage"
-                                                       asp-route-id="@deployment.Id"
+                                                       asp-page="ResourceLinks/LaunchPage"
+                                                       asp-route-id="@resourceLink.Id"
                                                        asp-route-persona="teacher">Launch as Teacher</a>
                                                     <a class="btn btn-sm btn-secondary" target="_blank"
-                                                       asp-page="Deployments/LaunchPage"
-                                                       asp-route-id="@deployment.Id"
+                                                       asp-page="ResourceLinks/LaunchPage"
+                                                       asp-route-id="@resourceLink.Id"
                                                        asp-route-persona="student">Launch as Student</a>
                                                 </div>
                                             </div>
@@ -139,24 +139,24 @@
                                         @if (Model.CourseTools.Any())
                                         {
                                             <div class="row">
-                                                @foreach (var deployment in Model.CourseTools)
+                                                @foreach (var resourceLink in Model.CourseTools)
                                                 {
                                                     <div class="card bg-warning m-3 text-dark">
-                                                        <h5 class="card-header">@deployment.ToolName</h5>
+                                                        <h5 class="card-header">@resourceLink.ToolName</h5>
                                                         <div class="card-body">
                                                             <dl>
                                                                 <dt>@Html.DisplayNameFor(m => m.CourseTools[0].ToolUrl)</dt>
-                                                                <dd>@deployment.ToolUrl</dd>
+                                                                <dd>@resourceLink.ToolUrl</dd>
                                                                 <dt>@Html.DisplayNameFor(m => m.CourseTools[0].ClientName)</dt>
-                                                                <dd>@deployment.ClientName</dd>
+                                                                <dd>@resourceLink.ClientName</dd>
                                                             </dl>
                                                             <a class="btn btn-sm btn-secondary mb-2 mt-2" target="_blank"
-                                                               asp-page="Deployments/LaunchPage"
-                                                               asp-route-id="@deployment.Id"
+                                                               asp-page="ResourceLinks/LaunchPage"
+                                                               asp-route-id="@resourceLink.Id"
                                                                asp-route-persona="teacher">Launch as Teacher</a>
                                                             <a class="btn btn-sm btn-secondary mb-2 mt-2" target="_blank"
-                                                               asp-page="Deployments/LaunchPage"
-                                                               asp-route-id="@deployment.Id"
+                                                               asp-page="ResourceLinks/LaunchPage"
+                                                               asp-route-id="@resourceLink.Id"
                                                                asp-route-persona="student">Launch as Student</a>
                                                         </div>
                                                     </div>

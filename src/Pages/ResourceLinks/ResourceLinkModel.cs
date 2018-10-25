@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using AdvantagePlatform.Data;
 
-namespace AdvantagePlatform.Pages.Deployments
+namespace AdvantagePlatform.Pages.ResourceLinks
 {
-    public class DeploymentModel
+    public class ResourceLinkModel
     {
         public int Id { get; set; }
 
@@ -14,7 +14,7 @@ namespace AdvantagePlatform.Pages.Deployments
         public string ToolName { get; set; }
 
         [Display(Name = "Tool Placement")]
-        public Deployment.ToolPlacements? ToolPlacement { get; set; }
+        public ResourceLink.ToolPlacements? ToolPlacement { get; set; }
 
         [Display(Name = "Tool URL")]
         public string ToolUrl { get; set; }

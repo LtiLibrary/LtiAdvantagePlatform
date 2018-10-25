@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
-using AdvantagePlatform.Pages.Deployments;
+using AdvantagePlatform.Pages.ResourceLinks;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Interfaces;
 using Microsoft.AspNetCore.Identity;
@@ -30,8 +30,8 @@ namespace AdvantagePlatform.Pages
         public Course Course { get; set; }
         public Person Teacher { get; set; }
         public Person Student { get; set; }
-        public IList<DeploymentModel> PlatformTools { get; set; }
-        public IList<DeploymentModel> CourseTools { get; set; }
+        public IList<ResourceLinkModel> PlatformTools { get; set; }
+        public IList<ResourceLinkModel> CourseTools { get; set; }
 
         public async Task OnGetAsync()
         {
@@ -43,34 +43,34 @@ namespace AdvantagePlatform.Pages
                 Teacher = await _appContext.People.FindAsync(user.TeacherId);
                 Student = await _appContext.People.FindAsync(user.StudentId);
 
-                PlatformTools = await GetDeplomentModelsAsync(Deployment.ToolPlacements.Platform, user.Id);
-                CourseTools = await GetDeplomentModelsAsync(Deployment.ToolPlacements.Course, user.Id);
+                PlatformTools = await GetDeplomentModelsAsync(ResourceLink.ToolPlacements.Platform, user.Id);
+                CourseTools = await GetDeplomentModelsAsync(ResourceLink.ToolPlacements.Course, user.Id);
             }
         }
 
-        private async Task<IList<DeploymentModel>> GetDeplomentModelsAsync(Deployment.ToolPlacements placement,
+        private async Task<IList<ResourceLinkModel>> GetDeplomentModelsAsync(ResourceLink.ToolPlacements placement,
             string userId)
         {
-            var list = new List<DeploymentModel>();
+            var list = new List<ResourceLinkModel>();
 
-            var deployments = _appContext.Deployments
+            var resourceLinks = _appContext.ResourceLinks
                 .Where(d => d.ToolPlacement == placement
                             && d.UserId == userId)
                 .OrderBy(d => d.ClientId);
 
             Client client = null;
-            foreach (var deployment in deployments)
+            foreach (var resourceLink in resourceLinks)
             {
-                if (client == null || client.Id != deployment.ClientId)
+                if (client == null || client.Id != resourceLink.ClientId)
                 {
-                    client = await _identityContext.Clients.FindAsync(deployment.ClientId);
+                    client = await _identityContext.Clients.FindAsync(resourceLink.ClientId);
                 }
 
-                list.Add(new DeploymentModel
+                list.Add(new ResourceLinkModel
                 {
-                    Id = deployment.Id,
-                    ToolName = deployment.ToolName,
-                    ToolUrl = deployment.ToolUrl,
+                    Id = resourceLink.Id,
+                    ToolName = resourceLink.ToolName,
+                    ToolUrl = resourceLink.ToolUrl,
                     ClientName = client == null ? "[No Client]" : client.ClientName
                 });
             }

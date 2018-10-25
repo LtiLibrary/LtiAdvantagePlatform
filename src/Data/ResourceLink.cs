@@ -2,12 +2,12 @@
 
 namespace AdvantagePlatform.Data
 {
-    public class Deployment
+    public class ResourceLink
     {
         public int Id { get; set; }
 
         /// <summary>
-        /// The Client to use with this Deployment.
+        /// The Client to use with this ResourceLink.
         /// </summary>
         public int ClientId { get; set; }
 
@@ -19,7 +19,7 @@ namespace AdvantagePlatform.Data
         public string ToolName { get; set; }
 
         /// <summary>
-        /// The Tool placement of this Deployment. Can be either the user's
+        /// The Tool placement of this ResourceLink. Can be either the user's
         /// platform or the user's course.
         /// </summary>
         [Required]
@@ -35,7 +35,7 @@ namespace AdvantagePlatform.Data
         public string ToolUrl { get; set; }
 
         /// <summary>
-        /// The ID of the AdvantagePlatformUser that created this Deployment.
+        /// The ID of the AdvantagePlatformUser that created this ResourceLink.
         /// </summary>
         public string UserId { get; set; }
 
