@@ -53,10 +53,11 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 list.Add(new ResourceLinkModel
                 {
                     Id = resourceLink.Id,
+                    ClientName = client == null ? "[No Client]" : client.ClientName,
+                    DeploymentId = resourceLink.DeploymentId,
                     ToolName = resourceLink.ToolName,
                     ToolPlacement = resourceLink.ToolPlacement,
-                    ToolUrl = resourceLink.ToolUrl,
-                    ClientName = client == null ? "[No Client]" : client.ClientName
+                    ToolUrl = resourceLink.ToolUrl
                 });
             }
 

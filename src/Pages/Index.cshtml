@@ -65,20 +65,22 @@
                                         </dd>
                                     </dl>
                                 </div>
-                                <h4>Tools</h4>
-                                @if (Model.PlatformTools.Any())
+                                <h4>Resource Links</h4>
+                                @if (Model.PlatformResourceLinks.Any())
                                 {
                                     <div class="row">
-                                        @foreach (var resourceLink in Model.PlatformTools)
+                                        @foreach (var resourceLink in Model.PlatformResourceLinks)
                                         {
                                             <div class="card bg-warning m-3 text-dark">
                                                 <h5 class="card-header">@resourceLink.ToolName</h5>
                                                 <div class="card-body">
                                                     <dl>
-                                                        <dt>@Html.DisplayNameFor(m => m.PlatformTools[0].ToolUrl)</dt>
+                                                        <dt>@Html.DisplayNameFor(m => m.PlatformResourceLinks[0].ToolUrl)</dt>
                                                         <dd>@resourceLink.ToolUrl</dd>
-                                                        <dt>@Html.DisplayNameFor(m => m.PlatformTools[0].ClientName)</dt>
+                                                        <dt>@Html.DisplayNameFor(m => m.PlatformResourceLinks[0].ClientName)</dt>
                                                         <dd>@resourceLink.ClientName</dd>
+                                                        <dt>@Html.DisplayNameFor(m => m.CourseResourceLinks[0].DeploymentId)</dt>
+                                                        <dd>@resourceLink.DeploymentId</dd>
                                                     </dl>
                                                     <a class="btn btn-sm btn-secondary mt-2 mb-2" target="_blank"
                                                        asp-page="ResourceLinks/LaunchPage"
@@ -95,7 +97,7 @@
                                 }
                                 else
                                 {
-                                    <p>No tools deployed to the platform yet. See Getting Started.</p>
+                                    <p>No resource links deployed to the platform yet. See Getting Started.</p>
                                 }
                             </div>
                             <div class="col-8">
@@ -135,20 +137,22 @@
                                                 <dd>@Html.DisplayFor(m => m.Student.FirstName) @Html.DisplayFor(m => m.Student.LastName)</dd>
                                             </dl>
                                         </div>
-                                        <h4>Tools</h4>
-                                        @if (Model.CourseTools.Any())
+                                        <h4>Resource Links</h4>
+                                        @if (Model.CourseResourceLinks.Any())
                                         {
                                             <div class="row">
-                                                @foreach (var resourceLink in Model.CourseTools)
+                                                @foreach (var resourceLink in Model.CourseResourceLinks)
                                                 {
                                                     <div class="card bg-warning m-3 text-dark">
                                                         <h5 class="card-header">@resourceLink.ToolName</h5>
                                                         <div class="card-body">
                                                             <dl>
-                                                                <dt>@Html.DisplayNameFor(m => m.CourseTools[0].ToolUrl)</dt>
+                                                                <dt>@Html.DisplayNameFor(m => m.CourseResourceLinks[0].ToolUrl)</dt>
                                                                 <dd>@resourceLink.ToolUrl</dd>
-                                                                <dt>@Html.DisplayNameFor(m => m.CourseTools[0].ClientName)</dt>
+                                                                <dt>@Html.DisplayNameFor(m => m.CourseResourceLinks[0].ClientName)</dt>
                                                                 <dd>@resourceLink.ClientName</dd>
+                                                                <dt>@Html.DisplayNameFor(m => m.CourseResourceLinks[0].DeploymentId)</dt>
+                                                                <dd>@resourceLink.DeploymentId</dd>
                                                             </dl>
                                                             <a class="btn btn-sm btn-secondary mb-2 mt-2" target="_blank"
                                                                asp-page="ResourceLinks/LaunchPage"
@@ -165,7 +169,7 @@
                                         }
                                         else
                                         {
-                                            <p>No tools deployed to the course yet. See Getting Started.</p>
+                                            <p>No resource links deployed to the course yet. See Getting Started.</p>
                                         }
                                     </div>
                                 </div>

@@ -30,8 +30,8 @@ namespace AdvantagePlatform.Pages
         public Course Course { get; set; }
         public Person Teacher { get; set; }
         public Person Student { get; set; }
-        public IList<ResourceLinkModel> PlatformTools { get; set; }
-        public IList<ResourceLinkModel> CourseTools { get; set; }
+        public IList<ResourceLinkModel> PlatformResourceLinks { get; set; }
+        public IList<ResourceLinkModel> CourseResourceLinks { get; set; }
 
         public async Task OnGetAsync()
         {
@@ -43,8 +43,8 @@ namespace AdvantagePlatform.Pages
                 Teacher = await _appContext.People.FindAsync(user.TeacherId);
                 Student = await _appContext.People.FindAsync(user.StudentId);
 
-                PlatformTools = await GetDeplomentModelsAsync(ResourceLink.ToolPlacements.Platform, user.Id);
-                CourseTools = await GetDeplomentModelsAsync(ResourceLink.ToolPlacements.Course, user.Id);
+                PlatformResourceLinks = await GetDeplomentModelsAsync(ResourceLink.ToolPlacements.Platform, user.Id);
+                CourseResourceLinks = await GetDeplomentModelsAsync(ResourceLink.ToolPlacements.Course, user.Id);
             }
         }
 
@@ -69,9 +69,10 @@ namespace AdvantagePlatform.Pages
                 list.Add(new ResourceLinkModel
                 {
                     Id = resourceLink.Id,
+                    ClientName = client == null ? "[No Client]" : client.ClientName,
+                    DeploymentId = resourceLink.DeploymentId,
                     ToolName = resourceLink.ToolName,
-                    ToolUrl = resourceLink.ToolUrl,
-                    ClientName = client == null ? "[No Client]" : client.ClientName
+                    ToolUrl = resourceLink.ToolUrl
                 });
             }
 

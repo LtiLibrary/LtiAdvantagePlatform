@@ -11,6 +11,10 @@ namespace AdvantagePlatform.Data
         /// </summary>
         public int ClientId { get; set; }
 
+        [Required]
+        [Display(Name = "Deployment ID")]
+        public string DeploymentId { get; set; }
+
         /// <summary>
         /// The Tool name.
         /// </summary>

@@ -79,7 +79,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             {
                 MessageType = LtiConstants.LtiResourceLinkRequestMessageType,
                 Version = LtiConstants.Version,
-                DeploymentId = resourceLink.Id.ToString(),
+                DeploymentId = resourceLink.DeploymentId,
                 ResourceLink = new ResourceLinkClaimValueType
                 {
                     Id = resourceLink.Id.ToString(),

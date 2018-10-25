@@ -50,6 +50,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             {
                 Id = resourceLink.Id,
                 ClientName = client?.ClientName,
+                DeploymentId = resourceLink.DeploymentId,
                 ToolName = resourceLink.ToolName,
                 ToolPlacement = resourceLink.ToolPlacement,
                 ToolUrl = resourceLink.ToolUrl

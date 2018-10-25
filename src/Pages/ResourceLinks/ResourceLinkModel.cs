@@ -10,6 +10,9 @@ namespace AdvantagePlatform.Pages.ResourceLinks
         [Display(Name = "Client Name")]
         public string ClientName { get; set; }
 
+        [Display(Name = "Deployment ID")]
+        public string DeploymentId { get; set; }
+
         [Display(Name = "Tool Name")]
         public string ToolName { get; set; }
 
