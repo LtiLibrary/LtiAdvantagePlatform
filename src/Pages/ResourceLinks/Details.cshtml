@@ -9,16 +9,14 @@
     <h4>Resource Link</h4>
     <hr />
     <dl>
+        <dt>@Html.DisplayNameFor(m => m.ResourceLink.Title)</dt>
+        <dd>@Html.DisplayFor(m => m.ResourceLink.Title)</dd>
+        <dt>@Html.DisplayNameFor(m => m.ResourceLink.Description)</dt>
+        <dd>@Html.DisplayFor(m => m.ResourceLink.Description)</dd>
         <dt>@Html.DisplayNameFor(m => m.ResourceLink.ToolName)</dt>
         <dd>@Html.DisplayFor(m => m.ResourceLink.ToolName)</dd>
-        <dt>@Html.DisplayNameFor(m => m.ResourceLink.ToolUrl)</dt>
-        <dd>@Html.DisplayFor(m => m.ResourceLink.ToolUrl)</dd>
-        <dt>@Html.DisplayNameFor(m => m.ResourceLink.ToolPlacement)</dt>
-        <dd>@Html.DisplayFor(m => m.ResourceLink.ToolPlacement)</dd>
-        <dt>@Html.DisplayNameFor(m => m.ResourceLink.ClientName)</dt>
-        <dd>@Html.DisplayFor(m => m.ResourceLink.ClientName)</dd>
-        <dt>@Html.DisplayNameFor(m => m.ResourceLink.DeploymentId)</dt>
-        <dd>@Html.DisplayFor(m => m.ResourceLink.DeploymentId)</dd>
+        <dt>@Html.DisplayNameFor(m => m.ResourceLink.LinkContext)</dt>
+        <dd>@Html.DisplayFor(m => m.ResourceLink.LinkContext)</dd>
     </dl>
     <div>
         <a asp-page="./Edit" asp-route-id="@Model.ResourceLink.Id">Edit</a> |

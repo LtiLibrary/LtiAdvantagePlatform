@@ -13,11 +13,9 @@
     <table class="table">
         <thead>
             <tr>
+                <th>@Html.DisplayNameFor(m => m.ResourceLinks[0].Title)</th>
                 <th>@Html.DisplayNameFor(m => m.ResourceLinks[0].ToolName)</th>
-                <th>@Html.DisplayNameFor(m => m.ResourceLinks[0].ToolUrl)</th>
-                <th>@Html.DisplayNameFor(m => m.ResourceLinks[0].ToolPlacement)</th>
-                <th>@Html.DisplayNameFor(m => m.ResourceLinks[0].ClientName)</th>
-                <th>@Html.DisplayNameFor(m => m.ResourceLinks[0].DeploymentId)</th>
+                <th>@Html.DisplayNameFor(m => m.ResourceLinks[0].LinkContext)</th>
                 <th></th>
             </tr>
         </thead>
@@ -25,11 +23,9 @@
             @foreach (var item in Model.ResourceLinks)
             {
             <tr>
+                <td>@Html.DisplayFor(m => item.Title)</td>
                 <td>@Html.DisplayFor(m => item.ToolName)</td>
-                <td>@Html.DisplayFor(m => item.ToolUrl)</td>
-                <td>@Html.DisplayFor(m => item.ToolPlacement)</td>
-                <td>@Html.DisplayFor(m => item.ClientName)</td>
-                <td>@Html.DisplayFor(m => item.DeploymentId)</td>
+                <td>@Html.DisplayFor(m => item.LinkContext)</td>
                 <td>
                     <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
                     <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |

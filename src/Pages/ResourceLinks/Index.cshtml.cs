@@ -2,8 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
-using IdentityServer4.EntityFramework.Entities;
-using IdentityServer4.EntityFramework.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -12,16 +10,13 @@ namespace AdvantagePlatform.Pages.ResourceLinks
     public class IndexModel : PageModel
     {
         private readonly ApplicationDbContext _appContext;
-        private readonly IConfigurationDbContext _identityContext;
         private readonly UserManager<AdvantagePlatformUser> _userManager;
 
         public IndexModel(
-            ApplicationDbContext appContext, 
-            IConfigurationDbContext identityContext,
+            ApplicationDbContext appContext,
             UserManager<AdvantagePlatformUser> userManager)
         {
             _appContext = appContext;
-            _identityContext = identityContext;
             _userManager = userManager;
         }
 
@@ -40,28 +35,20 @@ namespace AdvantagePlatform.Pages.ResourceLinks
 
             var resourceLinks = _appContext.ResourceLinks
                 .Where(d => d.UserId == userId)
-                .OrderBy(d => d.ClientId);
+                .OrderBy(d => d.Title);
 
-            Client client = null;
-            foreach (var resourceLink in resourceLinks)
+            foreach (var link in resourceLinks)
             {
-                if (client == null || client.Id != resourceLink.ClientId)
-                {
-                    client = await _identityContext.Clients.FindAsync(resourceLink.ClientId);
-                }
+                var tool = await _appContext.Tools.FindAsync(link.ToolId);
 
                 list.Add(new ResourceLinkModel
                 {
-                    Id = resourceLink.Id,
-                    ClientName = client == null ? "[No Client]" : client.ClientName,
-                    DeploymentId = resourceLink.DeploymentId,
-                    ToolName = resourceLink.ToolName,
-                    ToolPlacement = resourceLink.ToolPlacement,
-                    ToolUrl = resourceLink.ToolUrl
+                    Id = link.Id,
+                    Title = link.Title,
+                    ToolName = tool.Name,
+                    LinkContext = link.LinkContext
                 });
             }
-
-            list = list.OrderBy(d => d.ToolName).ToList();
 
             return list;
         }

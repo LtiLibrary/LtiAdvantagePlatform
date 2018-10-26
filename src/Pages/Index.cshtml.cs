@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using AdvantagePlatform.Pages.ResourceLinks;
-using IdentityServer4.EntityFramework.Entities;
+using AdvantagePlatform.Pages.Tools;
 using IdentityServer4.EntityFramework.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -13,16 +13,16 @@ namespace AdvantagePlatform.Pages
     public class IndexModel : PageModel
     {
         private readonly ApplicationDbContext _appContext;
-        private readonly IConfigurationDbContext _identityContext;
+        private readonly IConfigurationDbContext _identityConfig;
         private readonly UserManager<AdvantagePlatformUser> _userManager;
 
         public IndexModel(
-            ApplicationDbContext appContext, 
-            IConfigurationDbContext identityContext,
+            ApplicationDbContext appContext,
+            IConfigurationDbContext identityConfig,
             UserManager<AdvantagePlatformUser> userManager)
         {
             _appContext = appContext;
-            _identityContext = identityContext;
+            _identityConfig = identityConfig;
             _userManager = userManager;
         }
 
@@ -30,6 +30,7 @@ namespace AdvantagePlatform.Pages
         public Course Course { get; set; }
         public Person Teacher { get; set; }
         public Person Student { get; set; }
+        public IList<ToolModel> Tools { get; set; }
         public IList<ResourceLinkModel> PlatformResourceLinks { get; set; }
         public IList<ResourceLinkModel> CourseResourceLinks { get; set; }
 
@@ -43,40 +44,58 @@ namespace AdvantagePlatform.Pages
                 Teacher = await _appContext.People.FindAsync(user.TeacherId);
                 Student = await _appContext.People.FindAsync(user.StudentId);
 
-                PlatformResourceLinks = await GetDeplomentModelsAsync(ResourceLink.ToolPlacements.Platform, user.Id);
-                CourseResourceLinks = await GetDeplomentModelsAsync(ResourceLink.ToolPlacements.Course, user.Id);
+                Tools = await GetTools(user.Id);
+
+                PlatformResourceLinks = await GetResourceLinksAsync(ResourceLink.LinkContexts.Platform, user.Id);
+                CourseResourceLinks = await GetResourceLinksAsync(ResourceLink.LinkContexts.Course, user.Id);
             }
         }
 
-        private async Task<IList<ResourceLinkModel>> GetDeplomentModelsAsync(ResourceLink.ToolPlacements placement,
+        private async Task<IList<ResourceLinkModel>> GetResourceLinksAsync(ResourceLink.LinkContexts context,
             string userId)
         {
             var list = new List<ResourceLinkModel>();
 
             var resourceLinks = _appContext.ResourceLinks
-                .Where(d => d.ToolPlacement == placement
+                .Where(d => d.LinkContext == context
                             && d.UserId == userId)
-                .OrderBy(d => d.ClientId);
+                .OrderBy(d => d.Title);
 
-            Client client = null;
-            foreach (var resourceLink in resourceLinks)
+            foreach (var link in resourceLinks)
             {
-                if (client == null || client.Id != resourceLink.ClientId)
-                {
-                    client = await _identityContext.Clients.FindAsync(resourceLink.ClientId);
-                }
+                var tool = await _appContext.Tools.FindAsync(link.ToolId);
 
                 list.Add(new ResourceLinkModel
                 {
-                    Id = resourceLink.Id,
-                    ClientName = client == null ? "[No Client]" : client.ClientName,
-                    DeploymentId = resourceLink.DeploymentId,
-                    ToolName = resourceLink.ToolName,
-                    ToolUrl = resourceLink.ToolUrl
+                    Id = link.Id,
+                    Title = link.Title,
+                    ToolName = tool.Name,
+                    LinkContext = link.LinkContext
                 });
             }
 
-            list = list.OrderBy(d => d.ToolName).ToList();
+            return list;
+        }
+
+        private async Task<IList<ToolModel>> GetTools(string userId)
+        {
+            var tools = _appContext.Tools
+                .Where(tool => tool.UserId == userId)
+                .OrderBy(tool => tool.Name);
+
+            var list = new List<ToolModel>();
+            foreach (var tool in tools)
+            {
+                var client = await _identityConfig.Clients.FindAsync(tool.IdentSvrClientId);
+
+                list.Add(new ToolModel
+                {
+                    ClientId = client.ClientId,
+                    DeploymentId = tool.DeploymentId,
+                    Name = tool.Name,
+                    Url = tool.Url
+                });
+            }
 
             return list;
         }

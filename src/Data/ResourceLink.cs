@@ -7,43 +7,31 @@ namespace AdvantagePlatform.Data
         public int Id { get; set; }
 
         /// <summary>
-        /// The Client to use with this ResourceLink.
-        /// </summary>
-        public int ClientId { get; set; }
-
-        [Required]
-        [Display(Name = "Deployment ID")]
-        public string DeploymentId { get; set; }
-
-        /// <summary>
-        /// The Tool name.
-        /// </summary>
-        [Required]
-        [Display(Name = "Tool Name")]
-        public string ToolName { get; set; }
-
-        /// <summary>
-        /// The Tool placement of this ResourceLink. Can be either the user's
+        /// The placement of this Resource Link. Can be either the user's
         /// platform or the user's course.
         /// </summary>
         [Required]
-        [Display(Name = "Tool Placement")]
-        public ToolPlacements? ToolPlacement { get; set; }
+        [Display(Name = "Context")]
+        public LinkContexts? LinkContext { get; set; }
 
         /// <summary>
-        /// The URL used to launch the Tool.
+        /// The title of this Resource Link
         /// </summary>
-        [NullableUrl]
         [Required]
-        [Display(Name = "Tool URL")]
-        public string ToolUrl { get; set; }
+        [Display(Name = "Title")]
+        public string Title { get; set; }
+
+        /// <summary>
+        /// The Tool to use with this Resource Link
+        /// </summary>
+        public int ToolId { get; set; }
 
         /// <summary>
         /// The ID of the AdvantagePlatformUser that created this ResourceLink.
         /// </summary>
         public string UserId { get; set; }
 
-        public enum ToolPlacements
+        public enum LinkContexts
         {
             Course,
             Platform

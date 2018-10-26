@@ -30,13 +30,12 @@
                 <h4>Getting Started</h4>
                 <ol>
                     <li>
-                        <a asp-page="./Clients/Index">Create a Client</a> for your Tool Platform.
-                        This will generate a <code>Client ID</code> and <code>Client Secret</code>.
-                        Copy these to your Tool Platform along with the <code>Issuer URL</code>.
+                        <a asp-page="./Tools/Index">Register your Tool</a>.
+                        This will generate a <code>Client ID</code>. Copy this to your Tool. 
                     </li>
                     <li>
                         <a asp-page="./ResourceLinks/Index">Create a Resource Link</a> to place your Tool
-                        in the Platform or Course context, and associate it with a Client.
+                        in the Platform or Course context.
                     </li>
                     <li>
                         Launch your Tool as the Teacher or Student and watch your Tool appear!
@@ -58,38 +57,43 @@
                         <div class="row">
                             <div class="col-4">
                                 <div class="row">
-                                    <dl class="col-sm-6">
+                                    <dl class="col">
                                         <dt>@Html.DisplayNameFor(m => m.Platform.Name)</dt>
                                         <dd>
                                             @Html.DisplayFor(m => m.Platform.Name)
                                         </dd>
                                     </dl>
                                 </div>
-                                <h4>Resource Links</h4>
+                                <h4>
+                                    Resource Links
+                                    <a class="btn text-light float-sm-right fas fa-edit"
+                                       data-toggle="tooltip"
+                                       title="Edit the Tools"
+                                       asp-page="./ResourceLinks/Index">
+                                    </a>
+                                </h4>
                                 @if (Model.PlatformResourceLinks.Any())
                                 {
                                     <div class="row">
                                         @foreach (var resourceLink in Model.PlatformResourceLinks)
                                         {
-                                            <div class="card bg-warning m-3 text-dark">
-                                                <h5 class="card-header">@resourceLink.ToolName</h5>
-                                                <div class="card-body">
-                                                    <dl>
-                                                        <dt>@Html.DisplayNameFor(m => m.PlatformResourceLinks[0].ToolUrl)</dt>
-                                                        <dd>@resourceLink.ToolUrl</dd>
-                                                        <dt>@Html.DisplayNameFor(m => m.PlatformResourceLinks[0].ClientName)</dt>
-                                                        <dd>@resourceLink.ClientName</dd>
-                                                        <dt>@Html.DisplayNameFor(m => m.CourseResourceLinks[0].DeploymentId)</dt>
-                                                        <dd>@resourceLink.DeploymentId</dd>
-                                                    </dl>
-                                                    <a class="btn btn-sm btn-secondary mt-2 mb-2" target="_blank"
-                                                       asp-page="ResourceLinks/LaunchPage"
-                                                       asp-route-id="@resourceLink.Id"
-                                                       asp-route-persona="teacher">Launch as Teacher</a>
-                                                    <a class="btn btn-sm btn-secondary" target="_blank"
-                                                       asp-page="ResourceLinks/LaunchPage"
-                                                       asp-route-id="@resourceLink.Id"
-                                                       asp-route-persona="student">Launch as Student</a>
+                                            <div class="col-12">
+                                                <div class="card bg-warning mb-3 text-dark">
+                                                    <h5 class="card-header text-truncate">@resourceLink.Title</h5>
+                                                    <div class="card-body">
+                                                        <dl>
+                                                            <dt>@Html.DisplayNameFor(m => m.PlatformResourceLinks[0].ToolName)</dt>
+                                                            <dd>@resourceLink.ToolName</dd>
+                                                        </dl>
+                                                        <a class="btn btn-sm btn-secondary mt-2 mb-2" target="_blank"
+                                                           asp-page="ResourceLinks/LaunchPage"
+                                                           asp-route-id="@resourceLink.Id"
+                                                           asp-route-persona="teacher">Launch as Teacher</a>
+                                                        <a class="btn btn-sm btn-secondary" target="_blank"
+                                                           asp-page="ResourceLinks/LaunchPage"
+                                                           asp-route-id="@resourceLink.Id"
+                                                           asp-route-persona="student">Launch as Student</a>
+                                                    </div>
                                                 </div>
                                             </div>
                                         }
@@ -103,7 +107,7 @@
                             <div class="col-8">
                                 <div class="card bg-secondary">
                                     <h4 class="card-header">
-                                        Course 
+                                        Course
                                         <a class="btn text-light float-sm-right fas fa-edit"
                                            data-toggle="tooltip"
                                            title="Edit the Course Settings"
@@ -119,7 +123,7 @@
                                             </dl>
                                         </div>
                                         <h4>
-                                            Members 
+                                            Members
                                             <a class="btn text-light float-sm-right fas fa-edit"
                                                data-toggle="tooltip"
                                                title="Edit the Member Settings"
@@ -137,31 +141,36 @@
                                                 <dd>@Html.DisplayFor(m => m.Student.FirstName) @Html.DisplayFor(m => m.Student.LastName)</dd>
                                             </dl>
                                         </div>
-                                        <h4>Resource Links</h4>
+                                        <h4>
+                                            Resource Links
+                                            <a class="btn text-light float-sm-right fas fa-edit"
+                                               data-toggle="tooltip"
+                                               title="Edit the Tools"
+                                               asp-page="./ResourceLinks/Index">
+                                            </a>
+                                        </h4>
                                         @if (Model.CourseResourceLinks.Any())
                                         {
                                             <div class="row">
                                                 @foreach (var resourceLink in Model.CourseResourceLinks)
                                                 {
-                                                    <div class="card bg-warning m-3 text-dark">
-                                                        <h5 class="card-header">@resourceLink.ToolName</h5>
-                                                        <div class="card-body">
-                                                            <dl>
-                                                                <dt>@Html.DisplayNameFor(m => m.CourseResourceLinks[0].ToolUrl)</dt>
-                                                                <dd>@resourceLink.ToolUrl</dd>
-                                                                <dt>@Html.DisplayNameFor(m => m.CourseResourceLinks[0].ClientName)</dt>
-                                                                <dd>@resourceLink.ClientName</dd>
-                                                                <dt>@Html.DisplayNameFor(m => m.CourseResourceLinks[0].DeploymentId)</dt>
-                                                                <dd>@resourceLink.DeploymentId</dd>
-                                                            </dl>
-                                                            <a class="btn btn-sm btn-secondary mb-2 mt-2" target="_blank"
-                                                               asp-page="ResourceLinks/LaunchPage"
-                                                               asp-route-id="@resourceLink.Id"
-                                                               asp-route-persona="teacher">Launch as Teacher</a>
-                                                            <a class="btn btn-sm btn-secondary mb-2 mt-2" target="_blank"
-                                                               asp-page="ResourceLinks/LaunchPage"
-                                                               asp-route-id="@resourceLink.Id"
-                                                               asp-route-persona="student">Launch as Student</a>
+                                                    <div class="col-sm-4">
+                                                        <div class="card bg-warning mb-3 text-dark">
+                                                            <h5 class="card-header">@resourceLink.Title</h5>
+                                                            <div class="card-body">
+                                                                <dl>
+                                                                    <dt>@Html.DisplayNameFor(m => m.CourseResourceLinks[0].ToolName)</dt>
+                                                                    <dd>@resourceLink.ToolName</dd>
+                                                                </dl>
+                                                                <a class="btn btn-sm btn-secondary mb-2 mt-2" target="_blank"
+                                                                   asp-page="ResourceLinks/LaunchPage"
+                                                                   asp-route-id="@resourceLink.Id"
+                                                                   asp-route-persona="teacher">Launch as Teacher</a>
+                                                                <a class="btn btn-sm btn-secondary mb-2 mt-2" target="_blank"
+                                                                   asp-page="ResourceLinks/LaunchPage"
+                                                                   asp-route-id="@resourceLink.Id"
+                                                                   asp-route-persona="student">Launch as Student</a>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 }
@@ -170,6 +179,49 @@
                                         else
                                         {
                                             <p>No resource links deployed to the course yet. See Getting Started.</p>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col">
+                                <div class="card bg-success">
+                                    <h5 class="card-header">
+                                        Tools
+                                        <a class="btn text-light float-sm-right fas fa-edit"
+                                           data-toggle="tooltip"
+                                           title="Edit the Tools"
+                                           asp-page="./Tools/Index">
+                                        </a>
+                                    </h5>
+                                    <div class="card-body">
+                                        @if (!Model.Tools.Any())
+                                        {
+                                            <p> No tools have been registered. See Getting Started.</p>
+                                        }
+                                        else
+                                        {
+                                            <div class="row">
+                                                @foreach (var tool in Model.Tools)
+                                                {
+                                                    <div class="col-sm-4">
+                                                        <div class="card bg-light mb-3 text-dark">
+                                                            <h5 class="card-header text-truncate">@tool.Name</h5>
+                                                            <div class="card-body">
+                                                                <dl>
+                                                                    <dt>@Html.DisplayNameFor(m => m.Tools[0].Url)</dt>
+                                                                    <dd class="text-truncate"><span title="@tool.Url">@tool.Url</span></dd>
+                                                                    <dt>@Html.DisplayNameFor(m => m.Tools[0].ClientId)</dt>
+                                                                    <dd>@tool.ClientId</dd>
+                                                                    <dt>@Html.DisplayNameFor(m => m.Tools[0].DeploymentId)</dt>
+                                                                    <dd>@tool.DeploymentId</dd>
+                                                                </dl>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
                                         }
                                     </div>
                                 </div>

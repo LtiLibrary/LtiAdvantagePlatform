@@ -51,7 +51,13 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 return NotFound();
             }
 
-            var client = await _identityContext.Clients.FindAsync(resourceLink.ClientId);
+            var tool = await _appContext.Tools.FindAsync(resourceLink.ToolId);
+            if (tool == null)
+            {
+                return NotFound();
+            }
+
+            var client = await _identityContext.Clients.FindAsync(tool.IdentSvrClientId);
             if (client == null)
             {
                 return NotFound();
@@ -61,29 +67,29 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 ? await _appContext.People.FindAsync(user.TeacherId)
                 : await _appContext.People.FindAsync(user.StudentId);
 
-            var course = resourceLink.ToolPlacement == ResourceLink.ToolPlacements.Course
+            var course = resourceLink.LinkContext == ResourceLink.LinkContexts.Course
                 ? await _appContext.Courses.FindAsync(user.CourseId)
                 : null;
 
             var platform = await _appContext.Platforms.FindAsync(user.PlatformId);
 
-            IdToken = await GetJwtAsync(resourceLink, client, person, course, platform);
-            ToolUrl = resourceLink.ToolUrl;
+            IdToken = await GetJwtAsync(resourceLink, tool, client, person, course, platform);
+            ToolUrl = tool.Url;
 
             return Page();
         }
 
-        private async Task<string> GetJwtAsync(ResourceLink resourceLink, Client client, Person person, Course course, Platform platform)
+        private async Task<string> GetJwtAsync(ResourceLink resourceLink, Tool tool, Client client, Person person, Course course, Platform platform)
         {
             var request = new LtiResourceLinkRequest
             {
                 MessageType = LtiConstants.LtiResourceLinkRequestMessageType,
                 Version = LtiConstants.Version,
-                DeploymentId = resourceLink.DeploymentId,
+                DeploymentId = tool.DeploymentId,
                 ResourceLink = new ResourceLinkClaimValueType
                 {
                     Id = resourceLink.Id.ToString(),
-                    Title = resourceLink.ToolName
+                    Title = resourceLink.Title
                 },
                 GivenName = person.FirstName,
                 FamilyName = person.LastName,

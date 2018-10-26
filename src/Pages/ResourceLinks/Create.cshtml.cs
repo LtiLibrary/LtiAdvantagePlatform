@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
-using IdentityServer4.EntityFramework.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -16,13 +15,11 @@ namespace AdvantagePlatform.Pages.ResourceLinks
     public class CreateModel : PageModel
     {
         private readonly ApplicationDbContext _appContext;
-        private readonly IConfigurationDbContext _identityContext;
         private readonly UserManager<AdvantagePlatformUser> _userManager;
 
-        public CreateModel(ApplicationDbContext appContext, IConfigurationDbContext identityContext, UserManager<AdvantagePlatformUser> userManager)
+        public CreateModel(ApplicationDbContext appContext, UserManager<AdvantagePlatformUser> userManager)
         {
             _appContext = appContext;
-            _identityContext = identityContext;
             _userManager = userManager;
         }
 
@@ -31,9 +28,9 @@ namespace AdvantagePlatform.Pages.ResourceLinks
 
         [BindProperty]
         [Required]
-        [Display(Name = "Client")]
-        public int ClientId { get; set; }
-        public IList<SelectListItem> Clients { get; private set; }
+        [Display(Name = "Tool")]
+        public int ToolId { get; set; }
+        public IList<SelectListItem> Tools { get; private set; }
 
         public IList<SelectListItem> ToolPlacements { get; private set; }
 
@@ -41,18 +38,17 @@ namespace AdvantagePlatform.Pages.ResourceLinks
         {
             var user = await _userManager.GetUserAsync(User);
 
-            Clients = await _identityContext.Clients
-                .Include(client => client.Properties)
-                .Where(client => client.Properties.Any(prop => prop.Value == user.Id))
-                .OrderBy(client => client.ClientName)
-                .Select(client => new SelectListItem
+            Tools = await _appContext.Tools
+                .Where(tool => tool.UserId == user.Id)
+                .OrderBy(tool => tool.Name)
+                .Select(tool => new SelectListItem
                 {
-                    Text = client.ClientName,
-                    Value = client.Id.ToString()
+                    Text = tool.Name,
+                    Value = tool.Id.ToString()
                 })
                 .ToListAsync();
 
-            ToolPlacements = Enum.GetNames(typeof(ResourceLink.ToolPlacements))
+            ToolPlacements = Enum.GetNames(typeof(ResourceLink.LinkContexts))
                 .Select(t => new SelectListItem
                 {
                     Value = t,
@@ -71,8 +67,9 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             }
 
             var user = await _userManager.GetUserAsync(User);
+
             ResourceLink.UserId = user.Id;
-            ResourceLink.ClientId = ClientId;
+            ResourceLink.ToolId = ToolId;
 
             _appContext.ResourceLinks.Add(ResourceLink);
             await _appContext.SaveChangesAsync();
