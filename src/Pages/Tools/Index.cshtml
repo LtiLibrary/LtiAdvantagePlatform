@@ -1,0 +1,38 @@
+﻿@page
+@model IndexModel
+
+@{
+    ViewData["Title"] = "Tools";
+}
+
+<div class="container">
+    <h4>@ViewData["Title"]</h4>
+    <p>
+        <a asp-page="Create">Register New Tool</a>
+    </p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(m => m.Tools[0].Name)</th>
+                <th>@Html.DisplayNameFor(m => m.Tools[0].ClientId)</th>
+                <th>@Html.DisplayNameFor(m => m.Tools[0].DeploymentId)</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var tool in Model.Tools)
+            {
+                <tr>
+                    <td>@tool.Name</td>
+                    <td>@tool.ClientId</td>
+                    <td>@tool.DeploymentId</td>
+                    <td>
+                        <a asp-page="./Edit" asp-route-id="@tool.Id">Edit</a> |
+                        <a asp-page="./Details" asp-route-id="@tool.Id">Details</a> |
+                        <a asp-page="./Delete" asp-route-id="@tool.Id">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,36 +1,40 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+﻿using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.IdentityModel.Tokens;
 
-namespace AdvantagePlatform.Pages.Clients
+namespace AdvantagePlatform.Pages.Tools
 {
     public class CreateModel : PageModel
     {
+        private readonly ApplicationDbContext _appContext;
         private readonly IConfigurationDbContext _identityContext;
         private readonly UserManager<AdvantagePlatformUser> _userManager;
 
         [BindProperty]
-        public ClientModel Client { get; set; }
+        public ToolModel Tool { get; set; }
 
-        public CreateModel(IConfigurationDbContext identityContext, UserManager<AdvantagePlatformUser> userManager)
+        public CreateModel(
+            ApplicationDbContext appContext, 
+            IConfigurationDbContext identityContext, 
+            UserManager<AdvantagePlatformUser> userManager)
         {
+            _appContext = appContext;
             _identityContext = identityContext;
             _userManager = userManager;
         }
 
         public IActionResult OnGet()
         {
-            Client = new ClientModel
+            Tool = new ToolModel
             {
-                ClientId = Guid.NewGuid().ToString("N"),
-                ClientSecret = GenerateClientSecret()
+                ClientId = GenerateRandomString(8),
+                DeploymentId = GenerateRandomString(8)
             };
             return Page();
         }
@@ -44,36 +48,40 @@ namespace AdvantagePlatform.Pages.Clients
 
             var client = new Client
             {
-                ClientId = Client.ClientId,
-                ClientName = Client.ClientName,
-                ClientSecrets = { new Secret(Client.ClientSecret.Sha256()) },
+                ClientId = Tool.ClientId,
+                ClientName = Tool.Name,
 
                 AllowOfflineAccess = true,
                 AllowedGrantTypes = GrantTypes.ClientCredentials,
                 AllowedScopes = new [] { "api1" }
             };
 
-            // Save the ClientSecret in plain text so Tool owner can retrieve it
-            // like Google does in their developer console
-            client.Properties.Add("secret", Client.ClientSecret);
-
-            // Record the user that created this client
-            var user = await _userManager.GetUserAsync(User);
-            client.Properties.Add("userid", user.Id);
-
             var entity = client.ToEntity();
 
             await _identityContext.Clients.AddAsync(entity);
             await _identityContext.SaveChangesAsync();
 
+            var user = await _userManager.GetUserAsync(User);
+            var tool = new Tool
+            {
+                DeploymentId = Tool.DeploymentId,
+                IdentSvrClientId = entity.Id,
+                Name = Tool.Name,
+                Url = Tool.Url,
+                UserId = user.Id
+            };
+
+            await _appContext.Tools.AddAsync(tool);
+            await _appContext.SaveChangesAsync();
+
             return RedirectToPage("./Index");
         }
 
-        private static string GenerateClientSecret()
+        private static string GenerateRandomString(int length = 24)
         {
             using (var rng = System.Security.Cryptography.RandomNumberGenerator.Create())
             {
-                var buffer = new byte[24];
+                var buffer = new byte[length];
                 rng.GetBytes(buffer);
                 return Base64UrlEncoder.Encode(buffer);
             }

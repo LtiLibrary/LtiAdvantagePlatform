@@ -28,7 +28,7 @@ namespace AdvantagePlatform.Data
         [Display(Name = "Product Family Code")]
         public string ProductFamilyCode { get; set; }
 
-        [Url]
+        [NullableUrl]
         [Display(Name = "URL")]
         public string Url { get; set; }
 

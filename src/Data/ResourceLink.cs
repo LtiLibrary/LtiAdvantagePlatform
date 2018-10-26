@@ -33,7 +33,7 @@ namespace AdvantagePlatform.Data
         /// <summary>
         /// The URL used to launch the Tool.
         /// </summary>
-        [Url]
+        [NullableUrl]
         [Required]
         [Display(Name = "Tool URL")]
         public string ToolUrl { get; set; }

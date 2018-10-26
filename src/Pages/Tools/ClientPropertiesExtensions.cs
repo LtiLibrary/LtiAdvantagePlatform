@@ -2,7 +2,7 @@
 using System.Linq;
 using IdentityServer4.EntityFramework.Entities;
 
-namespace AdvantagePlatform.Pages.Clients
+namespace AdvantagePlatform.Pages.Tools
 {
     public static class ClientPropertiesExtensions
     {
