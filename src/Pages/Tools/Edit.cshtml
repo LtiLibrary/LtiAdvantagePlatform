@@ -14,18 +14,18 @@
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <input type="hidden" asp-for="Tool.Id" />
                 <div class="form-group">
-                    <label asp-for="Tool.Name"></label>
-                    <input asp-for="Tool.Name" class="form-control" />
-                    <span asp-validation-for="Tool.Name" class="text-danger"></span>
+                    <label asp-for="Tool.ToolName"></label>
+                    <input asp-for="Tool.ToolName" class="form-control" />
+                    <span asp-validation-for="Tool.ToolName" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="Tool.Url"></label>
-                    <input asp-for="Tool.Url" class="form-control" />
-                    <span asp-validation-for="Tool.Url" class="text-danger"></span>
+                    <label asp-for="Tool.ToolUrl"></label>
+                    <input asp-for="Tool.ToolUrl" class="form-control" />
+                    <span asp-validation-for="Tool.ToolUrl" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="Tool.ClientId"></label>
-                    <input asp-for="Tool.ClientId" class="form-control" readonly="readonly" />
+                    <label asp-for="Tool.ToolClientId"></label>
+                    <input asp-for="Tool.ToolClientId" class="form-control" readonly="readonly" />
                 </div>
                 <div class="form-group">
                     <label asp-for="Tool.DeploymentId"></label>

@@ -9,22 +9,33 @@
     <h4>Register Tool</h4>
     <hr />
     <div class="row">
-        <div class="col-md-5">
+        <div class="col-sm-7">
             <form method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group">
-                    <label asp-for="Tool.Name"></label>
-                    <input asp-for="Tool.Name" class="form-control" />
-                    <span asp-validation-for="Tool.Name" class="text-danger"></span>
+                    <label asp-for="Tool.ToolName"></label>
+                    <input asp-for="Tool.ToolName" class="form-control" />
+                    <span asp-validation-for="Tool.ToolName" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="Tool.Url"></label>
-                    <input asp-for="Tool.Url" class="form-control" />
-                    <span asp-validation-for="Tool.Url" class="text-danger"></span>
+                    <label asp-for="Tool.ToolClientId"></label>
+                    <input asp-for="Tool.ToolClientId" class="form-control" />
+                    <span asp-validation-for="Tool.ToolClientId" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="Tool.ClientId"></label>
-                    <input asp-for="Tool.ClientId" class="form-control" value="@Model.Tool.ClientId" readonly="readonly" />
+                    <label asp-for="Tool.ToolUrl"></label>
+                    <input asp-for="Tool.ToolUrl" class="form-control" />
+                    <span asp-validation-for="Tool.ToolUrl" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Tool.ToolIssuer"></label>
+                    <input asp-for="Tool.ToolIssuer" class="form-control" />
+                    <span asp-validation-for="Tool.ToolIssuer" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Tool.ToolJsonWebKeysUrl"></label>
+                    <input asp-for="Tool.ToolJsonWebKeysUrl" class="form-control" />
+                    <span asp-validation-for="Tool.ToolJsonWebKeysUrl" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="Tool.DeploymentId"></label>

@@ -45,7 +45,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 {
                     Id = link.Id,
                     Title = link.Title,
-                    ToolName = tool.Name,
+                    ToolName = tool.ToolName,
                     LinkContext = link.LinkContext
                 });
             }

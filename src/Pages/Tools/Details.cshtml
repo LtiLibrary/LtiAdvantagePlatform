@@ -6,25 +6,29 @@
 }
 <div class="container">
     <h4>Tool Details</h4>
-    <p>
-        The Issuer supports 
-        <a href="@Model.OidcDiscoveryUri" target="_blank">OpenID Connect Discovery</a>.
-        If your Tool does not support OpenID Connect Discovery, click on the link to display
-        the individual URLs you will need to configure your tool.
-    </p>
     <hr />
     <div class="row">
-        <div class="col">
+        <div class="col-sm-7">
             <dl>
-                <dt>@Html.DisplayNameFor(model => model.Tool.Name)</dt>
-                <dd>@Html.DisplayFor(model => model.Tool.Name)</dd>
-                <dt>@Html.DisplayNameFor(model => model.Tool.Url)</dt>
-                <dd>@Html.DisplayFor(model => model.Tool.Url)</dd>
-                <dt>@Html.DisplayNameFor(model => model.Tool.ClientId)</dt>
-                <dd>@Html.DisplayFor(model => model.Tool.ClientId)</dd>
+                <dt>@Html.DisplayNameFor(model => model.Tool.ToolName)</dt>
+                <dd>@Html.DisplayFor(model => model.Tool.ToolName)</dd>
+                <dt>@Html.DisplayNameFor(model => model.Tool.ToolUrl)</dt>
+                <dd>@Html.DisplayFor(model => model.Tool.ToolUrl)</dd>
+                <dt>@Html.DisplayNameFor(model => model.Tool.ToolClientId)</dt>
+                <dd>@Html.DisplayFor(model => model.Tool.ToolClientId)</dd>
                 <dt>@Html.DisplayNameFor(model => model.Tool.DeploymentId)</dt>
                 <dd>@Html.DisplayFor(model => model.Tool.DeploymentId)</dd>
             </dl>
+            <dl>
+                <dt>@Html.DisplayNameFor(m => m.PlatformIssuer)</dt>
+                <dd>@Html.DisplayFor(m => m.PlatformIssuer)</dd>
+            </dl>
+            <p>
+                The @Html.DisplayNameFor(m => m.PlatformIssuer) supports 
+                <a href="@Model.OidcDiscoveryUri" target="_blank">OpenID Connect Discovery</a>.
+                If your Tool does not support OpenID Connect Discovery, click on the link to display
+                the individual URLs you will need to configure your tool.
+            </p>
             <div>
                 <a asp-page="./Edit" asp-route-id="@Model.Tool.Id">Edit</a> |
                 <a asp-page="./Index">Back to List</a>

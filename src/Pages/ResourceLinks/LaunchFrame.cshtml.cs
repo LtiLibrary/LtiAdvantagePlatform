@@ -74,7 +74,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             var platform = await _appContext.Platforms.FindAsync(user.PlatformId);
 
             IdToken = await GetJwtAsync(resourceLink, tool, client, person, course, platform);
-            ToolUrl = tool.Url;
+            ToolUrl = tool.ToolUrl;
 
             return Page();
         }

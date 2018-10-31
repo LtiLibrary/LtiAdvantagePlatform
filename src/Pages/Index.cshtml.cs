@@ -69,7 +69,7 @@ namespace AdvantagePlatform.Pages
                 {
                     Id = link.Id,
                     Title = link.Title,
-                    ToolName = tool.Name,
+                    ToolName = tool.ToolName,
                     LinkContext = link.LinkContext
                 });
             }
@@ -81,7 +81,7 @@ namespace AdvantagePlatform.Pages
         {
             var tools = _appContext.Tools
                 .Where(tool => tool.UserId == userId)
-                .OrderBy(tool => tool.Name);
+                .OrderBy(tool => tool.ToolName);
 
             var list = new List<ToolModel>();
             foreach (var tool in tools)
@@ -90,10 +90,10 @@ namespace AdvantagePlatform.Pages
 
                 list.Add(new ToolModel
                 {
-                    ClientId = client.ClientId,
+                    ToolClientId = client.ClientId,
                     DeploymentId = tool.DeploymentId,
-                    Name = tool.Name,
-                    Url = tool.Url
+                    ToolName = tool.ToolName,
+                    ToolUrl = tool.ToolUrl
                 });
             }
 

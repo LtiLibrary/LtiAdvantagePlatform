@@ -13,8 +13,8 @@
     <table class="table">
         <thead>
             <tr>
-                <th>@Html.DisplayNameFor(m => m.Tools[0].Name)</th>
-                <th>@Html.DisplayNameFor(m => m.Tools[0].ClientId)</th>
+                <th>@Html.DisplayNameFor(m => m.Tools[0].ToolName)</th>
+                <th>@Html.DisplayNameFor(m => m.Tools[0].ToolClientId)</th>
                 <th>@Html.DisplayNameFor(m => m.Tools[0].DeploymentId)</th>
                 <th></th>
             </tr>
@@ -23,8 +23,8 @@
             @foreach (var tool in Model.Tools)
             {
                 <tr>
-                    <td>@tool.Name</td>
-                    <td>@tool.ClientId</td>
+                    <td>@tool.ToolName</td>
+                    <td>@tool.ToolClientId</td>
                     <td>@tool.DeploymentId</td>
                     <td>
                         <a asp-page="./Edit" asp-route-id="@tool.Id">Edit</a> |

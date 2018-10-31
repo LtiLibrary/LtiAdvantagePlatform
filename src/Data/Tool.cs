@@ -19,14 +19,24 @@
         public int IdentSvrClientId { get; set; }
 
         /// <summary>
+        /// The Issuer of requests that originate from the Tool.
+        /// </summary>
+        public string ToolIssuer { get; set; }
+
+        /// <summary>
+        /// The URL of the Tool's JSON Web Keys endpoints.
+        /// </summary>
+        public string ToolJsonWebKeysUrl { get; set; }
+
+        /// <summary>
         /// The Tool name.
         /// </summary>
-        public string Name { get; set; }
+        public string ToolName { get; set; }
         
         /// <summary>
         /// The URL used to launch the Tool.
         /// </summary>
-        public string Url { get; set; }
+        public string ToolUrl { get; set; }
 
         /// <summary>
         /// The ID of the AdvantagePlatformUser that created this ResourceLink.

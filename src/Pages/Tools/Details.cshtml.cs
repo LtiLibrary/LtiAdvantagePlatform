@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.Extensions;
@@ -25,6 +26,9 @@ namespace AdvantagePlatform.Pages.Tools
         }
 
         public string OidcDiscoveryUri { get; set; }
+
+        [Display(Name = "Platform Issuer")]
+        public string PlatformIssuer { get; set; }
 
         public ToolModel Tool { get; set; }
 
@@ -54,13 +58,14 @@ namespace AdvantagePlatform.Pages.Tools
             Tool = new ToolModel
             {
                 Id = tool.Id,
-                ClientId = client.ClientId,
+                ToolClientId = client.ClientId,
                 DeploymentId = tool.DeploymentId,
-                Name = tool.Name,
-                Url = tool.Url
+                ToolName = tool.ToolName,
+                ToolUrl = tool.ToolUrl
             };
 
             OidcDiscoveryUri = HttpContext.GetIdentityServerBaseUrl() + "/.well-known/openid-configuration";
+            PlatformIssuer = HttpContext.GetIdentityServerIssuerUri();
 
             return Page();
         }

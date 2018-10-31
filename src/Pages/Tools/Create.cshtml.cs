@@ -33,7 +33,6 @@ namespace AdvantagePlatform.Pages.Tools
         {
             Tool = new ToolModel
             {
-                ClientId = GenerateRandomString(8),
                 DeploymentId = GenerateRandomString(8)
             };
             return Page();
@@ -48,8 +47,8 @@ namespace AdvantagePlatform.Pages.Tools
 
             var client = new Client
             {
-                ClientId = Tool.ClientId,
-                ClientName = Tool.Name,
+                ClientId = Tool.ToolClientId,
+                ClientName = Tool.ToolName,
 
                 AllowOfflineAccess = true,
                 AllowedGrantTypes = GrantTypes.ClientCredentials,
@@ -66,8 +65,10 @@ namespace AdvantagePlatform.Pages.Tools
             {
                 DeploymentId = Tool.DeploymentId,
                 IdentSvrClientId = entity.Id,
-                Name = Tool.Name,
-                Url = Tool.Url,
+                ToolIssuer = Tool.ToolIssuer,
+                ToolJsonWebKeysUrl = Tool.ToolJsonWebKeysUrl,
+                ToolName = Tool.ToolName,
+                ToolUrl = Tool.ToolUrl,
                 UserId = user.Id
             };
 

@@ -51,10 +51,10 @@ namespace AdvantagePlatform.Pages.Tools
             Tool = new ToolModel
             {
                 Id = tool.Id,
-                ClientId = client.ClientId,
+                ToolClientId = client.ClientId,
                 DeploymentId = tool.DeploymentId,
-                Name = tool.Name,
-                Url = tool.Url
+                ToolName = tool.ToolName,
+                ToolUrl = tool.ToolUrl
             };
 
             return Page();
