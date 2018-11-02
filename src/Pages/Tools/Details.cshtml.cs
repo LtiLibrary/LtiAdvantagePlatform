@@ -27,7 +27,7 @@ namespace AdvantagePlatform.Pages.Tools
 
         public string OidcDiscoveryUri { get; set; }
 
-        [Display(Name = "Platform Issuer")]
+        [Display(Name = "Platform Issuer", Description = "This is the Issuer for all messages that originate from the Platform.")]
         public string PlatformIssuer { get; set; }
 
         public ToolModel Tool { get; set; }

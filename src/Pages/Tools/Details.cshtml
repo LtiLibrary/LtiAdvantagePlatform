@@ -27,7 +27,10 @@
                     <dl>
                         <dt>@Html.DisplayNameFor(model => model.Tool.ToolClientId)</dt>
                         <dd>@Model.Tool.ToolClientId</dd>
-                        <dt>@Html.DisplayNameFor(m => m.Tool.ToolIssuer)</dt>
+                        <dt>
+                            @Html.DisplayNameFor(m => m.Tool.ToolIssuer)
+                            <tooltip asp-for="Tool.ToolIssuer"></tooltip>
+                        </dt>
                         <dd>@Model.Tool.ToolIssuer</dd>
                     </dl>
                     <div class="alert alert-info">
@@ -54,7 +57,10 @@
                     <dl>
                         <dt>@Html.DisplayNameFor(model => model.Tool.DeploymentId)</dt>
                         <dd>@Html.DisplayFor(model => model.Tool.DeploymentId)</dd>
-                        <dt>@Html.DisplayNameFor(m => m.PlatformIssuer)</dt>
+                        <dt>
+                            @Html.DisplayNameFor(m => m.PlatformIssuer)
+                            <tooltip asp-for="PlatformIssuer"></tooltip>
+                        </dt>
                         <dd>@Html.DisplayFor(m => m.PlatformIssuer)</dd>
                     </dl>
                 </div>

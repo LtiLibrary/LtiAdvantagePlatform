@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using AdvantagePlatform.Data;
+using AdvantagePlatform.Utility;
 
 namespace AdvantagePlatform.Pages.Tools
 {
@@ -24,7 +24,7 @@ namespace AdvantagePlatform.Pages.Tools
         public string ToolClientId { get; set; }
 
         [Required]
-        [Display(Name = "Tool Issuer")]
+        [Display(Name = "Tool Issuer", Description = "This is the Issuer for all messages that originate from the Tool.")]
         public string ToolIssuer { get; set; }
 
         [NullableUrl]

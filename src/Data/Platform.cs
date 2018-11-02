@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using AdvantagePlatform.Utility;
 
 namespace AdvantagePlatform.Data
 {

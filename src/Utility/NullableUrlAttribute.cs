@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace AdvantagePlatform.Data
+namespace AdvantagePlatform.Utility
 {
     /// <inheritdoc />
     /// <summary>
