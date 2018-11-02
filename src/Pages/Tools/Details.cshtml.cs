@@ -60,6 +60,8 @@ namespace AdvantagePlatform.Pages.Tools
                 Id = tool.Id,
                 ToolClientId = client.ClientId,
                 DeploymentId = tool.DeploymentId,
+                ToolIssuer = tool.ToolIssuer,
+                ToolJsonWebKeysUrl = tool.ToolJsonWebKeysUrl,
                 ToolName = tool.ToolName,
                 ToolUrl = tool.ToolUrl
             };

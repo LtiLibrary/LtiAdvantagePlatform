@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
@@ -26,14 +25,9 @@ namespace AdvantagePlatform.Pages.ResourceLinks
         }
 
         [BindProperty]
-        public ResourceLink ResourceLink { get; set; }
+        public ResourceLinkModel ResourceLink { get; set; }
 
-        [BindProperty]
-        [Required]
-        [Display(Name = "Tool")]
-        public int ToolId { get; set; }
         public IList<SelectListItem> Tools { get; private set; }
-        
         public IList<SelectListItem> ToolPlacements { get; private set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
@@ -45,14 +39,21 @@ namespace AdvantagePlatform.Pages.ResourceLinks
 
             var user = await _userManager.GetUserAsync(User);
 
-            ResourceLink = await _appContext.ResourceLinks.FindAsync(id);
+            var resourceLink = await _appContext.ResourceLinks.FindAsync(id);
 
-            if (ResourceLink == null || ResourceLink.UserId != user.Id)
+            if (resourceLink == null || resourceLink.UserId != user.Id)
             {
                 return NotFound();
             }
 
-            ToolId = ResourceLink.ToolId;
+            ResourceLink = new ResourceLinkModel
+            {
+                Id = resourceLink.Id,
+                LinkContext = resourceLink.LinkContext,
+                Title = resourceLink.Title,
+                ToolId = resourceLink.ToolId
+            };
+
             Tools = await _appContext.Tools
                 .Where(tool => tool.UserId == user.Id)
                 .OrderBy(tool => tool.ToolName)
@@ -81,9 +82,12 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 return Page();
             }
 
-            ResourceLink.ToolId = ToolId;
+            var resourceLink = await _appContext.ResourceLinks.FindAsync(ResourceLink.Id);
+            resourceLink.LinkContext = ResourceLink.LinkContext;
+            resourceLink.Title = ResourceLink.Title;
+            resourceLink.ToolId = ResourceLink.ToolId;
 
-            _appContext.Attach(ResourceLink).State = EntityState.Modified;
+            _appContext.Attach(resourceLink).State = EntityState.Modified;
 
             try
             {

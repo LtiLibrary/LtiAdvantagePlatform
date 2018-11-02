@@ -13,18 +13,17 @@
             <form method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <input type="hidden" asp-for="ResourceLink.Id" />
-                <input type="hidden" asp-for="ResourceLink.UserId" />
                 <div class="form-group">
                     <label asp-for="ResourceLink.Title"></label>
                     <input asp-for="ResourceLink.Title" class="form-control" />
                     <span asp-validation-for="ResourceLink.Title" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="ToolId"></label>
-                    <select asp-for="ToolId" asp-items="Model.Tools" asp- class="form-control">
+                    <label asp-for="ResourceLink.ToolId"></label>
+                    <select asp-for="ResourceLink.ToolId" asp-items="Model.Tools" asp- class="form-control">
                         <option value="">Select a Client</option>
                     </select>
-                    <span asp-validation-for="ToolId" class="text-danger"></span>
+                    <span asp-validation-for="ResourceLink.ToolId" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="ResourceLink.LinkContext"></label>

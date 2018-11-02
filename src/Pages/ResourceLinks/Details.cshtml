@@ -10,13 +10,11 @@
     <hr />
     <dl>
         <dt>@Html.DisplayNameFor(m => m.ResourceLink.Title)</dt>
-        <dd>@Html.DisplayFor(m => m.ResourceLink.Title)</dd>
-        <dt>@Html.DisplayNameFor(m => m.ResourceLink.Description)</dt>
-        <dd>@Html.DisplayFor(m => m.ResourceLink.Description)</dd>
+        <dd>@Model.ResourceLink.Title</dd>
         <dt>@Html.DisplayNameFor(m => m.ResourceLink.ToolName)</dt>
-        <dd>@Html.DisplayFor(m => m.ResourceLink.ToolName)</dd>
+        <dd>@Model.ResourceLink.ToolName</dd>
         <dt>@Html.DisplayNameFor(m => m.ResourceLink.LinkContext)</dt>
-        <dd>@Html.DisplayFor(m => m.ResourceLink.LinkContext)</dd>
+        <dd>@Model.ResourceLink.LinkContext</dd>
     </dl>
     <div>
         <a asp-page="./Edit" asp-route-id="@Model.ResourceLink.Id">Edit</a> |

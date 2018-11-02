@@ -55,6 +55,8 @@ namespace AdvantagePlatform.Pages.Tools
                 Id = tool.Id,
                 ToolClientId = client.ClientId,
                 DeploymentId = tool.DeploymentId,
+                ToolIssuer = tool.ToolIssuer,
+                ToolJsonWebKeysUrl = tool.ToolJsonWebKeysUrl,
                 ToolName = tool.ToolName,
                 ToolUrl = tool.ToolUrl
             };
@@ -71,11 +73,20 @@ namespace AdvantagePlatform.Pages.Tools
 
             var tool = await _appContext.Tools.FindAsync(Tool.Id);
 
+            tool.ToolIssuer = Tool.ToolIssuer;
+            tool.ToolJsonWebKeysUrl = Tool.ToolJsonWebKeysUrl;
             tool.ToolName = Tool.ToolName;
             tool.ToolUrl = Tool.ToolUrl;
 
             _appContext.Tools.Attach(tool).State = EntityState.Modified;
             await _appContext.SaveChangesAsync();
+
+            var client = await _identityContext.Clients.FindAsync(tool.IdentSvrClientId);
+
+            client.ClientId = Tool.ToolClientId;
+
+            _identityContext.Clients.Attach(client).State = EntityState.Modified;
+            await _identityContext.SaveChangesAsync();
 
             return RedirectToPage("./Index");
         }

@@ -11,7 +11,7 @@ namespace AdvantagePlatform.Data
     {
         public override bool IsValid(object value)
         {
-            return Uri.TryCreate(Convert.ToString(value), UriKind.Absolute, out _);
+            return value == null || Uri.TryCreate(Convert.ToString(value), UriKind.Absolute, out _);
         }
     }
 }

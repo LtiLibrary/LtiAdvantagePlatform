@@ -7,15 +7,18 @@ namespace AdvantagePlatform.Pages.ResourceLinks
     {
         public int Id { get; set; }
 
+        [Required]
         [Display(Name = "Title")]
         public string Title { get; set; }
 
-        [Display(Name = "Description")]
-        public string Description { get; set; }
+        [Required]
+        [Display(Name = "Tool")]
+        public int ToolId { get; set; }
 
         [Display(Name = "Tool Name")]
         public string ToolName { get; set; }
 
+        [Required]
         [Display(Name = "Context")]
         public ResourceLink.LinkContexts? LinkContext { get; set; }
     }

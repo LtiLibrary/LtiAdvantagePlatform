@@ -8,31 +8,61 @@
     <h4>Tool Details</h4>
     <hr />
     <div class="row">
-        <div class="col-sm-7">
-            <dl>
-                <dt>@Html.DisplayNameFor(model => model.Tool.ToolName)</dt>
-                <dd>@Html.DisplayFor(model => model.Tool.ToolName)</dd>
-                <dt>@Html.DisplayNameFor(model => model.Tool.ToolUrl)</dt>
-                <dd>@Html.DisplayFor(model => model.Tool.ToolUrl)</dd>
-                <dt>@Html.DisplayNameFor(model => model.Tool.ToolClientId)</dt>
-                <dd>@Html.DisplayFor(model => model.Tool.ToolClientId)</dd>
-                <dt>@Html.DisplayNameFor(model => model.Tool.DeploymentId)</dt>
-                <dd>@Html.DisplayFor(model => model.Tool.DeploymentId)</dd>
-            </dl>
-            <dl>
-                <dt>@Html.DisplayNameFor(m => m.PlatformIssuer)</dt>
-                <dd>@Html.DisplayFor(m => m.PlatformIssuer)</dd>
-            </dl>
-            <p>
-                The @Html.DisplayNameFor(m => m.PlatformIssuer) supports 
-                <a href="@Model.OidcDiscoveryUri" target="_blank">OpenID Connect Discovery</a>.
-                If your Tool does not support OpenID Connect Discovery, click on the link to display
-                the individual URLs you will need to configure your tool.
-            </p>
-            <div>
-                <a asp-page="./Edit" asp-route-id="@Model.Tool.Id">Edit</a> |
-                <a asp-page="./Index">Back to List</a>
+        <div class="col-lg-6 mb-3">
+            <div class="card">
+                <h5 class="card-header">
+                    Tool Settings
+                </h5>
+                <div class="card-body">
+                    <dl>
+                        <dt>@Html.DisplayNameFor(model => model.Tool.ToolName)</dt>
+                        <dd>@Model.Tool.ToolName</dd>
+                        <dt>@Html.DisplayNameFor(model => model.Tool.ToolUrl)</dt>
+                        <dd>@Model.Tool.ToolUrl</dd>
+                    </dl>
+                    <div class="alert alert-info">
+                        The @Html.DisplayNameFor(m => m.Tool.ToolClientId) here must match the
+                        @Html.DisplayNameFor(m => m.Tool.ToolClientId) in the tool.
+                    </div>
+                    <dl>
+                        <dt>@Html.DisplayNameFor(model => model.Tool.ToolClientId)</dt>
+                        <dd>@Model.Tool.ToolClientId</dd>
+                        <dt>@Html.DisplayNameFor(m => m.Tool.ToolIssuer)</dt>
+                        <dd>@Model.Tool.ToolIssuer</dd>
+                    </dl>
+                    <div class="alert alert-info">
+                        If the @Html.DisplayNameFor(m => m.Tool.ToolIssuer) supports OpenID Connect Discover,
+                        you can leave the next field blank.
+                    </div>
+                    <dl>
+                        <dt>@Html.DisplayNameFor(m => m.Tool.ToolJsonWebKeysUrl)</dt>
+                        <dd>@(Model.Tool.ToolJsonWebKeysUrl??"[Not Set]")</dd>
+                    </dl>
+                </div>
             </div>
         </div>
+        <div class="col-lg-6 mb-3">
+            <div class="card">
+                <h5 class="card-header">
+                    Platform Settings
+                </h5>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        This unique @Html.DisplayNameFor(m => m.Tool.DeploymentId) has been assigned to this
+                        tool registration. It will be passed to the tool in the LTI Resource Link message.
+                    </div>
+                    <dl>
+                        <dt>@Html.DisplayNameFor(model => model.Tool.DeploymentId)</dt>
+                        <dd>@Html.DisplayFor(model => model.Tool.DeploymentId)</dd>
+                        <dt>@Html.DisplayNameFor(m => m.PlatformIssuer)</dt>
+                        <dd>@Html.DisplayFor(m => m.PlatformIssuer)</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <a asp-page="./Edit" asp-route-id="@Model.Tool.Id">Edit</a> |
+        <a asp-page="./Index">Back to List</a>
     </div>
 </div>

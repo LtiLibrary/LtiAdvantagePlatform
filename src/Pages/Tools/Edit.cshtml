@@ -6,39 +6,78 @@
 }
 
 <div class="container">
-    <h4>Edit Tool</h4>
+    <h4>Edit Tool Registration</h4>
     <hr />
-    <div class="row">
-        <div class="col-6">
-            <form method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <input type="hidden" asp-for="Tool.Id" />
-                <div class="form-group">
-                    <label asp-for="Tool.ToolName"></label>
-                    <input asp-for="Tool.ToolName" class="form-control" />
-                    <span asp-validation-for="Tool.ToolName" class="text-danger"></span>
+    <form method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="Tool.Id" />
+        <div class="row">
+            <div class="col-lg-6 mb-3">
+                <div class="card">
+                    <h5 class="card-header">
+                        Tool LTI Settings
+                    </h5>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label asp-for="Tool.ToolName"></label>
+                            <input asp-for="Tool.ToolName" class="form-control" />
+                            <span asp-validation-for="Tool.ToolName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Tool.ToolUrl"></label>
+                            <input asp-for="Tool.ToolUrl" class="form-control" />
+                            <span asp-validation-for="Tool.ToolUrl" class="text-danger"></span>
+                        </div>
+                        <div class="alert alert-info">
+                            The @Html.DisplayNameFor(m => m.Tool.ToolClientId) here must match the
+                            @Html.DisplayNameFor(m => m.Tool.ToolClientId) in the tool.
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Tool.ToolClientId"></label>
+                            <input asp-for="Tool.ToolClientId" class="form-control" />
+                            <span asp-validation-for="Tool.ToolClientId" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Tool.ToolIssuer"></label>
+                            <input asp-for="Tool.ToolIssuer" class="form-control" />
+                            <span asp-validation-for="Tool.ToolIssuer" class="text-danger"></span>
+                        </div>
+                        <div class="alert alert-info">
+                            If the @Html.DisplayNameFor(m => m.Tool.ToolIssuer) supports OpenID Connect Discover,
+                            you can leave the next field blank.
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Tool.ToolJsonWebKeysUrl"></label>
+                            <input asp-for="Tool.ToolJsonWebKeysUrl" class="form-control" />
+                            <span asp-validation-for="Tool.ToolJsonWebKeysUrl" class="text-danger"></span>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label asp-for="Tool.ToolUrl"></label>
-                    <input asp-for="Tool.ToolUrl" class="form-control" />
-                    <span asp-validation-for="Tool.ToolUrl" class="text-danger"></span>
+            </div>
+            <div class="col-lg-6 mb-3">
+                <div class="card">
+                    <h5 class="card-header">
+                        Platform LTI Settings
+                    </h5>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            This unique @Html.DisplayNameFor(m => m.Tool.DeploymentId) has been assigned to this
+                            tool registration. It will be passed to the tool in the LTI Resource Link message.
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Tool.DeploymentId"></label>
+                            <input asp-for="Tool.DeploymentId" class="form-control" value="@Model.Tool.DeploymentId" readonly="readonly" />
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label asp-for="Tool.ToolClientId"></label>
-                    <input asp-for="Tool.ToolClientId" class="form-control" readonly="readonly" />
-                </div>
-                <div class="form-group">
-                    <label asp-for="Tool.DeploymentId"></label>
-                    <input asp-for="Tool.DeploymentId" class="form-control" readonly="readonly" />
-                </div>
-                <div class="form-group">
-                    <input type="submit" value="Save" class="btn btn-secondary" />
-                </div>
-            </form>
-            <div>
-                <a asp-page="./Index">Back to List</a>
             </div>
         </div>
+        <div class="form-group">
+            <input type="submit" value="Save" class="btn btn-secondary" />
+        </div>
+    </form>
+    <div>
+        <a asp-page="./Index">Back to List</a>
     </div>
 </div>
 

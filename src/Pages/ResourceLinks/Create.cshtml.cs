@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
@@ -24,14 +23,9 @@ namespace AdvantagePlatform.Pages.ResourceLinks
         }
 
         [BindProperty]
-        public ResourceLink ResourceLink { get; set; }
+        public ResourceLinkModel ResourceLink { get; set; }
 
-        [BindProperty]
-        [Required]
-        [Display(Name = "Tool")]
-        public int ToolId { get; set; }
         public IList<SelectListItem> Tools { get; private set; }
-
         public IList<SelectListItem> ToolPlacements { get; private set; }
 
         public async Task<IActionResult> OnGet()
@@ -68,10 +62,15 @@ namespace AdvantagePlatform.Pages.ResourceLinks
 
             var user = await _userManager.GetUserAsync(User);
 
-            ResourceLink.UserId = user.Id;
-            ResourceLink.ToolId = ToolId;
+            var resourceLink = new ResourceLink
+            {
+                LinkContext = ResourceLink.LinkContext,
+                Title = ResourceLink.Title,
+                ToolId = ResourceLink.ToolId,
+                UserId = user.Id
+            };
 
-            _appContext.ResourceLinks.Add(ResourceLink);
+            _appContext.ResourceLinks.Add(resourceLink);
             await _appContext.SaveChangesAsync();
 
             return RedirectToPage("./Index");
