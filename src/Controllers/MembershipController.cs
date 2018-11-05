@@ -43,15 +43,13 @@ namespace AdvantagePlatform.Controllers
             var course = await _appContext.Courses.FindAsync(request.ContextId);
             if (course == null)
             {
-                response.StatusCode = StatusCodes.Status404NotFound;
-                return response;
+                return new NotFoundResponse("Context not found");
             }
 
             var user = await _userManager.FindByIdAsync(course.UserId);
             if (user == null)
             {
-                response.StatusCode = StatusCodes.Status404NotFound;
-                return response;
+                return new NotFoundResponse("User not found");
             }
 
             var student = await _appContext.People.FindAsync(user.StudentId);
