@@ -81,6 +81,7 @@ namespace AdvantagePlatform
 
                     // Clean up expired tokens
                     options.EnableTokenCleanup = true;
+                    options.EnableTokenCleanup = false;
                     options.TokenCleanupInterval = 30;
                 })
 
@@ -150,7 +151,7 @@ namespace AdvantagePlatform
                 app.UseHsts();
             }
 
-            app.UseStatusCodePagesWithRedirects("/Error?httpStatusCode={0}");
+            //app.UseStatusCodePagesWithRedirects("/Error?httpStatusCode={0}");
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();

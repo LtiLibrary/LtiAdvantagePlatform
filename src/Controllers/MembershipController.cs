@@ -3,16 +3,18 @@ using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using LtiAdvantageLibrary.NetCore.Lti;
 using LtiAdvantageLibrary.NetCore.Membership;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 
 namespace AdvantagePlatform.Controllers
 {
+    /// <inheritdoc />
     /// <summary>
     /// Sample membership controller that implements the Membership service.
     /// See https://www.imsglobal.org/spec/lti-nrps/v2p0.
     /// </summary>
+    [Authorize(AuthenticationSchemes = "Bearer")]
     public class MembershipController : MembershipControllerBase
     {
         private readonly ApplicationDbContext _appContext;
