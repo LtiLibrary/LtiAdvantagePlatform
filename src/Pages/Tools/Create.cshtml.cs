@@ -45,10 +45,17 @@ namespace AdvantagePlatform.Pages.Tools
                 return Page();
             }
 
+            if (string.IsNullOrEmpty(Tool.ToolClientSecret))
+            {
+                ModelState.AddModelError("Tool.ToolClientSecret", "The Tool Client Secret field is required.");
+                return Page();
+            }
+
             var client = new Client
             {
                 ClientId = Tool.ToolClientId,
                 ClientName = Tool.ToolName,
+                ClientSecrets = { new Secret(Tool.ToolClientSecret.Sha256()) },
 
                 AllowOfflineAccess = true,
                 AllowedGrantTypes = GrantTypes.ClientCredentials,

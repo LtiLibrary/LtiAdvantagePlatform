@@ -1,10 +1,16 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using AdvantagePlatform.Data;
+using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Interfaces;
+using IdentityServer4.EntityFramework.Mappers;
+using IdentityServer4.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Secret = IdentityServer4.Models.Secret;
 
 namespace AdvantagePlatform.Pages.Tools
 {
@@ -81,11 +87,17 @@ namespace AdvantagePlatform.Pages.Tools
             _appContext.Tools.Attach(tool).State = EntityState.Modified;
             await _appContext.SaveChangesAsync();
 
-            var client = await _identityContext.Clients.FindAsync(tool.IdentSvrClientId);
+            var client = await _identityContext.Clients
+                .Include(c => c.ClientSecrets)
+                .SingleOrDefaultAsync(c => c.Id == tool.IdentSvrClientId);
 
-            client.ClientId = Tool.ToolClientId;
+            if (!string.IsNullOrEmpty(Tool.ToolClientSecret))
+            {
+                client.ClientSecrets.Clear();
+                client.ClientSecrets.Add(new ClientSecret { Client = client, Value = Tool.ToolClientSecret.Sha256() });
+            }
 
-            _identityContext.Clients.Attach(client).State = EntityState.Modified;
+            _identityContext.Clients.Update(client);
             await _identityContext.SaveChangesAsync();
 
             return RedirectToPage("./Index");

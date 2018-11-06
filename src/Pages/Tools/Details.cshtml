@@ -15,18 +15,21 @@
                 </h5>
                 <div class="card-body">
                     <dl>
-                        <dt>@Html.DisplayNameFor(model => model.Tool.ToolName)</dt>
+                        <dt>@Html.DisplayNameFor(m => m.Tool.ToolName)</dt>
                         <dd>@Model.Tool.ToolName</dd>
                         <dt>@Html.DisplayNameFor(model => model.Tool.ToolUrl)</dt>
                         <dd>@Model.Tool.ToolUrl</dd>
                     </dl>
                     <div class="alert alert-info">
-                        The @Html.DisplayNameFor(m => m.Tool.ToolClientId) here must match the
-                        @Html.DisplayNameFor(m => m.Tool.ToolClientId) in the tool.
+                        The @Html.DisplayNameFor(m => m.Tool.ToolClientId)
+                        and @Html.DisplayNameFor(m => m.Tool.ToolClientSecret)
+                        here must match the values in the tool.
                     </div>
                     <dl>
-                        <dt>@Html.DisplayNameFor(model => model.Tool.ToolClientId)</dt>
+                        <dt>@Html.DisplayNameFor(m => m.Tool.ToolClientId)</dt>
                         <dd>@Model.Tool.ToolClientId</dd>
+                        <dt>@Html.DisplayNameFor(m => m.Tool.ToolClientSecret)</dt>
+                        <dd>[not displayed]</dd>
                         <dt>
                             @Html.DisplayNameFor(m => m.Tool.ToolIssuer)
                             <tooltip asp-for="Tool.ToolIssuer"></tooltip>
@@ -50,12 +53,11 @@
                     Platform Settings
                 </h5>
                 <div class="card-body">
-                    <div class="alert alert-info">
-                        This unique @Html.DisplayNameFor(m => m.Tool.DeploymentId) has been assigned to this
-                        tool registration. It will be passed to the tool in the LTI Resource Link message.
-                    </div>
                     <dl>
-                        <dt>@Html.DisplayNameFor(model => model.Tool.DeploymentId)</dt>
+                        <dt>
+                            @Html.DisplayNameFor(m => m.Tool.DeploymentId)
+                            <tooltip asp-for="Tool.DeploymentId"></tooltip>
+                        </dt>
                         <dd>@Html.DisplayFor(model => model.Tool.DeploymentId)</dd>
                         <dt>
                             @Html.DisplayNameFor(m => m.PlatformIssuer)

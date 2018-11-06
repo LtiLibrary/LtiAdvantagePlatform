@@ -16,28 +16,31 @@ namespace AdvantagePlatform.Pages.Tools
         /// </summary>
         public int IdentityServerClientId { get; set; }
 
-        [Display(Name = "Deployment ID")]
+        [Display(Name = "Deployment ID", Description = "This Deployment ID will be sent with all launch messages.")]
         public string DeploymentId { get; set; }
 
         [Required]
-        [Display(Name = "Tool Client ID")]
+        [Display(Name = "Client ID")]
         public string ToolClientId { get; set; }
 
+        [Display(Name = "Client Secret")]
+        public string ToolClientSecret { get; set; }
+
         [Required]
-        [Display(Name = "Tool Issuer", Description = "This is the Issuer for all messages that originate from the Tool.")]
+        [Display(Name = "Issuer", Description = "This is the Issuer for all messages that originate from the Tool.")]
         public string ToolIssuer { get; set; }
 
         [NullableUrl]
-        [Display(Name = "Tool JSON Web Keys URL")]
+        [Display(Name = "JSON Web Keys URL")]
         public string ToolJsonWebKeysUrl { get; set; }
 
         [Required]
-        [Display(Name = "Tool Name")]
+        [Display(Name = "Name")]
         public string ToolName { get; set; }
         
         [Required]
         [NullableUrl]
-        [Display(Name = "Tool URL")]
+        [Display(Name = "Launch URL")]
         public string ToolUrl { get; set; }
     }
 }
