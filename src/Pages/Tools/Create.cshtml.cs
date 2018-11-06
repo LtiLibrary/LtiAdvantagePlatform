@@ -47,7 +47,7 @@ namespace AdvantagePlatform.Pages.Tools
 
             if (string.IsNullOrEmpty(Tool.ToolClientSecret))
             {
-                ModelState.AddModelError("Tool.ToolClientSecret", "The Tool Client Secret field is required.");
+                ModelState.AddModelError("Tool.ToolClientSecret", "The Client Secret field is required.");
                 return Page();
             }
 
