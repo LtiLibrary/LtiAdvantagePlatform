@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using AdvantagePlatform.Data;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
+using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
@@ -65,6 +66,10 @@ namespace AdvantagePlatform
                 
                 // For this test app, I use the DeveloperSigningCredential
                 .AddDeveloperSigningCredential()
+
+                // Add JWT Client Assertion validation
+                .AddSecretParser<JwtBearerClientAssertionSecretParser>()
+                .AddSecretValidator<SignedJwtSecretValidator>()
 
                 // Store Configuration and Operational data in the database
                 .AddConfigurationStore(options =>

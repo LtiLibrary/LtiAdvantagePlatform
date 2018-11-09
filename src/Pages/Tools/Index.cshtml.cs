@@ -37,20 +37,20 @@ namespace AdvantagePlatform.Pages.Tools
 
             var tools = _appContext.Tools
                 .Where(tool => tool.UserId == user.Id)
-                .OrderBy(tool => tool.ToolName);
+                .OrderBy(tool => tool.Name);
 
             var list = new List<ToolModel>();
             foreach (var tool in tools)
             {
-                var client = await _identityContext.Clients.FindAsync(tool.IdentSvrClientId);
+                var client = await _identityContext.Clients.FindAsync(tool.IdentityServerClientId);
 
                 var item = new ToolModel
                 {
                     Id = tool.Id,
-                    ToolClientId = client.ClientId,
+                    ClientId = client.ClientId,
                     DeploymentId = tool.DeploymentId,
-                    ToolName = tool.ToolName,
-                    ToolUrl = tool.ToolUrl
+                    Name = tool.Name,
+                    Url = tool.Url
                 };
 
                 list.Add(item);

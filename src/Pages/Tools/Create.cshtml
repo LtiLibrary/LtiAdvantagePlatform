@@ -18,44 +18,35 @@
                     </h5>
                     <div class="card-body">
                         <div class="form-group">
-                            <label asp-for="Tool.ToolName"></label>
-                            <input asp-for="Tool.ToolName" class="form-control" />
-                            <span asp-validation-for="Tool.ToolName" class="text-danger"></span>
+                            <label asp-for="Tool.Name"></label>
+                            <input asp-for="Tool.Name" class="form-control" />
+                            <span asp-validation-for="Tool.Name" class="text-danger"></span>
                         </div>
                         <div class="form-group">
-                            <label asp-for="Tool.ToolUrl"></label>
-                            <input asp-for="Tool.ToolUrl" class="form-control" />
-                            <span asp-validation-for="Tool.ToolUrl" class="text-danger"></span>
-                        </div>
-                        <div class="alert alert-info">
-                            The @Html.DisplayNameFor(m => m.Tool.ToolClientId)
-                            and @Html.DisplayNameFor(m => m.Tool.ToolClientSecret)
-                            here must match the values in the tool.
+                            <label asp-for="Tool.Url"></label>
+                            <input asp-for="Tool.Url" class="form-control" />
+                            <span asp-validation-for="Tool.Url" class="text-danger"></span>
                         </div>
                         <div class="form-group">
-                            <label asp-for="Tool.ToolClientId"></label>
-                            <input asp-for="Tool.ToolClientId" class="form-control" />
-                            <span asp-validation-for="Tool.ToolClientId" class="text-danger"></span>
+                            <label asp-for="Tool.ClientId"></label>
+                            <input asp-for="Tool.ClientId" class="form-control" />
+                            <span asp-validation-for="Tool.ClientId" class="text-danger"></span>
+                        </div>
+                        <p>
+                            This platform supports either a shared secret or a signed JWT for
+                            client credentials.
+                        </p>
+                        <div class="form-group">
+                            <label asp-for="Tool.ClientSecret"></label>
+                            <tooltip asp-for="Tool.ClientSecret"></tooltip>
+                            <input asp-for="Tool.ClientSecret" class="form-control" />
+                            <span asp-validation-for="Tool.ClientSecret" class="text-danger"></span>
                         </div>
                         <div class="form-group">
-                            <label asp-for="Tool.ToolClientSecret"></label>
-                            <input asp-for="Tool.ToolClientSecret" class="form-control" />
-                            <span asp-validation-for="Tool.ToolClientSecret" class="text-danger"></span>
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="Tool.ToolIssuer"></label>
-                            <tooltip asp-for="Tool.ToolIssuer"></tooltip>
-                            <input asp-for="Tool.ToolIssuer" class="form-control" />
-                            <span asp-validation-for="Tool.ToolIssuer" class="text-danger"></span>
-                        </div>
-                        <div class="alert alert-info">
-                            If the @Html.DisplayNameFor(m => m.Tool.ToolIssuer) supports OpenID Connect Discover,
-                            you can leave the next field blank.
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="Tool.ToolJsonWebKeysUrl"></label>
-                            <input asp-for="Tool.ToolJsonWebKeysUrl" class="form-control" />
-                            <span asp-validation-for="Tool.ToolJsonWebKeysUrl" class="text-danger"></span>
+                            <input type="hidden" asp-for="Tool.PublicKey" />
+                            <label asp-for="Tool.PrivateKey"></label>
+                            <tooltip asp-for="Tool.PrivateKey"></tooltip>
+                            <textarea asp-for="Tool.PrivateKey" class="form-control text-monospace small" readonly="readonly" rows="5"></textarea>
                         </div>
                     </div>
                 </div>
@@ -66,12 +57,9 @@
                         Platform Settings
                     </h5>
                     <div class="card-body">
-                        <div class="alert alert-info">
-                            This unique @Html.DisplayNameFor(m => m.Tool.DeploymentId) will be assigned to this
-                            tool registration. It will be passed to the tool in the LTI Resource Link message.
-                        </div>
                         <div class="form-group">
                             <label asp-for="Tool.DeploymentId"></label>
+                            <tooltip asp-for="Tool.DeploymentId"></tooltip>
                             <input asp-for="Tool.DeploymentId" class="form-control" value="@Model.Tool.DeploymentId" readonly="readonly"/>
                         </div>
                     </div>

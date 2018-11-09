@@ -41,7 +41,7 @@ namespace AdvantagePlatform.Pages.Tools
                 return NotFound();
             }
 
-            var client = await _identityContext.Clients.FindAsync(tool.IdentSvrClientId);
+            var client = await _identityContext.Clients.FindAsync(tool.IdentityServerClientId);
 
             if (client == null)
             {
@@ -51,12 +51,10 @@ namespace AdvantagePlatform.Pages.Tools
             Tool = new ToolModel
             {
                 Id = tool.Id,
-                ToolClientId = client.ClientId,
+                ClientId = client.ClientId,
                 DeploymentId = tool.DeploymentId,
-                ToolIssuer = tool.ToolIssuer,
-                ToolJsonWebKeysUrl = tool.ToolJsonWebKeysUrl,
-                ToolName = tool.ToolName,
-                ToolUrl = tool.ToolUrl
+                Name = tool.Name,
+                Url = tool.Url
             };
 
             return Page();
@@ -73,7 +71,7 @@ namespace AdvantagePlatform.Pages.Tools
 
             if (tool != null)
             {
-                var client = await _identityContext.Clients.FindAsync(tool.IdentSvrClientId);
+                var client = await _identityContext.Clients.FindAsync(tool.IdentityServerClientId);
 
                 if (client != null)
                 {

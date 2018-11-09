@@ -41,13 +41,25 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             {
                 var tool = await _appContext.Tools.FindAsync(link.ToolId);
 
-                list.Add(new ResourceLinkModel
+                if (tool == null)
                 {
-                    Id = link.Id,
-                    Title = link.Title,
-                    ToolName = tool.ToolName,
-                    LinkContext = link.LinkContext
-                });
+                    list.Add(new ResourceLinkModel
+                    {
+                        Id = link.Id,
+                        Title = link.Title,
+                        LinkContext = link.LinkContext
+                    });
+                }
+                else
+                {
+                    list.Add(new ResourceLinkModel
+                    {
+                        Id = link.Id,
+                        Title = link.Title,
+                        ToolName = tool.Name,
+                        LinkContext = link.LinkContext
+                    });
+                }
             }
 
             return list;

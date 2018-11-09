@@ -64,14 +64,16 @@ namespace AdvantagePlatform.Pages
             foreach (var link in resourceLinks)
             {
                 var tool = await _appContext.Tools.FindAsync(link.ToolId);
-
-                list.Add(new ResourceLinkModel
+                if (tool != null)
                 {
-                    Id = link.Id,
-                    Title = link.Title,
-                    ToolName = tool.ToolName,
-                    LinkContext = link.LinkContext
-                });
+                    list.Add(new ResourceLinkModel
+                    {
+                        Id = link.Id,
+                        Title = link.Title,
+                        ToolName = tool.Name,
+                        LinkContext = link.LinkContext
+                    });
+                }
             }
 
             return list;
@@ -81,19 +83,19 @@ namespace AdvantagePlatform.Pages
         {
             var tools = _appContext.Tools
                 .Where(tool => tool.UserId == userId)
-                .OrderBy(tool => tool.ToolName);
+                .OrderBy(tool => tool.Name);
 
             var list = new List<ToolModel>();
             foreach (var tool in tools)
             {
-                var client = await _identityConfig.Clients.FindAsync(tool.IdentSvrClientId);
+                var client = await _identityConfig.Clients.FindAsync(tool.IdentityServerClientId);
 
                 list.Add(new ToolModel
                 {
-                    ToolClientId = client.ClientId,
+                    ClientId = client.ClientId,
                     DeploymentId = tool.DeploymentId,
-                    ToolName = tool.ToolName,
-                    ToolUrl = tool.ToolUrl
+                    Name = tool.Name,
+                    Url = tool.Url
                 });
             }
 

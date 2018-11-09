@@ -16,27 +16,17 @@
         /// <summary>
         /// The ID of the IdentityServer Client associated with this Tool.
         /// </summary>
-        public int IdentSvrClientId { get; set; }
-
-        /// <summary>
-        /// The Issuer of requests that originate from the Tool.
-        /// </summary>
-        public string ToolIssuer { get; set; }
-
-        /// <summary>
-        /// The URL of the Tool's JSON Web Keys endpoints.
-        /// </summary>
-        public string ToolJsonWebKeysUrl { get; set; }
+        public int IdentityServerClientId { get; set; }
 
         /// <summary>
         /// The Tool name.
         /// </summary>
-        public string ToolName { get; set; }
+        public string Name { get; set; }
         
         /// <summary>
         /// The URL used to launch the Tool.
         /// </summary>
-        public string ToolUrl { get; set; }
+        public string Url { get; set; }
 
         /// <summary>
         /// The ID of the AdvantagePlatformUser that created this ResourceLink.

@@ -26,3 +26,15 @@ body > .container, body > .container-fluid {
     padding-right: 15px;
     padding-left: 15px;
 }
+
+/* ReSharper disable once CssBrowserCompatibility */
+.form-control:disabled, .form-control[readonly] {
+    background-color: #b6c5d4;
+    /* ReSharper disable once CssBrowserCompatibility */
+    opacity: 1;
+}
+
+textarea.small {
+    font-size: 80%;
+    font-weight: 400;
+}

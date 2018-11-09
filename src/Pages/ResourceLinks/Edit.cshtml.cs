@@ -56,10 +56,10 @@ namespace AdvantagePlatform.Pages.ResourceLinks
 
             Tools = await _appContext.Tools
                 .Where(tool => tool.UserId == user.Id)
-                .OrderBy(tool => tool.ToolName)
+                .OrderBy(tool => tool.Name)
                 .Select(tool => new SelectListItem
                 {
-                    Text = tool.ToolName,
+                    Text = tool.Name,
                     Value = tool.Id.ToString()
                 })
                 .ToListAsync();

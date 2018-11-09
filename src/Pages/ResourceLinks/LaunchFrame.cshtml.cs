@@ -57,7 +57,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 return NotFound();
             }
 
-            var client = await _identityContext.Clients.FindAsync(tool.IdentSvrClientId);
+            var client = await _identityContext.Clients.FindAsync(tool.IdentityServerClientId);
             if (client == null)
             {
                 return NotFound();
@@ -74,7 +74,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             var platform = await _appContext.Platforms.FindAsync(user.PlatformId);
 
             IdToken = await GetJwtAsync(resourceLink, tool, client, person, course, platform);
-            ToolUrl = tool.ToolUrl;
+            ToolUrl = tool.Url;
 
             return Page();
         }

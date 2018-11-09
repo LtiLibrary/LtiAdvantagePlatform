@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using IdentityServer4.EntityFramework.Interfaces;
@@ -6,6 +7,7 @@ using IdentityServer4.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 
 namespace AdvantagePlatform.Pages.Tools
 {
@@ -27,7 +29,7 @@ namespace AdvantagePlatform.Pages.Tools
 
         public string OidcDiscoveryUri { get; set; }
 
-        [Display(Name = "Issuer", Description = "This is the Issuer for all messages that originate from the Platform.")]
+        [Display(Name = "Issuer", Description = "This is the Issuer for all launch messages from the platform.")]
         public string PlatformIssuer { get; set; }
 
         public ToolModel Tool { get; set; }
@@ -40,16 +42,15 @@ namespace AdvantagePlatform.Pages.Tools
             }
 
             var user = await _userManager.GetUserAsync(User);
-
             var tool = await _appContext.Tools.FindAsync(id);
-
             if (tool == null || tool.UserId != user.Id)
             {
                 return NotFound();
             }
 
-            var client = await _identityContext.Clients.FindAsync(tool.IdentSvrClientId);
-
+            var client = await _identityContext.Clients
+                .Include(c => c.ClientSecrets)
+                .SingleOrDefaultAsync(c => c.Id == tool.IdentityServerClientId);
             if (client == null)
             {
                 return NotFound();
@@ -58,12 +59,12 @@ namespace AdvantagePlatform.Pages.Tools
             Tool = new ToolModel
             {
                 Id = tool.Id,
-                ToolClientId = client.ClientId,
+                ClientId = client.ClientId,
                 DeploymentId = tool.DeploymentId,
-                ToolIssuer = tool.ToolIssuer,
-                ToolJsonWebKeysUrl = tool.ToolJsonWebKeysUrl,
-                ToolName = tool.ToolName,
-                ToolUrl = tool.ToolUrl
+                Name = tool.Name,
+                PrivateKey = client.ClientSecrets
+                    .FirstOrDefault(s => s.Type == Constants.SecretTypes.PrivateKey)?.Value,
+                Url = tool.Url
             };
 
             OidcDiscoveryUri = HttpContext.GetIdentityServerBaseUrl() + "/.well-known/openid-configuration";

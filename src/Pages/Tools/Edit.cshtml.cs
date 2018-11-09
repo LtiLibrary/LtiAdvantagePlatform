@@ -1,5 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using AdvantagePlatform.Data;
+using IdentityServer4;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.Models;
@@ -37,16 +39,15 @@ namespace AdvantagePlatform.Pages.Tools
             }
 
             var user = await _userManager.GetUserAsync(User);
-
             var tool = await _appContext.Tools.FindAsync(id);
-
             if (tool == null || tool.UserId != user.Id)
             {
                 return NotFound();
             }
 
-            var client = await _identityContext.Clients.FindAsync(tool.IdentSvrClientId);
-
+            var client = await _identityContext.Clients
+                .Include(c => c.ClientSecrets)
+                .SingleOrDefaultAsync(c => c.Id == tool.IdentityServerClientId);
             if (client == null)
             {
                 return NotFound();
@@ -55,12 +56,19 @@ namespace AdvantagePlatform.Pages.Tools
             Tool = new ToolModel
             {
                 Id = tool.Id,
-                ToolClientId = client.ClientId,
+                ClientId = client.ClientId,
+                ClientSecret = client.ClientSecrets
+                    .FirstOrDefault(c => c.Type == IdentityServerConstants.SecretTypes.SharedSecret)
+                    ?.Value,
                 DeploymentId = tool.DeploymentId,
-                ToolIssuer = tool.ToolIssuer,
-                ToolJsonWebKeysUrl = tool.ToolJsonWebKeysUrl,
-                ToolName = tool.ToolName,
-                ToolUrl = tool.ToolUrl
+                Name = tool.Name,
+                PrivateKey = client.ClientSecrets
+                    .FirstOrDefault(c => c.Type == Constants.SecretTypes.PrivateKey)
+                    ?.Value,
+                PublicKey = client.ClientSecrets
+                    .FirstOrDefault(c => c.Type == Constants.SecretTypes.PublicKey)
+                    ?.Value,
+                Url = tool.Url
             };
 
             return Page();
@@ -75,23 +83,36 @@ namespace AdvantagePlatform.Pages.Tools
 
             var tool = await _appContext.Tools.FindAsync(Tool.Id);
 
-            tool.ToolIssuer = Tool.ToolIssuer;
-            tool.ToolJsonWebKeysUrl = Tool.ToolJsonWebKeysUrl;
-            tool.ToolName = Tool.ToolName;
-            tool.ToolUrl = Tool.ToolUrl;
+            tool.Name = Tool.Name;
+            tool.Url = Tool.Url;
 
             _appContext.Tools.Attach(tool).State = EntityState.Modified;
             await _appContext.SaveChangesAsync();
 
             var client = await _identityContext.Clients
                 .Include(c => c.ClientSecrets)
-                .SingleOrDefaultAsync(c => c.Id == tool.IdentSvrClientId);
+                .SingleOrDefaultAsync(c => c.Id == tool.IdentityServerClientId);
 
-            if (!string.IsNullOrEmpty(Tool.ToolClientSecret))
+            if (!string.IsNullOrEmpty(Tool.ClientSecret))
             {
                 client.ClientSecrets.Clear();
-                client.ClientSecrets.Add(new ClientSecret { Client = client, Value = Tool.ToolClientSecret.Sha256() });
+                if (Tool.ClientSecret.IsPresent())
+                {
+                    client.ClientSecrets.Add(new ClientSecret {Client = client, Value = Tool.ClientSecret.Sha256()});
+                }
             }
+            client.ClientSecrets.Add(new ClientSecret
+            {
+                Type = Constants.SecretTypes.PrivateKey,
+                Description = "Private Key",
+                Value = Tool.PrivateKey
+            });
+            client.ClientSecrets.Add(new ClientSecret
+            {
+                Type = Constants.SecretTypes.PublicKey,
+                Description = "Public Key",
+                Value = Tool.PublicKey
+            });
 
             _identityContext.Clients.Update(client);
             await _identityContext.SaveChangesAsync();

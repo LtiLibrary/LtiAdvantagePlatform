@@ -16,31 +16,29 @@ namespace AdvantagePlatform.Pages.Tools
         /// </summary>
         public int IdentityServerClientId { get; set; }
 
-        [Display(Name = "Deployment ID", Description = "This Deployment ID will be sent with all launch messages.")]
+        [Display(Name = "Deployment ID", Description = "This deployment ID will be sent with all launch messages from the platform.")]
         public string DeploymentId { get; set; }
 
         [Required]
         [Display(Name = "Client ID")]
-        public string ToolClientId { get; set; }
+        public string ClientId { get; set; }
 
-        [Display(Name = "Client Secret")]
-        public string ToolClientSecret { get; set; }
-
-        [Required]
-        [Display(Name = "Issuer", Description = "This is the Issuer for all messages that originate from the Tool.")]
-        public string ToolIssuer { get; set; }
-
-        [NullableUrl]
-        [Display(Name = "JSON Web Keys URL")]
-        public string ToolJsonWebKeysUrl { get; set; }
+        [Display(Name = "Client Secret", Description = "This is the shared secret to use if your tool sends a shared secret for client credentials.")]
+        public string ClientSecret { get; set; }
 
         [Required]
         [Display(Name = "Name")]
-        public string ToolName { get; set; }
+        public string Name { get; set; }
+
+        [Display(Name = "Private Key", Description = "This is the private key to use if your tool sends a signed JWT as client credentials.")]
+        public string PrivateKey { get; set; }
+
+        [Display(Name = "Public Key")]
+        public string PublicKey { get; set; }
         
         [Required]
         [NullableUrl]
         [Display(Name = "Launch URL")]
-        public string ToolUrl { get; set; }
+        public string Url { get; set; }
     }
 }

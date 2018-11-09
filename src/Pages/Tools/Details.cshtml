@@ -15,34 +15,22 @@
                 </h5>
                 <div class="card-body">
                     <dl>
-                        <dt>@Html.DisplayNameFor(m => m.Tool.ToolName)</dt>
-                        <dd>@Model.Tool.ToolName</dd>
-                        <dt>@Html.DisplayNameFor(model => model.Tool.ToolUrl)</dt>
-                        <dd>@Model.Tool.ToolUrl</dd>
-                    </dl>
-                    <div class="alert alert-info">
-                        The @Html.DisplayNameFor(m => m.Tool.ToolClientId)
-                        and @Html.DisplayNameFor(m => m.Tool.ToolClientSecret)
-                        here must match the values in the tool.
-                    </div>
-                    <dl>
-                        <dt>@Html.DisplayNameFor(m => m.Tool.ToolClientId)</dt>
-                        <dd>@Model.Tool.ToolClientId</dd>
-                        <dt>@Html.DisplayNameFor(m => m.Tool.ToolClientSecret)</dt>
+                        <dt>@Html.DisplayNameFor(m => m.Tool.Name)</dt>
+                        <dd>@Model.Tool.Name</dd>
+                        <dt>@Html.DisplayNameFor(model => model.Tool.Url)</dt>
+                        <dd>@Model.Tool.Url</dd>
+                        <dt>@Html.DisplayNameFor(m => m.Tool.ClientId)</dt>
+                        <dd>@Model.Tool.ClientId</dd>
+                        <dt>
+                            @Html.DisplayNameFor(m => m.Tool.ClientSecret)
+                            <tooltip asp-for="Tool.ClientSecret"></tooltip>
+                        </dt>
                         <dd>[not displayed]</dd>
                         <dt>
-                            @Html.DisplayNameFor(m => m.Tool.ToolIssuer)
-                            <tooltip asp-for="Tool.ToolIssuer"></tooltip>
+                            @Html.DisplayNameFor(m => m.Tool.PrivateKey)
+                            <tooltip asp-for="Tool.PrivateKey"></tooltip>
                         </dt>
-                        <dd>@Model.Tool.ToolIssuer</dd>
-                    </dl>
-                    <div class="alert alert-info">
-                        If the @Html.DisplayNameFor(m => m.Tool.ToolIssuer) supports OpenID Connect Discover,
-                        you can leave the next field blank.
-                    </div>
-                    <dl>
-                        <dt>@Html.DisplayNameFor(m => m.Tool.ToolJsonWebKeysUrl)</dt>
-                        <dd>@(Model.Tool.ToolJsonWebKeysUrl??"[Not Set]")</dd>
+                        <dd><pre><small>@Model.Tool.PrivateKey</small></pre></dd>
                     </dl>
                 </div>
             </div>

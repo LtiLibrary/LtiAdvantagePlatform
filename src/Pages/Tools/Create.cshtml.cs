@@ -1,8 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Models;
+using LtiAdvantageLibrary.NetCore.Utilities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -31,10 +35,15 @@ namespace AdvantagePlatform.Pages.Tools
 
         public IActionResult OnGet()
         {
+            var keyPair = RsaHelper.GenerateRsaKeyPair();
+
             Tool = new ToolModel
             {
-                DeploymentId = GenerateRandomString(8)
+                DeploymentId = GenerateRandomString(8),
+                PrivateKey = keyPair.PrivateKey,
+                PublicKey = keyPair.PublicKey
             };
+
             return Page();
         }
 
@@ -45,22 +54,45 @@ namespace AdvantagePlatform.Pages.Tools
                 return Page();
             }
 
-            if (string.IsNullOrEmpty(Tool.ToolClientSecret))
+            if (_identityContext.Clients.Any(c => c.ClientId == Tool.ClientId))
             {
-                ModelState.AddModelError("Tool.ToolClientSecret", "The Client Secret field is required.");
+                ModelState.AddModelError("Tool.ClientId", "This Client ID already exists.");
                 return Page();
             }
 
             var client = new Client
             {
-                ClientId = Tool.ToolClientId,
-                ClientName = Tool.ToolName,
-                ClientSecrets = { new Secret(Tool.ToolClientSecret.Sha256()) },
+                ClientId = Tool.ClientId,
+                ClientName = Tool.Name,
 
                 AllowOfflineAccess = true,
                 AllowedGrantTypes = GrantTypes.ClientCredentials,
                 AllowedScopes = new [] { "api1" }
             };
+
+            // Add all the secrets
+            var secrets = new List<Secret>
+            {
+                new Secret
+                {
+                    Type = Constants.SecretTypes.PublicKey,
+                    Description = "Public Key",
+                    Value = Tool.PublicKey
+                },
+                new Secret
+                {
+                    Type = Constants.SecretTypes.PrivateKey,
+                    Description = "Private Key",
+                    Value = Tool.PrivateKey
+                }
+            };
+
+            if (Tool.ClientSecret.IsPresent())
+            {
+                secrets.Add(new Secret(Tool.ClientSecret.Sha256()));
+            }
+
+            client.ClientSecrets = secrets;
 
             var entity = client.ToEntity();
 
@@ -71,11 +103,9 @@ namespace AdvantagePlatform.Pages.Tools
             var tool = new Tool
             {
                 DeploymentId = Tool.DeploymentId,
-                IdentSvrClientId = entity.Id,
-                ToolIssuer = Tool.ToolIssuer,
-                ToolJsonWebKeysUrl = Tool.ToolJsonWebKeysUrl,
-                ToolName = Tool.ToolName,
-                ToolUrl = Tool.ToolUrl,
+                IdentityServerClientId = entity.Id,
+                Name = Tool.Name,
+                Url = Tool.Url,
                 UserId = user.Id
             };
 
@@ -87,7 +117,7 @@ namespace AdvantagePlatform.Pages.Tools
 
         private static string GenerateRandomString(int length = 24)
         {
-            using (var rng = System.Security.Cryptography.RandomNumberGenerator.Create())
+            using (var rng = RandomNumberGenerator.Create())
             {
                 var buffer = new byte[length];
                 rng.GetBytes(buffer);
