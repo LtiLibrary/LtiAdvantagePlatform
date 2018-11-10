@@ -76,7 +76,7 @@ namespace AdvantagePlatform
                 ValidateIssuerSigningKey = true,
 
                 ValidIssuer = parsedSecret.Id,
-                ValidateIssuer = true,
+                ValidateIssuer = false,
 
                 // Accept either the base uri or the token endpoint url
                 ValidAudiences = new []
@@ -95,12 +95,12 @@ namespace AdvantagePlatform
                 var handler = new JwtSecurityTokenHandler();
                 handler.ValidateToken(jwt, tokenValidationParameters, out var token);
 
-                var jwtToken = (JwtSecurityToken)token;
-                if (jwtToken.Subject != jwtToken.Issuer)
-                {
-                    _logger.LogError("Both 'sub' and 'iss' in the client assertion token must have a value of client_id.");
-                    return fail;
-                }
+                //var jwtToken = (JwtSecurityToken)token;
+                //if (jwtToken.Subject != jwtToken.Issuer)
+                //{
+                //    _logger.LogError("Both 'sub' and 'iss' in the client assertion token must have a value of client_id.");
+                //    return fail;
+                //}
 
                 return success;
             }
