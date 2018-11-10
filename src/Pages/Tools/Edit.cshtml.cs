@@ -5,6 +5,7 @@ using IdentityServer4;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.Models;
+using LtiAdvantageLibrary.NetCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -47,6 +48,7 @@ namespace AdvantagePlatform.Pages.Tools
 
             var client = await _identityContext.Clients
                 .Include(c => c.ClientSecrets)
+                .Include(c => c.AllowedScopes)
                 .SingleOrDefaultAsync(c => c.Id == tool.IdentityServerClientId);
             if (client == null)
             {
@@ -91,6 +93,7 @@ namespace AdvantagePlatform.Pages.Tools
 
             var client = await _identityContext.Clients
                 .Include(c => c.ClientSecrets)
+                .Include(c => c.AllowedScopes)
                 .SingleOrDefaultAsync(c => c.Id == tool.IdentityServerClientId);
 
             if (!string.IsNullOrEmpty(Tool.ClientSecret))
@@ -112,6 +115,12 @@ namespace AdvantagePlatform.Pages.Tools
                 Type = Constants.SecretTypes.PublicKey,
                 Description = "Public Key",
                 Value = Tool.PublicKey
+            });
+            client.AllowedScopes.Clear();
+            client.AllowedScopes.Add(new ClientScope
+            {
+                Client = client,
+                Scope = Constants.LtiScopes.MembershipReadonly
             });
 
             _identityContext.Clients.Update(client);

@@ -6,6 +6,7 @@ using AdvantagePlatform.Data;
 using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Models;
+using LtiAdvantageLibrary.NetCore;
 using LtiAdvantageLibrary.NetCore.Utilities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -67,7 +68,7 @@ namespace AdvantagePlatform.Pages.Tools
 
                 AllowOfflineAccess = true,
                 AllowedGrantTypes = GrantTypes.ClientCredentials,
-                AllowedScopes = new [] { "api1" }
+                AllowedScopes = { Constants.LtiScopes.MembershipReadonly }
             };
 
             // Add all the secrets

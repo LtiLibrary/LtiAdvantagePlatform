@@ -4,6 +4,7 @@ using AdvantagePlatform.Data;
 using IdentityServer4;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Interfaces;
+using LtiAdvantageLibrary.NetCore;
 using LtiAdvantageLibrary.NetCore.Lti;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
@@ -79,12 +80,13 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             return Page();
         }
 
-        private async Task<string> GetJwtAsync(ResourceLink resourceLink, Tool tool, Client client, Person person, Course course, Platform platform)
+        private async Task<string> GetJwtAsync(ResourceLink resourceLink, 
+            Tool tool, Client client, Person person, Course course, Platform platform)
         {
             var request = new LtiResourceLinkRequest
             {
-                MessageType = LtiConstants.LtiResourceLinkRequestMessageType,
-                Version = LtiConstants.Version,
+                MessageType = Constants.Lti.LtiResourceLinkRequestMessageType,
+                Version = Constants.Lti.Version,
                 DeploymentId = tool.DeploymentId,
                 ResourceLink = new ResourceLinkClaimValueType
                 {

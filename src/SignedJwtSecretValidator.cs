@@ -7,6 +7,7 @@ using IdentityServer4;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
+using LtiAdvantageLibrary.NetCore;
 using LtiAdvantageLibrary.NetCore.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -69,7 +70,6 @@ namespace AdvantagePlatform
                 return fail;
             }
 
-
             var tokenValidationParameters = new TokenValidationParameters
             {
                 IssuerSigningKeys = publicKeys,
@@ -78,6 +78,7 @@ namespace AdvantagePlatform
                 ValidIssuer = parsedSecret.Id,
                 ValidateIssuer = true,
 
+                // Accept either the base uri or the token endpoint url
                 ValidAudiences = new []
                 {
                     _audienceUri, 
