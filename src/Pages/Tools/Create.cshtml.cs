@@ -3,6 +3,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
+using IdentityServer4;
 using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Models;
@@ -72,28 +73,26 @@ namespace AdvantagePlatform.Pages.Tools
             };
 
             // Add all the secrets
-            var secrets = new List<Secret>
+            client.ClientSecrets = new List<Secret>
             {
                 new Secret
                 {
                     Type = Constants.SecretTypes.PublicKey,
-                    Description = "Public Key",
                     Value = Tool.PublicKey
                 },
                 new Secret
                 {
                     Type = Constants.SecretTypes.PrivateKey,
-                    Description = "Private Key",
                     Value = Tool.PrivateKey
                 }
             };
 
             if (Tool.ClientSecret.IsPresent())
             {
-                secrets.Add(new Secret(Tool.ClientSecret.Sha256()));
+                client.ClientSecrets.Add(new Secret(Tool.ClientSecret.Sha256()));
+                client.Properties = new Dictionary<string, string> 
+                    {{ IdentityServerConstants.SecretTypes.SharedSecret, Tool.ClientSecret }};
             }
-
-            client.ClientSecrets = secrets;
 
             var entity = client.ToEntity();
 

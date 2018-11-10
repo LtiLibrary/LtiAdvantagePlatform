@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
+using IdentityServer4;
 using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.Extensions;
 using LtiAdvantageLibrary.NetCore;
@@ -51,6 +52,7 @@ namespace AdvantagePlatform.Pages.Tools
 
             var client = await _identityContext.Clients
                 .Include(c => c.ClientSecrets)
+                .Include(c => c.Properties)
                 .SingleOrDefaultAsync(c => c.Id == tool.IdentityServerClientId);
             if (client == null)
             {
@@ -61,6 +63,8 @@ namespace AdvantagePlatform.Pages.Tools
             {
                 Id = tool.Id,
                 ClientId = client.ClientId,
+                ClientSecret = client.Properties
+                    .FirstOrDefault(p => p.Key == IdentityServerConstants.SecretTypes.SharedSecret)?.Value,
                 DeploymentId = tool.DeploymentId,
                 Name = tool.Name,
                 PrivateKey = client.ClientSecrets

@@ -25,12 +25,12 @@
                             @Html.DisplayNameFor(m => m.Tool.ClientSecret)
                             <tooltip asp-for="Tool.ClientSecret"></tooltip>
                         </dt>
-                        <dd>[not displayed]</dd>
+                        <dd>@Model.Tool.ClientSecret</dd>
                         <dt>
                             @Html.DisplayNameFor(m => m.Tool.PrivateKey)
                             <tooltip asp-for="Tool.PrivateKey"></tooltip>
                         </dt>
-                        <dd><pre><small>@Model.Tool.PrivateKey</small></pre></dd>
+                        <dd><pre style="height: 80px; line-height: 1; overflow-y: scroll"><small>@Model.Tool.PrivateKey</small></pre></dd>
                     </dl>
                 </div>
             </div>

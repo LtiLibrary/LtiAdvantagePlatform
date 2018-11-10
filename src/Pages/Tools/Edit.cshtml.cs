@@ -48,7 +48,7 @@ namespace AdvantagePlatform.Pages.Tools
 
             var client = await _identityContext.Clients
                 .Include(c => c.ClientSecrets)
-                .Include(c => c.AllowedScopes)
+                .Include(c => c.Properties)
                 .SingleOrDefaultAsync(c => c.Id == tool.IdentityServerClientId);
             if (client == null)
             {
@@ -59,8 +59,8 @@ namespace AdvantagePlatform.Pages.Tools
             {
                 Id = tool.Id,
                 ClientId = client.ClientId,
-                ClientSecret = client.ClientSecrets
-                    .FirstOrDefault(c => c.Type == IdentityServerConstants.SecretTypes.SharedSecret)
+                ClientSecret = client.Properties
+                    .FirstOrDefault(c => c.Key == IdentityServerConstants.SecretTypes.SharedSecret)
                     ?.Value,
                 DeploymentId = tool.DeploymentId,
                 Name = tool.Name,
@@ -93,35 +93,48 @@ namespace AdvantagePlatform.Pages.Tools
 
             var client = await _identityContext.Clients
                 .Include(c => c.ClientSecrets)
-                .Include(c => c.AllowedScopes)
+                .Include(c => c.Properties)
                 .SingleOrDefaultAsync(c => c.Id == tool.IdentityServerClientId);
 
-            if (!string.IsNullOrEmpty(Tool.ClientSecret))
+            var clearSecret =
+                client.Properties.SingleOrDefault(p => p.Key == IdentityServerConstants.SecretTypes.SharedSecret);
+            var sharedSecret =
+                client.ClientSecrets.SingleOrDefault(s => s.Type == IdentityServerConstants.SecretTypes.SharedSecret);
+
+            if (Tool.ClientSecret.IsPresent())
             {
-                client.ClientSecrets.Clear();
-                if (Tool.ClientSecret.IsPresent())
+                // This is not needed for IdentityServer. It is only here so that
+                // testing is made easier by being able to display the current secret.
+                if (clearSecret == null)
                 {
-                    client.ClientSecrets.Add(new ClientSecret {Client = client, Value = Tool.ClientSecret.Sha256()});
+                    clearSecret = new ClientProperty { Client = client };
+                    client.Properties.Add(clearSecret);
+                }
+
+                clearSecret.Key = IdentityServerConstants.SecretTypes.SharedSecret;
+                clearSecret.Value = Tool.ClientSecret;
+
+                if (sharedSecret == null)
+                {
+                    sharedSecret = new ClientSecret { Client = client };
+                    client.ClientSecrets.Add(sharedSecret);
+                }
+
+                sharedSecret.Type = IdentityServerConstants.SecretTypes.SharedSecret;
+                sharedSecret.Value = Tool.ClientSecret.Sha256();
+            }
+            else
+            {
+                if (clearSecret != null)
+                {
+                    client.Properties.Remove(clearSecret);
+                }
+
+                if (sharedSecret != null)
+                {
+                    client.ClientSecrets.Remove(sharedSecret);
                 }
             }
-            client.ClientSecrets.Add(new ClientSecret
-            {
-                Type = Constants.SecretTypes.PrivateKey,
-                Description = "Private Key",
-                Value = Tool.PrivateKey
-            });
-            client.ClientSecrets.Add(new ClientSecret
-            {
-                Type = Constants.SecretTypes.PublicKey,
-                Description = "Public Key",
-                Value = Tool.PublicKey
-            });
-            client.AllowedScopes.Clear();
-            client.AllowedScopes.Add(new ClientScope
-            {
-                Client = client,
-                Scope = Constants.LtiScopes.MembershipReadonly
-            });
 
             _identityContext.Clients.Update(client);
             await _identityContext.SaveChangesAsync();
