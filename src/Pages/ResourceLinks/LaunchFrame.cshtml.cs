@@ -85,29 +85,43 @@ namespace AdvantagePlatform.Pages.ResourceLinks
         {
             var request = new LtiResourceLinkRequest
             {
-                MessageType = Constants.Lti.LtiResourceLinkRequestMessageType,
-                Version = Constants.Lti.Version,
+                Audiences = new [] { client.ClientId },
                 DeploymentId = tool.DeploymentId,
-                ResourceLink = new ResourceLinkClaimValueType
-                {
-                    Id = resourceLink.Id.ToString(),
-                    Title = resourceLink.Title
-                },
-                GivenName = person.FirstName,
                 FamilyName = person.LastName,
-                Locale = CultureInfo.CurrentUICulture.Name,
+                GivenName = person.FirstName,
+                LaunchPresentation = new LaunchPresentationClaimValueType
+                {
+                    DocumentTarget = DocumentTarget.iframe,
+                    ReturnUrl = Request.GetDisplayUrl()
+                },
                 Lis = new LisClaimValueType
                 {
                     PersonSourcedId = person.SisId,
                     CourseSectionSourcedId = course?.SisId
                 },
-                LaunchPresentation = new LaunchPresentationClaimValueType
+                Locale = CultureInfo.CurrentUICulture.Name,
+                Nonce = LtiResourceLinkRequest.GenerateCryptographicNonce(),
+                Platform = new PlatformClaimValueType
                 {
-                    DocumentTarget = DocumentTarget.iframe,
-                    ReturnUrl = Request.GetDisplayUrl()
-                }
+                    ContactEmail = platform.ContactEmail,
+                    Description = platform.Description,
+                    Guid = platform.Id,
+                    Name = platform.Name,
+                    ProductFamilyCode = "LtiAdvantageLibrary",
+                    Url = Request.GetDisplayUrl(),
+                    Version = "1.0"
+                },
+                ResourceLink = new ResourceLinkClaimValueType
+                {
+                    Id = resourceLink.Id.ToString(),
+                    Title = resourceLink.Title
+                },
+                UserId = person.Id
             };
 
+            // Add the context if the launch is from a course
+            // (e.g. an assignment). Leave it blank if the launch
+            // is from outside of a course (e.g. a system menu).
             if (course != null)
             {
                 request.Context = new ContextClaimValueType
@@ -116,9 +130,23 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                     Title = course.Name,
                     Type = new[] {ContextType.CourseSection}
                 };
+
+                // Only include context roles if the launch includes
+                // a context.
                 request.Roles = person.IsStudent
                     ? new[] {Role.ContextLearner, Role.InstitutionStudent}
                     : new[] {Role.ContextInstructor, Role.InstitutionFaculty};
+
+                // Only include Names and Role Provisioning Service claim if
+                // the launch includes a context.
+                request.NamesRoleService = new NamesRoleServiceClaimValueType
+                {
+                    ContextMembershipUrl = 
+                        Url.RouteUrl(Constants.LtiClaimNames.NamesRoleService, 
+                            new { contextId = course.Id },
+                            "https",
+                            Request.Host.ToString())
+                };
             }
             else
             {
@@ -126,22 +154,6 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                     ? new[] {Role.InstitutionLearner}
                     : new[] {Role.InstitutionFaculty};
             }
-
-            request.UserId = person.Id;
-            request.Platform = new PlatformClaimValueType
-            {
-                ContactEmail = platform.ContactEmail,
-                Description = platform.Description,
-                Guid = platform.Id,
-                Name = platform.Name,
-                ProductFamilyCode = "LtiAdvantageLibrary",
-                Url = Request.GetDisplayUrl(),
-                Version = "1.0"
-            };
-
-            request.Nonce = LtiResourceLinkRequest.GenerateCryptographicNonce();
-
-            request.Audiences = new [] { client.ClientId };
 
             return await _tools.IssueJwtAsync(3600, request.Claims);
         }

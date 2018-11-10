@@ -8,6 +8,10 @@ body {
     /* Margin bottom by footer height */
     margin-bottom: 60px;
 }
+body#iframe-body {
+    overflow-x: hidden;
+}
+
 .footer {
     position: absolute;
     bottom: 0;

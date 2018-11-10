@@ -102,7 +102,14 @@ namespace AdvantagePlatform
                 // Add Bearer authentication to authenticate API calls
                 .AddJwtBearer(options =>
                 {
+                    // The JwtBearer authentication handler will use the discovery endpoint
+                    // of the authorization server to find the JWKS endpoint, to find the
+                    // key to validate the JwtBearer token. Don't forget to define the
+                    // base address of your Identity Server here. If you don't, you'll get
+                    // "Unauthorized" errors when you call an API that is protected by a
+                    // JwtBearer token.
                     options.Authority = Configuration["Authority"];
+
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = true,
@@ -120,6 +127,7 @@ namespace AdvantagePlatform
                 var context = serviceScope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
                 context.Database.Migrate();
 
+                // These are for login/logout of UI
                 if (!EnumerableExtensions.Any(context.IdentityResources))
                 {
                     foreach (var resource in Config.GetIdentityResources())
@@ -129,14 +137,15 @@ namespace AdvantagePlatform
                     context.SaveChanges();
                 }
 
-                if (!EnumerableExtensions.Any(context.ApiResources))
+                // These are for protecting APIs
+                foreach (var resource in Config.GetApiResources())
                 {
-                    foreach (var resource in Config.GetApiResources())
+                    if (!context.ApiResources.Any(r => r.Name == resource.Name))
                     {
                         context.ApiResources.Add(resource.ToEntity());
                     }
-                    context.SaveChanges();
                 }
+                context.SaveChanges();
             }
         }
 
