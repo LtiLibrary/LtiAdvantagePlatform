@@ -82,7 +82,7 @@ namespace AdvantagePlatform.Pages.Tools
 
                 AllowOfflineAccess = true,
                 AllowedGrantTypes = GrantTypes.ClientCredentials,
-                AllowedScopes = {Constants.LtiScopes.MembershipReadonly},
+                AllowedScopes = { Constants.LtiScopes.MembershipReadonly, Constants.LtiScopes.AssignmentGradesLineItem, Constants.LtiScopes.AssignmentGradesResultReadonly },
             };
 
             // Add shared secret is specified
