@@ -66,27 +66,26 @@ namespace AdvantagePlatform.Pages.Tools
             {
                 ClientId = Tool.ClientId,
                 ClientName = Tool.Name,
+                ClientSecrets = new List<Secret>
+                {
+                    new Secret
+                    {
+                        Type = Constants.SecretTypes.PublicKey,
+                        Value = Tool.PublicKey
+                    },
+                    new Secret
+                    {
+                        Type = Constants.SecretTypes.PrivateKey,
+                        Value = Tool.PrivateKey
+                    }
+                },
 
                 AllowOfflineAccess = true,
                 AllowedGrantTypes = GrantTypes.ClientCredentials,
-                AllowedScopes = { Constants.LtiScopes.MembershipReadonly }
+                AllowedScopes = {Constants.LtiScopes.MembershipReadonly},
             };
 
-            // Add all the secrets
-            client.ClientSecrets = new List<Secret>
-            {
-                new Secret
-                {
-                    Type = Constants.SecretTypes.PublicKey,
-                    Value = Tool.PublicKey
-                },
-                new Secret
-                {
-                    Type = Constants.SecretTypes.PrivateKey,
-                    Value = Tool.PrivateKey
-                }
-            };
-
+            // Add shared secret is specified
             if (Tool.ClientSecret.IsPresent())
             {
                 client.ClientSecrets.Add(new Secret(Tool.ClientSecret.Sha256()));
