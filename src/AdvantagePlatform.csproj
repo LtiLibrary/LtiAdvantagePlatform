@@ -28,7 +28,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\LTI\LtiAdvantageLibrary\src\LtiAdvantageLibrary.NetCore.csproj" />
+    <ProjectReference Include="..\..\..\LTI\LtiAdvantage\src\LtiAdvantage.IdentityServer4\LtiAdvantage.IdentityServer4.csproj" />
+    <ProjectReference Include="..\..\..\LTI\LtiAdvantage\src\LtiAdvantageLibrary\LtiAdvantageLibrary.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -2,9 +2,12 @@
 
 namespace AdvantagePlatform
 {
+    /// <summary>
+    /// Local version of Identity Server 4 internal static class StringExtensions
+    /// https://github.com/IdentityServer/IdentityServer4/blob/master/src/Extensions/StringsExtensions.cs
+    /// </summary>
     public static class StringExtensions
     {
-        
         [DebuggerStepThrough]
         public static string EnsureTrailingSlash(this string url)
         {
@@ -15,7 +18,6 @@ namespace AdvantagePlatform
 
             return url;
         }
-
         
         [DebuggerStepThrough]
         public static bool IsMissing(this string value)
@@ -29,6 +31,5 @@ namespace AdvantagePlatform
         {
             return !string.IsNullOrWhiteSpace(value);
         }
-
     }
 }

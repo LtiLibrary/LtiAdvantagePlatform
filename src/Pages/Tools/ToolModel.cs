@@ -5,6 +5,7 @@ using AdvantagePlatform.Data;
 using AdvantagePlatform.Utility;
 using IdentityServer4;
 using IdentityServer4.EntityFramework.Entities;
+using LtiAdvantage.IdentityServer4;
 
 namespace AdvantagePlatform.Pages.Tools
 {
@@ -39,10 +40,10 @@ namespace AdvantagePlatform.Pages.Tools
             DeploymentId = tool.DeploymentId;
             Name = tool.Name;
             PrivateKey = client.ClientSecrets
-                ?.FirstOrDefault(s => s.Type == SecretTypes.PrivateKey)
+                ?.FirstOrDefault(s => s.Type == Constants.SecretTypes.PrivateKey)
                 ?.Value;
             PublicKey = client.ClientSecrets
-                ?.FirstOrDefault(s => s.Type == SecretTypes.PublicKey)
+                ?.FirstOrDefault(s => s.Type == Constants.SecretTypes.PublicKey)
                 ?.Value;
             Url = tool.Url;
         }
@@ -102,11 +103,5 @@ namespace AdvantagePlatform.Pages.Tools
         [NullableUrl]
         [Display(Name = "Launch URL")]
         public string Url { get; set; }
-
-        public static class SecretTypes
-        {
-            public const string PrivateKey = "PrivateKey";
-            public const string PublicKey = "PublicKey";
-        }
     }
 }

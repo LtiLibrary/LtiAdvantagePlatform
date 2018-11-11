@@ -7,12 +7,12 @@ using IdentityServer4;
 using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Models;
-using LtiAdvantageLibrary.NetCore;
-using LtiAdvantageLibrary.NetCore.Utilities;
+using LtiAdvantageLibrary.Utilities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.IdentityModel.Tokens;
+using Constants = LtiAdvantageLibrary.Constants;
 
 namespace AdvantagePlatform.Pages.Tools
 {
@@ -72,12 +72,12 @@ namespace AdvantagePlatform.Pages.Tools
                 {
                     new Secret
                     {
-                        Type = ToolModel.SecretTypes.PublicKey,
+                        Type = LtiAdvantage.IdentityServer4.Constants.SecretTypes.PublicKey,
                         Value = Tool.PublicKey
                     },
                     new Secret
                     {
-                        Type = ToolModel.SecretTypes.PrivateKey,
+                        Type = LtiAdvantage.IdentityServer4.Constants.SecretTypes.PrivateKey,
                         Value = Tool.PrivateKey
                     }
                 },

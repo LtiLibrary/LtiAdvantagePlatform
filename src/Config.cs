@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using IdentityServer4.Models;
-using LtiAdvantageLibrary.NetCore;
+using LtiAdvantageLibrary;
 
 namespace AdvantagePlatform
 {

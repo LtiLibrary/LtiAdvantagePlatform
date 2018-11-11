@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
-using LtiAdvantageLibrary.NetCore.Lti;
-using LtiAdvantageLibrary.NetCore.Membership;
+using LtiAdvantageLibrary.Lti;
+using LtiAdvantageLibrary.Membership;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 
