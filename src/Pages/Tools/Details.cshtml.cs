@@ -5,7 +5,6 @@ using AdvantagePlatform.Data;
 using IdentityServer4;
 using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.Extensions;
-using LtiAdvantageLibrary.NetCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -68,7 +67,7 @@ namespace AdvantagePlatform.Pages.Tools
                 DeploymentId = tool.DeploymentId,
                 Name = tool.Name,
                 PrivateKey = client.ClientSecrets
-                    .FirstOrDefault(s => s.Type == Constants.SecretTypes.PrivateKey)?.Value,
+                    .FirstOrDefault(s => s.Type == ToolModel.SecretTypes.PrivateKey)?.Value,
                 Url = tool.Url
             };
 

@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using LtiAdvantageLibrary.NetCore.Lti;
 using LtiAdvantageLibrary.NetCore.Membership;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 
@@ -14,7 +13,6 @@ namespace AdvantagePlatform.Controllers
     /// Sample membership controller that implements the Membership service.
     /// See https://www.imsglobal.org/spec/lti-nrps/v2p0.
     /// </summary>
-    [Authorize(AuthenticationSchemes = "Bearer")]
     public class MembershipController : MembershipControllerBase
     {
         private readonly ApplicationDbContext _appContext;
@@ -28,7 +26,7 @@ namespace AdvantagePlatform.Controllers
 
         /// <summary>
         /// Sample implementation of OnGetMembershipAsync returns both members of the
-        /// sample course.
+        /// sample course. This sample ignores limit, rlid, and role parameters.
         /// </summary>
         /// <param name="request">The <see cref="GetMembershipRequest"/> including the course id.</param>
         /// <returns>The members of the sample course.</returns>
@@ -45,13 +43,13 @@ namespace AdvantagePlatform.Controllers
             var course = await _appContext.Courses.FindAsync(request.ContextId);
             if (course == null)
             {
-                return new NotFoundResponse("Context not found");
+                return NotFound("Context not found");
             }
 
             var user = await _userManager.FindByIdAsync(course.UserId);
             if (user == null)
             {
-                return new NotFoundResponse("User not found");
+                return NotFound("User not found");
             }
 
             var student = await _appContext.People.FindAsync(user.StudentId);

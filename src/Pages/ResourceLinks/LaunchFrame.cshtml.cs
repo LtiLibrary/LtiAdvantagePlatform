@@ -6,6 +6,7 @@ using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Interfaces;
 using LtiAdvantageLibrary.NetCore;
 using LtiAdvantageLibrary.NetCore.Lti;
+using LtiAdvantageLibrary.NetCore.Membership;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -91,7 +92,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 GivenName = person.FirstName,
                 LaunchPresentation = new LaunchPresentationClaimValueType
                 {
-                    DocumentTarget = DocumentTarget.iframe,
+                    DocumentTarget = DocumentTarget.Iframe,
                     ReturnUrl = Request.GetDisplayUrl()
                 },
                 Lis = new LisClaimValueType
@@ -142,7 +143,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 request.NamesRoleService = new NamesRoleServiceClaimValueType
                 {
                     ContextMembershipUrl = 
-                        Url.RouteUrl(Constants.LtiClaimNames.NamesRoleService, 
+                        Url.RouteUrl(Constants.LtiClaims.NamesRoleService, 
                             new { contextId = course.Id },
                             "https",
                             Request.Host.ToString())

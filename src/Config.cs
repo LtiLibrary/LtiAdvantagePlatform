@@ -20,9 +20,9 @@ namespace AdvantagePlatform
         {
             return new List<ApiResource>
             {
-                new ApiResource(Constants.LtiScopes.MembershipReadonly, Constants.ApiResources.Membership),
+                new ApiResource(Constants.LtiScopes.MembershipReadonly, "Membership.Readonly"),
                 new ApiResource(Constants.LtiScopes.AssignmentGradesLineItem, "LineItem"),
-                new ApiResource(Constants.LtiScopes.AssignmentGradesResultReadonly, "ResultReadonly")
+                new ApiResource(Constants.LtiScopes.AssignmentGradesResultReadonly, "Result.Readonly")
             };
         }
     }

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
+using AdvantagePlatform.Pages.Tools;
 using IdentityServer4;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
-using LtiAdvantageLibrary.NetCore;
 using LtiAdvantageLibrary.NetCore.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -60,47 +60,44 @@ namespace AdvantagePlatform
             }
 
             var publicKeys = secrets
-                .Where(s => s.Type == Constants.SecretTypes.PublicKey)
-                .Select(s => new RsaSecurityKey(RsaHelper.PublicKeyFromPemString(s.Value)))
+                .Where(s => s.Type == ToolModel.SecretTypes.PublicKey)
+                .Select(s => RsaHelper.PublicKeyFromPemString(s.Value))
                 .ToList();
 
             if (!publicKeys.Any())
             {
-                _logger.LogError("There are no public keys available to validate client assertion.");
+                _logger.LogError("There are no public keys available to validate the client assertion.");
                 return fail;
             }
 
             var tokenValidationParameters = new TokenValidationParameters
             {
+                // The token must be signed to prove the client credentials.
+                RequireSignedTokens = true,
+                RequireExpirationTime = true,
+
                 IssuerSigningKeys = publicKeys,
                 ValidateIssuerSigningKey = true,
 
-                ValidIssuer = parsedSecret.Id,
+                // IMS recommendation is to send any unique name as Issuer. IMS reference 
+                // implementation sends the tool name. The tool's own name for this client
+                // is not known by the platform and cannot be validated.
                 ValidateIssuer = false,
 
-                // Accept either the base uri or the token endpoint url
+                // IMS recommendation is to send the base url of the authentication server
+                // or the token URL.
                 ValidAudiences = new []
                 {
                     _audienceUri, 
-                    string.Concat(_audienceUri.EnsureTrailingSlash(), Constants.ProtocolRoutePaths.Token)
+                    string.Concat(_audienceUri.EnsureTrailingSlash(), "connect/token")
                 },
-                ValidateAudience = true,
-
-                RequireSignedTokens = true,
-                RequireExpirationTime = true
+                ValidateAudience = true
             };
 
             try
             {
                 var handler = new JwtSecurityTokenHandler();
-                handler.ValidateToken(jwt, tokenValidationParameters, out var token);
-
-                //var jwtToken = (JwtSecurityToken)token;
-                //if (jwtToken.Subject != jwtToken.Issuer)
-                //{
-                //    _logger.LogError("Both 'sub' and 'iss' in the client assertion token must have a value of client_id.");
-                //    return fail;
-                //}
+                handler.ValidateToken(jwt, tokenValidationParameters, out _);
 
                 return success;
             }

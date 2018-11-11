@@ -40,5 +40,11 @@ namespace AdvantagePlatform.Pages.Tools
         [NullableUrl]
         [Display(Name = "Launch URL")]
         public string Url { get; set; }
+
+        public static class SecretTypes
+        {
+            public const string PrivateKey = "PrivateKey";
+            public const string PublicKey = "PublicKey";
+        }
     }
 }
