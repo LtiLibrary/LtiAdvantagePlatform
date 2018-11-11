@@ -54,23 +54,7 @@ namespace AdvantagePlatform.Pages.Tools
                 return NotFound();
             }
 
-            Tool = new ToolModel
-            {
-                Id = tool.Id,
-                ClientId = client.ClientId,
-                ClientSecret = client.Properties
-                    .FirstOrDefault(c => c.Key == IdentityServerConstants.SecretTypes.SharedSecret)
-                    ?.Value,
-                DeploymentId = tool.DeploymentId,
-                Name = tool.Name,
-                PrivateKey = client.ClientSecrets
-                    .FirstOrDefault(c => c.Type == ToolModel.SecretTypes.PrivateKey)
-                    ?.Value,
-                PublicKey = client.ClientSecrets
-                    .FirstOrDefault(c => c.Type == ToolModel.SecretTypes.PublicKey)
-                    ?.Value,
-                Url = tool.Url
-            };
+            Tool = new ToolModel(tool, client);
 
             return Page();
         }

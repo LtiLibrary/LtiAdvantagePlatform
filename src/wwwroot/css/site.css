@@ -40,5 +40,11 @@ body > .container, body > .container-fluid {
 
 textarea.small {
     font-size: 80%;
-    font-weight: 400;
+}
+
+pre.securitykey {
+    font-size: 80%;
+    height: 80px;
+    line-height: 1.05;
+    overflow-y: scroll
 }

@@ -44,14 +44,7 @@ namespace AdvantagePlatform.Pages.Tools
             {
                 var client = await _identityContext.Clients.FindAsync(tool.IdentityServerClientId);
 
-                var item = new ToolModel
-                {
-                    Id = tool.Id,
-                    ClientId = client.ClientId,
-                    DeploymentId = tool.DeploymentId,
-                    Name = tool.Name,
-                    Url = tool.Url
-                };
+                var item = new ToolModel(tool, client);
 
                 list.Add(item);
             }

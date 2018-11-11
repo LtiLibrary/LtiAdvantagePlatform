@@ -1,8 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
-using IdentityServer4;
 using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.Extensions;
 using Microsoft.AspNetCore.Identity;
@@ -27,8 +25,6 @@ namespace AdvantagePlatform.Pages.Tools
             _identityContext = identityContext;
             _userManager = userManager;
         }
-
-        public string OidcDiscoveryUri { get; set; }
 
         [Display(Name = "Issuer", Description = "This is the Issuer for all launch messages from the platform.")]
         public string PlatformIssuer { get; set; }
@@ -58,20 +54,8 @@ namespace AdvantagePlatform.Pages.Tools
                 return NotFound();
             }
 
-            Tool = new ToolModel
-            {
-                Id = tool.Id,
-                ClientId = client.ClientId,
-                ClientSecret = client.Properties
-                    .FirstOrDefault(p => p.Key == IdentityServerConstants.SecretTypes.SharedSecret)?.Value,
-                DeploymentId = tool.DeploymentId,
-                Name = tool.Name,
-                PrivateKey = client.ClientSecrets
-                    .FirstOrDefault(s => s.Type == ToolModel.SecretTypes.PrivateKey)?.Value,
-                Url = tool.Url
-            };
+            Tool = new ToolModel(tool, client);
 
-            OidcDiscoveryUri = HttpContext.GetIdentityServerBaseUrl() + "/.well-known/openid-configuration";
             PlatformIssuer = HttpContext.GetIdentityServerIssuerUri();
 
             return Page();

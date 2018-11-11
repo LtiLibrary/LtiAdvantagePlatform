@@ -33,29 +33,19 @@ namespace AdvantagePlatform.Pages.Tools
             }
 
             var user = await _userManager.GetUserAsync(User);
-
             var tool = await _appContext.Tools.FindAsync(id);
-
             if (tool == null || tool.UserId != user.Id)
             {
                 return NotFound();
             }
 
             var client = await _identityContext.Clients.FindAsync(tool.IdentityServerClientId);
-
             if (client == null)
             {
                 return NotFound();
             }
 
-            Tool = new ToolModel
-            {
-                Id = tool.Id,
-                ClientId = client.ClientId,
-                DeploymentId = tool.DeploymentId,
-                Name = tool.Name,
-                Url = tool.Url
-            };
+            Tool = new ToolModel(tool, client);
 
             return Page();
         }
@@ -68,11 +58,9 @@ namespace AdvantagePlatform.Pages.Tools
             }
 
             var tool = await _appContext.Tools.FindAsync(id);
-
             if (tool != null)
             {
                 var client = await _identityContext.Clients.FindAsync(tool.IdentityServerClientId);
-
                 if (client != null)
                 {
                     _identityContext.Clients.Remove(client);

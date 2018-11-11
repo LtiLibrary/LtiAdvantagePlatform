@@ -45,8 +45,8 @@ namespace AdvantagePlatform
             services.ConfigureApplicationCookie(options => { options.Cookie.Name = "AdvantagePlatform"; });
 
             services.AddMvc()
-                .AddRazorPagesOptions(options => { options.Conventions.AuthorizeFolder("/Clients"); })
                 .AddRazorPagesOptions(options => { options.Conventions.AuthorizeFolder("/ResourceLinks"); })
+                .AddRazorPagesOptions(options => { options.Conventions.AuthorizeFolder("/Tools"); })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             // This app will host the LTI Platform and the Identity Server (Issuer). The Identity Server
