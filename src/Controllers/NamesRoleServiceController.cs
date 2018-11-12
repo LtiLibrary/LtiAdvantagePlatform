@@ -74,7 +74,7 @@ namespace AdvantagePlatform.Controllers
                     ContextTitle = course.Name,
                     FamilyName = teacher.LastName,
                     GivenName = teacher.FirstName,
-                    Roles = new [] { Role.ContextInstructor, Role.InstitutionStaff },
+                    Roles = new [] { Role.ContextInstructor, Role.InstitutionFaculty },
                     SourcedId = teacher.SisId,
                     Status = MemberStatus.Active,
                     UserId = teacher.Id

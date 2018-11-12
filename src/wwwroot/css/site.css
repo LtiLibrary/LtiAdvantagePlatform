@@ -48,3 +48,7 @@ pre.securitykey {
     line-height: 1.05;
     overflow-y: scroll
 }
+
+a.fa-edit {
+    margin-top: -6px;
+}

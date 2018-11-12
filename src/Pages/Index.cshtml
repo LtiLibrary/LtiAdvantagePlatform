@@ -46,9 +46,9 @@
                 <div class="card text-white bg-info">
                     <h4 class="card-header">
                         Platform
-                        <a class="btn text-light float-sm-right fas fa-edit"
+                        <a class="btn text-light fas fa-edit"
                            data-toggle="tooltip"
-                           title="Edit the Platform Settings"
+                           title="Edit the platform settings"
                            asp-area="Identity"
                            asp-page="Account/Manage/Platform">
                         </a>
@@ -64,14 +64,14 @@
                                         </dd>
                                     </dl>
                                 </div>
-                                <h4>
+                                <h6 class="font-weight-bold">
                                     Resource Links
-                                    <a class="btn text-light float-sm-right fas fa-edit"
+                                    <a class="btn text-light fas fa-edit"
                                        data-toggle="tooltip"
-                                       title="Edit the Tools"
+                                       title="Edit the platform resource links"
                                        asp-page="./ResourceLinks/Index">
                                     </a>
-                                </h4>
+                                </h6>
                                 @if (Model.PlatformResourceLinks.Any())
                                 {
                                     foreach (var link in Model.PlatformResourceLinks)
@@ -86,13 +86,15 @@
                                                             <dd>@link.ToolName</dd>
                                                         </dl>
                                                         <a class="btn btn-sm btn-secondary mt-2 mb-2" target="_blank"
+                                                           data-toggle="tooltip" title="Launch this tool as the teacher"
                                                            asp-page="ResourceLinks/LaunchPage"
                                                            asp-route-id="@link.Id"
-                                                           asp-route-persona="teacher">Launch as Teacher</a>
+                                                           asp-route-persona="teacher"><i class="fas fa-external-link-alt"></i> Teacher</a>
                                                         <a class="btn btn-sm btn-secondary" target="_blank"
+                                                           data-toggle="tooltip" title="Launch this tool as the student"
                                                            asp-page="ResourceLinks/LaunchPage"
                                                            asp-route-id="@link.Id"
-                                                           asp-route-persona="student">Launch as Student</a>
+                                                           asp-route-persona="student"><i class="fas fa-external-link-alt"></i> Student</a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -108,9 +110,9 @@
                                 <div class="card bg-secondary">
                                     <h4 class="card-header">
                                         Course
-                                        <a class="btn text-light float-sm-right fas fa-edit"
+                                        <a class="btn text-light fas fa-edit"
                                            data-toggle="tooltip"
-                                           title="Edit the Course Settings"
+                                           title="Edit the course settings"
                                            asp-area="Identity"
                                            asp-page="Account/Manage/Course">
                                         </a>
@@ -122,15 +124,15 @@
                                                 <dd>@Html.DisplayFor(m => m.Course.Name)</dd>
                                             </dl>
                                         </div>
-                                        <h4>
+                                        <h6 class="font-weight-bold">
                                             Members
-                                            <a class="btn text-light float-sm-right fas fa-edit"
+                                            <a class="btn text-light fas fa-edit"
                                                data-toggle="tooltip"
-                                               title="Edit the Member Settings"
+                                               title="Edit the member settings"
                                                asp-area="Identity"
                                                asp-page="Account/Manage/People">
                                             </a>
-                                        </h4>
+                                        </h6>
                                         <div class="row">
                                             <dl class="col-sm-4">
                                                 <dt>Teacher</dt>
@@ -141,14 +143,14 @@
                                                 <dd>@Html.DisplayFor(m => m.Student.FirstName) @Html.DisplayFor(m => m.Student.LastName)</dd>
                                             </dl>
                                         </div>
-                                        <h4>
+                                        <h6 class="font-weight-bold">
                                             Resource Links
-                                            <a class="btn text-light float-sm-right fas fa-edit"
+                                            <a class="btn text-light fas fa-edit"
                                                data-toggle="tooltip"
-                                               title="Edit the Tools"
+                                               title="Edit the course resource links"
                                                asp-page="./ResourceLinks/Index">
                                             </a>
-                                        </h4>
+                                        </h6>
                                         @if (Model.CourseResourceLinks.Any())
                                         {
                                             <div class="row">
@@ -163,13 +165,15 @@
                                                                     <dd>@link.ToolName</dd>
                                                                 </dl>
                                                                 <a class="btn btn-sm btn-secondary mb-2 mt-2" target="_blank"
+                                                                   data-toggle="tooltip" title="Launch this tool as the teacher"
                                                                    asp-page="ResourceLinks/LaunchPage"
                                                                    asp-route-id="@link.Id"
-                                                                   asp-route-persona="teacher">Launch as Teacher</a>
+                                                                   asp-route-persona="teacher"><i class="fas fa-external-link-alt"></i> Teacher</a>
                                                                 <a class="btn btn-sm btn-secondary mb-2 mt-2" target="_blank"
+                                                                   data-toggle="tooltip" title="Launch this tool as the student"
                                                                    asp-page="ResourceLinks/LaunchPage"
                                                                    asp-route-id="@link.Id"
-                                                                   asp-route-persona="student">Launch as Student</a>
+                                                                   asp-route-persona="student"><i class="fas fa-external-link-alt"></i> Student</a>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -189,9 +193,9 @@
                                 <div class="card bg-success">
                                     <h5 class="card-header">
                                         Tools
-                                        <a class="btn text-light float-sm-right fas fa-edit"
+                                        <a class="btn text-light fas fa-edit"
                                            data-toggle="tooltip"
-                                           title="Edit the Tools"
+                                           title="Edit the tools"
                                            asp-page="./Tools/Index">
                                         </a>
                                     </h5>
