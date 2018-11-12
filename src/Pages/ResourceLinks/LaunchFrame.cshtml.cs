@@ -6,7 +6,7 @@ using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Interfaces;
 using LtiAdvantageLibrary;
 using LtiAdvantageLibrary.Lti;
-using LtiAdvantageLibrary.Membership;
+using LtiAdvantageLibrary.NamesRoleService;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

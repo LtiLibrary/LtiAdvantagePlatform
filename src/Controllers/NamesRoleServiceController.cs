@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using LtiAdvantageLibrary.Lti;
-using LtiAdvantageLibrary.Membership;
+using LtiAdvantageLibrary.NamesRoleService;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 
@@ -13,12 +13,12 @@ namespace AdvantagePlatform.Controllers
     /// Sample membership controller that implements the Membership service.
     /// See https://www.imsglobal.org/spec/lti-nrps/v2p0.
     /// </summary>
-    public class MembershipController : MembershipControllerBase
+    public class NamesRoleServiceController : NamesRoleServiceControllerBase
     {
         private readonly ApplicationDbContext _appContext;
         private readonly UserManager<AdvantagePlatformUser> _userManager;
 
-        public MembershipController(ApplicationDbContext appContext, UserManager<AdvantagePlatformUser> userManager)
+        public NamesRoleServiceController(ApplicationDbContext appContext, UserManager<AdvantagePlatformUser> userManager)
         {
             _appContext = appContext;
             _userManager = userManager;
@@ -28,11 +28,11 @@ namespace AdvantagePlatform.Controllers
         /// Sample implementation of OnGetMembershipAsync returns both members of the
         /// sample course. This sample ignores limit, rlid, and role parameters.
         /// </summary>
-        /// <param name="request">The <see cref="GetMembershipRequest"/> including the course id.</param>
+        /// <param name="request">The <see cref="GetNamesRolesRequest"/> including the course id.</param>
         /// <returns>The members of the sample course.</returns>
-        protected override async Task<GetMembershipResponse> OnGetMembershipAsync(GetMembershipRequest request)
+        protected override async Task<GetNamesRolesResponse> OnGetMembershipAsync(GetNamesRolesRequest request)
         {
-            var response = new GetMembershipResponse
+            var response = new GetNamesRolesResponse
             {
                 MembershipContainer = new MembershipContainer
                 {
