@@ -83,6 +83,9 @@ namespace AdvantagePlatform.Pages.Tools
         [NullableUrl]
         [Display(Name = "JSON Web Key Set URL", Description = "URL to retrieve the tool's current public keys. If supplied, the current keys will be retrieved just prior to tool launch, to allow for frequent key rotation.")]
         public string JsonWebKeySetUrl { get; set; }
+        
+        [Display(Name = "Issuer", Description = "The Issuer for all launch messages from the platform.")]
+        public string PlatformIssuer { get; set; }
 
         /// <summary>
         /// The public signing key.

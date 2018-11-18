@@ -48,12 +48,12 @@
                             @Html.DisplayNameFor(m => m.Tool.DeploymentId)
                             <tooltip asp-for="Tool.DeploymentId"></tooltip>
                         </dt>
-                        <dd>@Html.DisplayFor(model => model.Tool.DeploymentId)</dd>
+                        <dd>@Model.Tool.DeploymentId</dd>
                         <dt>
-                            @Html.DisplayNameFor(m => m.PlatformIssuer)
-                            <tooltip asp-for="PlatformIssuer"></tooltip>
+                            @Html.DisplayNameFor(m => m.Tool.PlatformIssuer)
+                            <tooltip asp-for="Tool.PlatformIssuer"></tooltip>
                         </dt>
-                        <dd>@Html.DisplayFor(m => m.PlatformIssuer)</dd>
+                        <dd>@Model.Tool.PlatformIssuer</dd>
                     </dl>
                 </div>
             </div>

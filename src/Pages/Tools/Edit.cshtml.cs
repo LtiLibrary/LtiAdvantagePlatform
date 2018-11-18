@@ -8,7 +8,6 @@ using IdentityModel.Jwk;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Interfaces;
 using LtiAdvantage.IdentityServer4;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -18,21 +17,18 @@ namespace AdvantagePlatform.Pages.Tools
 {
     public class EditModel : PageModel
     {
-        private readonly ApplicationDbContext _appContext;
+        private readonly ApplicationDbContext _context;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfigurationDbContext _identityContext;
-        private readonly UserManager<AdvantagePlatformUser> _userManager;
 
         public EditModel(
-            ApplicationDbContext appContext,
+            ApplicationDbContext context,
             IHttpClientFactory httpClientFactory,
-            IConfigurationDbContext identityContext, 
-            UserManager<AdvantagePlatformUser> userManager)
+            IConfigurationDbContext identityContext)
         {
-            _appContext = appContext;
+            _context = context;
             _httpClientFactory = httpClientFactory;
             _identityContext = identityContext;
-            _userManager = userManager;
         }
 
         [BindProperty]
@@ -45,7 +41,7 @@ namespace AdvantagePlatform.Pages.Tools
                 return NotFound();
             }
 
-            var user = await _userManager.GetUserAsync(User);
+            var user = await _context.GetUserAsync(User);
             if (user == null)
             {
                 return NotFound();
@@ -59,7 +55,6 @@ namespace AdvantagePlatform.Pages.Tools
 
             var client = await _identityContext.Clients
                 .Include(c => c.ClientSecrets)
-                .Include(c => c.Properties)
                 .SingleOrDefaultAsync(c => c.Id == tool.IdentityServerClientId);
             if (client == null)
             {
@@ -114,13 +109,13 @@ namespace AdvantagePlatform.Pages.Tools
                 return Page();
             }
 
-            var tool = await _appContext.Tools.FindAsync(Tool.Id);
+            var tool = await _context.Tools.FindAsync(Tool.Id);
             tool.Name = Tool.Name;
             tool.JsonWebKeySetUrl = Tool.JsonWebKeySetUrl;
             tool.LaunchUrl = Tool.LaunchUrl;
 
-            _appContext.Tools.Attach(tool).State = EntityState.Modified;
-            await _appContext.SaveChangesAsync();
+            _context.Tools.Attach(tool).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
 
             var client = await _identityContext.Clients
                 .Include(c => c.ClientSecrets)

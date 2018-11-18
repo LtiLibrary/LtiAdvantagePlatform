@@ -9,7 +9,6 @@ using IdentityModel.Client;
 using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.IdentityModel.Tokens;
@@ -21,24 +20,21 @@ namespace AdvantagePlatform.Pages.Tools
 {
     public class CreateModel : PageModel
     {
-        private readonly ApplicationDbContext _appContext;
+        private readonly ApplicationDbContext _context;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfigurationDbContext _identityContext;
-        private readonly UserManager<AdvantagePlatformUser> _userManager;
 
         [BindProperty]
         public ToolModel Tool { get; set; }
 
         public CreateModel(
-            ApplicationDbContext appContext, 
+            ApplicationDbContext context, 
             IHttpClientFactory httpClientFactory,
-            IConfigurationDbContext identityContext, 
-            UserManager<AdvantagePlatformUser> userManager)
+            IConfigurationDbContext identityContext)
         {
-            _appContext = appContext;
+            _context = context;
             _httpClientFactory = httpClientFactory;
             _identityContext = identityContext;
-            _userManager = userManager;
         }
 
         public IActionResult OnGet()
@@ -124,10 +120,11 @@ namespace AdvantagePlatform.Pages.Tools
 
             var entity = client.ToEntity();
 
+            // Create the IdentityServer Client first to get its ID
             await _identityContext.Clients.AddAsync(entity);
             await _identityContext.SaveChangesAsync();
 
-            var user = await _userManager.GetUserAsync(User);
+            var user = await _context.GetUserAsync(User);
             var tool = new Tool
             {
                 DeploymentId = Tool.DeploymentId,
@@ -138,11 +135,8 @@ namespace AdvantagePlatform.Pages.Tools
                 User = user
             };
 
-            await _appContext.Tools.AddAsync(tool);
-            await _appContext.SaveChangesAsync();
-
-            user.Tools.Add(tool);
-            await _userManager.UpdateAsync(user);
+            await _context.Tools.AddAsync(tool);
+            await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");
         }
