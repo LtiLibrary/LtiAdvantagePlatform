@@ -1,22 +1,18 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using AdvantagePlatform.Data;
-using Microsoft.AspNetCore.Identity;
 
 namespace AdvantagePlatform.Pages.ResourceLinks
 {
     public class DeleteModel : PageModel
     {
-        private readonly ApplicationDbContext _appContext;
-        private readonly UserManager<AdvantagePlatformUser> _userManager;
+        private readonly ApplicationDbContext _context;
 
-        public DeleteModel(
-            ApplicationDbContext appContext,
-            UserManager<AdvantagePlatformUser> userManager)
+        public DeleteModel(ApplicationDbContext context)
         {
-            _appContext = appContext;
-            _userManager = userManager;
+            _context = context;
         }
 
         [BindProperty]
@@ -29,17 +25,19 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 return NotFound();
             }
 
-            var user = await _userManager.GetUserAsync(User);
-
-            var resourceLink = await _appContext.ResourceLinks.FindAsync(id);
-
-            if (resourceLink == null || resourceLink.UserId != user.Id)
+            var user = await _context.GetUserAsync(User);
+            if (user == null)
             {
                 return NotFound();
             }
 
-            var tool = await _appContext.Tools.FindAsync(resourceLink.ToolId);
+            var resourceLink = user.ResourceLinks.SingleOrDefault(r => r.Id == id);
+            if (resourceLink == null)
+            {
+                return NotFound();
+            }
 
+            var tool = user.Tools.SingleOrDefault(t => t.Id == resourceLink.ToolId);
             if (tool == null)
             {
                 return NotFound();
@@ -63,12 +61,12 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 return NotFound();
             }
 
-            var resourceLink = await _appContext.ResourceLinks.FindAsync(id);
+            var resourceLink = await _context.ResourceLinks.FindAsync(id);
 
             if (resourceLink != null)
             {
-                _appContext.ResourceLinks.Remove(resourceLink);
-                await _appContext.SaveChangesAsync();
+                _context.ResourceLinks.Remove(resourceLink);
+                await _context.SaveChangesAsync();
             }
 
             return RedirectToPage("./Index");

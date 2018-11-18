@@ -1,5 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using AdvantagePlatform.Data;
+using LtiAdvantageLibrary.Lti;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -12,63 +16,62 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account.Manage
         private readonly ApplicationDbContext _context;
         private readonly UserManager<AdvantagePlatformUser> _userManager;
 
-        public PeopleModel(ApplicationDbContext context, UserManager<AdvantagePlatformUser> userManager)
+        public PeopleModel(ApplicationDbContext context, 
+            UserManager<AdvantagePlatformUser> userManager)
         {
             _context = context;
             _userManager = userManager;
         }
 
         [BindProperty]
-        public Person Student { get; set; }
-
-        [BindProperty]
-        public Person Teacher { get; set; }
+        public List<Person> People { get; set; }
 
         public async Task<IActionResult> OnGet()
         {
-            var user = await _userManager.GetUserAsync(User);
+            var user = await _context.GetUserAsync(User);
             if (user == null)
             {
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            Student = await _context.People.SingleOrDefaultAsync(
-                c => c.UserId == user.Id && c.IsStudent);
-            if (Student == null)
-            {
-                Student = RegisterModel.CreatePerson(user, true);
-                await _context.People.AddAsync(Student);
-                await _context.SaveChangesAsync();
-                user.StudentId = Student.Id;
-                await _userManager.UpdateAsync(user);
-            }
-
-            Teacher = await _context.People.SingleOrDefaultAsync(
-                c => c.UserId == user.Id && !c.IsStudent);
-            if (Teacher == null)
-            {
-                Teacher = RegisterModel.CreatePerson(user, false);
-                await _context.People.AddAsync(Teacher);
-                await _context.SaveChangesAsync();
-                user.TeacherId = Teacher.Id;
-                await _userManager.UpdateAsync(user);
-            }
+            People = user.People?.ToList();
 
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPost()
         {
             if (!ModelState.IsValid)
             {
                 return Page();
             }
 
-            _context.Attach(Student).State = EntityState.Modified;
-            _context.Attach(Teacher).State = EntityState.Modified;
+            foreach (var person in People)
+            {
+                _context.Attach(person).State = EntityState.Modified;
+            }
             await _context.SaveChangesAsync();
 
             return Page();
+        }
+
+        /// <summary>
+        /// Return an array of <see cref="Role"/> from a comma separated list.
+        /// </summary>
+        /// <param name="rolesString">Comma separate list of <see cref="Role"/> names.</param>
+        /// <returns></returns>
+        public static Role[] ParsePersonRoles(string rolesString)
+        {
+            var roles = new List<Role>();
+            foreach (var roleString in rolesString.Split(","))
+            {
+                if (Enum.TryParse<Role>(roleString, out var role))
+                {
+                    roles.Add(role);
+                }
+            }
+
+            return roles.ToArray();
         }
     }
 }

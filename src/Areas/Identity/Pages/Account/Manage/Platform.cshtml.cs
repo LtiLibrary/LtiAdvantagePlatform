@@ -25,25 +25,13 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account.Manage
 
         public async Task<IActionResult> OnGet()
         {
-            var user = await _userManager.GetUserAsync(User);
+            var user = await _context.GetUserAsync(User);
             if (user == null)
             {
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            if (user.PlatformId != null)
-            {
-                Platform = await _context.Platforms.FindAsync(user.PlatformId);
-            }
-
-            if (Platform == null)
-            {
-                Platform = RegisterModel.CreatePlatform(Request, user);
-                await _context.Platforms.AddAsync(Platform);
-                await _context.SaveChangesAsync();
-                user.PlatformId = Platform.Id;
-                await _userManager.UpdateAsync(user);
-            }
+            Platform = user.Platform;
 
             return Page();
         }

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using IdentityServer4.EntityFramework.Interfaces;
@@ -39,8 +40,13 @@ namespace AdvantagePlatform.Pages.Tools
             }
 
             var user = await _userManager.GetUserAsync(User);
-            var tool = await _appContext.Tools.FindAsync(id);
-            if (tool == null || tool.UserId != user.Id)
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var tool = user.Tools.SingleOrDefault(t => t.Id == id);
+            if (tool == null)
             {
                 return NotFound();
             }

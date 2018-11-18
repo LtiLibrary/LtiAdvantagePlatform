@@ -1,29 +1,36 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
-using IdentityServer4;
+using IdentityModel.Client;
+using IdentityModel.Jwk;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Interfaces;
-using IdentityServer4.Models;
+using LtiAdvantage.IdentityServer4;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace AdvantagePlatform.Pages.Tools
 {
     public class EditModel : PageModel
     {
         private readonly ApplicationDbContext _appContext;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfigurationDbContext _identityContext;
         private readonly UserManager<AdvantagePlatformUser> _userManager;
 
         public EditModel(
             ApplicationDbContext appContext,
+            IHttpClientFactory httpClientFactory,
             IConfigurationDbContext identityContext, 
             UserManager<AdvantagePlatformUser> userManager)
         {
             _appContext = appContext;
+            _httpClientFactory = httpClientFactory;
             _identityContext = identityContext;
             _userManager = userManager;
         }
@@ -39,8 +46,13 @@ namespace AdvantagePlatform.Pages.Tools
             }
 
             var user = await _userManager.GetUserAsync(User);
-            var tool = await _appContext.Tools.FindAsync(id);
-            if (tool == null || tool.UserId != user.Id)
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var tool = user.Tools.SingleOrDefault(t => t.Id == id);
+            if (tool == null)
             {
                 return NotFound();
             }
@@ -66,61 +78,81 @@ namespace AdvantagePlatform.Pages.Tools
                 return Page();
             }
 
-            var tool = await _appContext.Tools.FindAsync(Tool.Id);
+            if (Tool.JsonWebKeySetUrl.IsPresent())
+            {
+                var httpClient = _httpClientFactory.CreateClient();
 
+                // Test whether JsonWebKeySetUrl points to a Discovery Document
+                var disco = await httpClient.GetDiscoveryDocumentAsync(Tool.JsonWebKeySetUrl);
+                if (!disco.IsError)
+                {
+                    Tool.JsonWebKeySetUrl = disco.JwksUri;
+                }
+                else
+                {
+                    // Test that JsonWebKeySetUrl points to a JWKS endpoint
+                    try
+                    {
+                        var keySetJson = await httpClient.GetStringAsync(Tool.JsonWebKeySetUrl);
+                        JsonConvert.DeserializeObject<JsonWebKeySet>(keySetJson);
+                    }
+                    catch (Exception e)
+                    {
+                        ModelState.AddModelError($"{nameof(Tool)}.{nameof(Tool.JsonWebKeySetUrl)}",
+                            e.Message);
+                        return Page();
+                    }
+                }
+            }
+
+            if (Tool.JsonWebKeySetUrl.IsMissing() && Tool.PublicKey.IsMissing())
+            {
+                ModelState.AddModelError($"{nameof(Tool)}.{nameof(Tool.JsonWebKeySetUrl)}",
+                    "Either JSON Web Key Set URL or Public Key is required.");
+                ModelState.AddModelError($"{nameof(Tool)}.{nameof(Tool.PublicKey)}",
+                    "Either JSON Web Key Set URL or Public Key is required.");
+                return Page();
+            }
+
+            var tool = await _appContext.Tools.FindAsync(Tool.Id);
             tool.Name = Tool.Name;
-            tool.Url = Tool.Url;
+            tool.JsonWebKeySetUrl = Tool.JsonWebKeySetUrl;
+            tool.LaunchUrl = Tool.LaunchUrl;
 
             _appContext.Tools.Attach(tool).State = EntityState.Modified;
             await _appContext.SaveChangesAsync();
 
             var client = await _identityContext.Clients
                 .Include(c => c.ClientSecrets)
-                .Include(c => c.Properties)
                 .SingleOrDefaultAsync(c => c.Id == tool.IdentityServerClientId);
 
-            var clearSecret =
-                client.Properties.SingleOrDefault(p => p.Key == IdentityServerConstants.SecretTypes.SharedSecret);
-            var sharedSecret =
-                client.ClientSecrets.SingleOrDefault(s => s.Type == IdentityServerConstants.SecretTypes.SharedSecret);
+            var publicKey = client.ClientSecrets
+                .SingleOrDefault(s => s.Type == Constants.SecretTypes.PublicPemKey);
 
-            if (Tool.ClientSecret.IsPresent())
+            if (Tool.PublicKey.IsPresent())
             {
-                // This is not needed for IdentityServer. It is only here so that
-                // testing is made easier by being able to display the current secret.
-                if (clearSecret == null)
+                if (publicKey == null)
                 {
-                    clearSecret = new ClientProperty { Client = client };
-                    client.Properties.Add(clearSecret);
+                    publicKey = new ClientSecret
+                    {
+                        Client = client,
+                        Type = Constants.SecretTypes.PublicPemKey
+                    };
+                    client.ClientSecrets.Add(publicKey);
                 }
-
-                clearSecret.Key = IdentityServerConstants.SecretTypes.SharedSecret;
-                clearSecret.Value = Tool.ClientSecret;
-
-                if (sharedSecret == null)
-                {
-                    sharedSecret = new ClientSecret { Client = client };
-                    client.ClientSecrets.Add(sharedSecret);
-                }
-
-                sharedSecret.Type = IdentityServerConstants.SecretTypes.SharedSecret;
-                sharedSecret.Value = Tool.ClientSecret.Sha256();
+                publicKey.Value = Tool.PublicKey;
             }
             else
             {
-                if (clearSecret != null)
+                if (publicKey != null)
                 {
-                    client.Properties.Remove(clearSecret);
-                }
-
-                if (sharedSecret != null)
-                {
-                    client.ClientSecrets.Remove(sharedSecret);
+                    client.ClientSecrets.Remove(publicKey);
                 }
             }
 
             _identityContext.Clients.Update(client);
             await _identityContext.SaveChangesAsync();
+
 
             return RedirectToPage("./Index");
         }

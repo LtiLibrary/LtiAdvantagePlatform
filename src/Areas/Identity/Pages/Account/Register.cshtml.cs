@@ -1,13 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
+using LtiAdvantageLibrary.Lti;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RandomNameGeneratorLibrary;
 
@@ -84,22 +88,15 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account
                     var course = CreateCourse(user);
                     await _context.Courses.AddAsync(course);
 
-                    // Create a student
-                    var student = CreatePerson(user, true);
-                    await _context.People.AddAsync(student);
-
-                    // Create a teacher
-                    var teacher = CreatePerson(user, false);
-                    await _context.People.AddAsync(teacher);
+                    // Create a default set of people for the course
+                    await CreatePeopleAsync(_context, user);
 
                     // Save the platform, course, student, and teacher
                     await _context.SaveChangesAsync();
 
                     // Attach the platform, course, student, and teacher to local user
-                    user.PlatformId = platform.Id;
-                    user.CourseId = course.Id;
-                    user.StudentId = student.Id;
-                    user.TeacherId = teacher.Id;
+                    user.Platform = platform;
+                    user.Course = course;
                     await _userManager.UpdateAsync(user);
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -129,7 +126,7 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account
         {
             var platform = new Platform
             {
-                UserId = user.Id,
+                User = user,
                 ContactEmail = user.Email,
                 Description = "Auto generated platform",
                 Guid = $"{request.Host}",
@@ -146,24 +143,60 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account
             var course = new Course
             {
                 Name = $"The People of {placeGenerator.GenerateRandomPlaceName()}",
-                UserId = user.Id
+                User = user
             };
             course.SisId = course.GetHashCode().ToString();
             return course;
         }
 
-        public static Person CreatePerson(AdvantagePlatformUser user, bool isStudent)
+        /// <summary>
+        /// Create a default set of people that will be members of a course.
+        /// </summary>
+        /// <param name="context">The db context for Person.</param>
+        /// <param name="user">The application user.</param>
+        /// <returns></returns>
+        public static async Task CreatePeopleAsync(ApplicationDbContext context, AdvantagePlatformUser user)
         {
-            var nameGenerator = new PersonNameGenerator();
-            var person = new Person
+            // Already have the default number of people?
+            if (user.People.Count >= 2)
             {
-                FirstName = nameGenerator.GenerateRandomFirstName(),
-                LastName = nameGenerator.GenerateRandomLastName(),
-                IsStudent = isStudent
-            };
-            person.SisId = person.GetHashCode().ToString();
-            person.UserId = user.Id;
-            return person;
+                return;
+            }
+
+            var nameGenerator = new PersonNameGenerator();
+
+            if (!user.People.Any(p => p.Roles.Contains(Role.ContextInstructor.ToString())))
+            {
+                var person = new Person
+                {
+                    FirstName = nameGenerator.GenerateRandomFirstName(),
+                    LastName = nameGenerator.GenerateRandomLastName(),
+                    Roles = string.Join(",", new {Role.ContextInstructor, Role.InstitutionFaculty}),
+                    User = user
+                };
+                person.SisId = person.GetHashCode().ToString();
+                await context.People.AddAsync(person);
+                user.People.Add(person);
+                context.Update(user);
+            }
+
+            
+            if (!user.People.Any(p => p.Roles.Contains(Role.ContextInstructor.ToString())))
+            {
+                var person = new Person
+                {
+                    FirstName = nameGenerator.GenerateRandomFirstName(),
+                    LastName = nameGenerator.GenerateRandomLastName(),
+                    Roles = string.Join(",", new {Role.ContextLearner, Role.InstitutionLearner}),
+                    User = user
+                };
+                person.SisId = person.GetHashCode().ToString();
+                await context.People.AddAsync(person);
+                user.People.Add(person);
+                context.Update(user);
+            }
+
+            await context.SaveChangesAsync();
         }
     }
 }

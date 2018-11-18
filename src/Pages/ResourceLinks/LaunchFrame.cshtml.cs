@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using IdentityServer4;
@@ -37,6 +38,12 @@ namespace AdvantagePlatform.Pages.ResourceLinks
         public string IdToken { get; private set; }
         public string ToolUrl { get; private set; }
 
+        /// <summary>
+        /// This page is the source for an iframe inside of LaunchPage.
+        /// </summary>
+        /// <param name="id">The <see cref="ResourceLink"/>.</param>
+        /// <param name="persona">The <see cref="Person"/> launching the resource.</param>
+        /// <returns></returns>
         public async Task<IActionResult> OnGetAsync(int? id, string persona)
         {
             if (id == null)
@@ -45,15 +52,18 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             }
 
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound();
+            }
 
-            var resourceLink = await _appContext.ResourceLinks
-                .FirstOrDefaultAsync(m => m.Id == id && m.UserId == user.Id);
+            var resourceLink = user.ResourceLinks.SingleOrDefault(r => r.Id == id);
             if (resourceLink == null)
             {
                 return NotFound();
             }
 
-            var tool = await _appContext.Tools.FindAsync(resourceLink.ToolId);
+            var tool = user.Tools.SingleOrDefault(t => t.Id == resourceLink.ToolId);
             if (tool == null)
             {
                 return NotFound();
@@ -66,17 +76,17 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             }
 
             var person = persona == "teacher"
-                ? await _appContext.People.FindAsync(user.TeacherId)
-                : await _appContext.People.FindAsync(user.StudentId);
+                ? user.People.FirstOrDefault(p => p.Roles.Contains(Role.ContextInstructor.ToString()))
+                : user.People.FirstOrDefault(p => p.Roles.Contains(Role.ContextLearner.ToString()));
 
             var course = resourceLink.LinkContext == ResourceLink.LinkContexts.Course
-                ? await _appContext.Courses.FindAsync(user.CourseId)
+                ? user.Course
                 : null;
 
-            var platform = await _appContext.Platforms.FindAsync(user.PlatformId);
+            var platform = user.Platform;
 
             IdToken = await GetJwtAsync(resourceLink, tool, client, person, course, platform);
-            ToolUrl = tool.Url;
+            ToolUrl = tool.LaunchUrl;
 
             return Page();
         }
@@ -108,9 +118,9 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                     Description = platform.Description,
                     Guid = platform.Id,
                     Name = platform.Name,
-                    ProductFamilyCode = "LtiAdvantageLibrary",
+                    ProductFamilyCode = platform.ProductFamilyCode,
                     Url = Request.GetDisplayUrl(),
-                    Version = "1.0"
+                    Version = platform.Version
                 },
                 ResourceLink = new ResourceLinkClaimValueType
                 {
@@ -134,9 +144,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
 
                 // Only include context roles if the launch includes
                 // a context.
-                request.Roles = person.IsStudent
-                    ? new[] {Role.ContextLearner, Role.InstitutionStudent}
-                    : new[] {Role.ContextInstructor, Role.InstitutionFaculty};
+                request.Roles = Areas.Identity.Pages.Account.Manage.PeopleModel.ParsePersonRoles(person.Roles);
 
                 // Only include Names and Role Provisioning Service claim if
                 // the launch includes a context.
@@ -151,9 +159,8 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             }
             else
             {
-                request.Roles = person.IsStudent
-                    ? new[] {Role.InstitutionLearner}
-                    : new[] {Role.InstitutionFaculty};
+                var roles = Areas.Identity.Pages.Account.Manage.PeopleModel.ParsePersonRoles(person.Roles);
+                request.Roles = roles.Where(r => !r.ToString().StartsWith("Context")).ToArray();
             }
 
             return await _tools.IssueJwtAsync(3600, request.Claims);

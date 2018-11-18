@@ -1,24 +1,28 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
-using IdentityServer4;
+using IdentityModel.Client;
 using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Models;
-using LtiAdvantageLibrary.Utilities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using Constants = LtiAdvantageLibrary.Constants;
+using JsonWebKeySet = IdentityModel.Jwk.JsonWebKeySet;
 
 namespace AdvantagePlatform.Pages.Tools
 {
     public class CreateModel : PageModel
     {
         private readonly ApplicationDbContext _appContext;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfigurationDbContext _identityContext;
         private readonly UserManager<AdvantagePlatformUser> _userManager;
 
@@ -27,23 +31,21 @@ namespace AdvantagePlatform.Pages.Tools
 
         public CreateModel(
             ApplicationDbContext appContext, 
+            IHttpClientFactory httpClientFactory,
             IConfigurationDbContext identityContext, 
             UserManager<AdvantagePlatformUser> userManager)
         {
             _appContext = appContext;
+            _httpClientFactory = httpClientFactory;
             _identityContext = identityContext;
             _userManager = userManager;
         }
 
         public IActionResult OnGet()
         {
-            var keyPair = RsaHelper.GenerateRsaKeyPair();
-
             Tool = new ToolModel
             {
-                DeploymentId = GenerateRandomString(8),
-                PrivateKey = keyPair.PrivateKey,
-                PublicKey = keyPair.PublicKey
+                DeploymentId = GenerateRandomString(8)
             };
 
             return Page();
@@ -51,14 +53,47 @@ namespace AdvantagePlatform.Pages.Tools
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
+            if (Tool.JsonWebKeySetUrl.IsPresent())
             {
-                return Page();
+                var httpClient = _httpClientFactory.CreateClient();
+
+                // Test whether JsonWebKeySetUrl points to a Discovery Document
+                var disco = await httpClient.GetDiscoveryDocumentAsync(Tool.JsonWebKeySetUrl);
+                if (!disco.IsError)
+                {
+                    Tool.JsonWebKeySetUrl = disco.JwksUri;
+                }
+                else
+                {
+                    // Test that JsonWebKeySetUrl points to a JWKS endpoint
+                    try
+                    {
+                        var keySetJson = await httpClient.GetStringAsync(Tool.JsonWebKeySetUrl);
+                        JsonConvert.DeserializeObject<JsonWebKeySet>(keySetJson);
+                    }
+                    catch (Exception e)
+                    {
+                        ModelState.AddModelError($"{nameof(Tool)}.{nameof(Tool.JsonWebKeySetUrl)}",
+                            e.Message);
+                    }
+                }
+            }
+
+            if (Tool.JsonWebKeySetUrl.IsMissing() && Tool.PublicKey.IsMissing())
+            {
+                ModelState.AddModelError($"{nameof(Tool)}.{nameof(Tool.JsonWebKeySetUrl)}",
+                    "Either JSON Web Key Set URL or Public Key is required.");
+                ModelState.AddModelError($"{nameof(Tool)}.{nameof(Tool.PublicKey)}",
+                    "Either JSON Web Key Set URL or Public Key is required.");
             }
 
             if (_identityContext.Clients.Any(c => c.ClientId == Tool.ClientId))
             {
-                ModelState.AddModelError("Tool.ClientId", "This Client ID already exists.");
+                ModelState.AddModelError($"{nameof(Tool)}.{nameof(Tool.ClientId)}", "This Client ID already exists.");
+            }
+
+            if (!ModelState.IsValid)
+            {
                 return Page();
             }
 
@@ -66,22 +101,6 @@ namespace AdvantagePlatform.Pages.Tools
             {
                 ClientId = Tool.ClientId,
                 ClientName = Tool.Name,
-
-                // Every client gets their own public and private key
-                ClientSecrets = new List<Secret>
-                {
-                    new Secret
-                    {
-                        Type = LtiAdvantage.IdentityServer4.Constants.SecretTypes.PublicKey,
-                        Value = Tool.PublicKey
-                    },
-                    new Secret
-                    {
-                        Type = LtiAdvantage.IdentityServer4.Constants.SecretTypes.PrivateKey,
-                        Value = Tool.PrivateKey
-                    }
-                },
-
                 AllowOfflineAccess = true,
                 AllowedGrantTypes = GrantTypes.ClientCredentials,
                 AllowedScopes =
@@ -91,13 +110,16 @@ namespace AdvantagePlatform.Pages.Tools
                     Constants.LtiScopes.MembershipReadonly
                 }
             };
-
-            // Add a shared secret if supplied by the user
-            if (Tool.ClientSecret.IsPresent())
+            if (Tool.PublicKey.IsPresent())
             {
-                client.ClientSecrets.Add(new Secret(Tool.ClientSecret.Sha256()));
-                client.Properties = new Dictionary<string, string> 
-                    {{ IdentityServerConstants.SecretTypes.SharedSecret, Tool.ClientSecret }};
+                client.ClientSecrets = new List<Secret>
+                {
+                    new Secret
+                    {
+                        Type = LtiAdvantage.IdentityServer4.Constants.SecretTypes.PublicPemKey,
+                        Value = Tool.PublicKey
+                    }
+                };
             }
 
             var entity = client.ToEntity();
@@ -111,12 +133,16 @@ namespace AdvantagePlatform.Pages.Tools
                 DeploymentId = Tool.DeploymentId,
                 IdentityServerClientId = entity.Id,
                 Name = Tool.Name,
-                Url = Tool.Url,
-                UserId = user.Id
+                JsonWebKeySetUrl = Tool.JsonWebKeySetUrl,
+                LaunchUrl = Tool.LaunchUrl,
+                User = user
             };
 
             await _appContext.Tools.AddAsync(tool);
             await _appContext.SaveChangesAsync();
+
+            user.Tools.Add(tool);
+            await _userManager.UpdateAsync(user);
 
             return RedirectToPage("./Index");
         }

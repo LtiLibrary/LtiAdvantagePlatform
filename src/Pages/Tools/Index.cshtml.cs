@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using IdentityServer4.EntityFramework.Interfaces;
@@ -28,19 +27,19 @@ namespace AdvantagePlatform.Pages.Tools
 
         public async Task OnGetAsync()
         {
-            Tools = await BuildClientListAsync();
+            Tools = await GetToolListAsync();
         }
 
-        private async Task<IList<ToolModel>> BuildClientListAsync()
+        private async Task<IList<ToolModel>> GetToolListAsync()
         {
             var user = await _userManager.GetUserAsync(User);
-
-            var tools = _appContext.Tools
-                .Where(tool => tool.UserId == user.Id)
-                .OrderBy(tool => tool.Name);
+            if (user == null)
+            {
+                return null;
+            }
 
             var list = new List<ToolModel>();
-            foreach (var tool in tools)
+            foreach (var tool in user.Tools)
             {
                 var client = await _identityContext.Clients.FindAsync(tool.IdentityServerClientId);
 

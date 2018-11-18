@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using AdvantagePlatform.Utility;
+using Org.BouncyCastle.Bcpg;
 
 namespace AdvantagePlatform.Data
 {
@@ -36,9 +37,7 @@ namespace AdvantagePlatform.Data
         [Display(Name = "Version")]
         public string Version { get; set; }
 
-        /// <summary>
-        /// The ID of the AdvantagePlatformUser that owns this Platform instance.
-        /// </summary>
         public string UserId { get; set; }
+        public AdvantagePlatformUser User { get; set; }
     }
 }

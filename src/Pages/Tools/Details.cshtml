@@ -17,22 +17,21 @@
                     <dl>
                         <dt>@Html.DisplayNameFor(m => m.Tool.Name)</dt>
                         <dd>@Model.Tool.Name</dd>
-                        <dt>@Html.DisplayNameFor(model => model.Tool.Url)</dt>
-                        <dd>@Model.Tool.Url</dd>
+                        <dt>@Html.DisplayNameFor(model => model.Tool.LaunchUrl)</dt>
+                        <dd>@Model.Tool.LaunchUrl</dd>
                         <dt>@Html.DisplayNameFor(m => m.Tool.ClientId)</dt>
                         <dd>@Model.Tool.ClientId</dd>
                         <dt>
-                            @Html.DisplayNameFor(m => m.Tool.ClientSecret)
-                            <tooltip asp-for="Tool.ClientSecret"></tooltip>
+                            @Html.DisplayNameFor(m => m.Tool.JsonWebKeySetUrl)
+                            <tooltip asp-for="Tool.JsonWebKeySetUrl"></tooltip>
                         </dt>
-                        <dd>@(Model.Tool.ClientSecret??"[Not Set]")</dd>
+                        <dd>@(Model.Tool.JsonWebKeySetUrl ?? "[Not Set]")</dd>
                         <dt>
-                            @Html.DisplayNameFor(m => m.Tool.PrivateKey)
-                            <tooltip asp-for="Tool.PrivateKey"></tooltip>
-                            <a href="#" onclick="copyToClipboard($('#@Html.IdFor(m => m.Tool.PrivateKey)').text());">Copy</a>
+                            @Html.DisplayNameFor(m => m.Tool.PublicKey)
+                            <tooltip asp-for="Tool.PublicKey"></tooltip>
                         </dt>
                         <dd>
-                            <pre id="@Html.IdFor(m => m.Tool.PrivateKey)" class="securitykey">@Model.Tool.PrivateKey</pre>
+                            <pre id="@Html.IdFor(m => m.Tool.PublicKey)" class="securitykey">@(Model.Tool.PublicKey ?? "[Not Set]")</pre>
                         </dd>
                     </dl>
                 </div>
@@ -65,25 +64,3 @@
         <a asp-page="./Index">Back to List</a>
     </div>
 </div>
-
-<script>
-    const copyToClipboard = str => {
-        const el = document.createElement('textarea');  // Create a <textarea> element
-        el.value = str;                                 // Set its value to the string that you want copied
-        el.setAttribute('readonly', '');                // Make it readonly to be tamper-proof
-        el.style.position = 'absolute';                 
-        el.style.left = '-9999px';                      // Move outside the screen to make it invisible
-        document.body.appendChild(el);                  // Append the <textarea> element to the HTML document
-        const selected =            
-            document.getSelection().rangeCount > 0        // Check if there is any content selected previously
-                ? document.getSelection().getRangeAt(0)     // Store selection if found
-                : false;                                    // Mark as false to know no selection existed before
-        el.select();                                    // Select the <textarea> content
-        document.execCommand('copy');                   // Copy - only works as a result of a user action (e.g. click events)
-        document.body.removeChild(el);                  // Remove the <textarea> element
-        if (selected) {                                 // If a selection existed before copying
-            document.getSelection().removeAllRanges();    // Unselect everything on the HTML document
-            document.getSelection().addRange(selected);   // Restore the original selection
-        }
-    };
-</script>

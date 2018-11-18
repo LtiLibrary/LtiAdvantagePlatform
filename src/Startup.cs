@@ -117,6 +117,8 @@ namespace AdvantagePlatform
                         ValidAudiences = Config.GetApiResources().Select(a => a.Name)
                     };
                 });
+
+            services.AddHttpClient();
         }
         
         private static void InitializeDatabase(IApplicationBuilder app)

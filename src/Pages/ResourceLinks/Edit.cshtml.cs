@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -14,14 +13,10 @@ namespace AdvantagePlatform.Pages.ResourceLinks
     public class EditModel : PageModel
     {
         private readonly ApplicationDbContext _appContext;
-        private readonly UserManager<AdvantagePlatformUser> _userManager;
 
-        public EditModel(
-            ApplicationDbContext appContext, 
-            UserManager<AdvantagePlatformUser> userManager)
+        public EditModel(ApplicationDbContext appContext)
         {
             _appContext = appContext;
-            _userManager = userManager;
         }
 
         [BindProperty]
@@ -37,11 +32,14 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 return NotFound();
             }
 
-            var user = await _userManager.GetUserAsync(User);
+            var user = await _appContext.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound();
+            }
 
-            var resourceLink = await _appContext.ResourceLinks.FindAsync(id);
-
-            if (resourceLink == null || resourceLink.UserId != user.Id)
+            var resourceLink = user.ResourceLinks.SingleOrDefault(r => r.Id == id);
+            if (resourceLink == null)
             {
                 return NotFound();
             }
@@ -54,15 +52,14 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 ToolId = resourceLink.ToolId
             };
 
-            Tools = await _appContext.Tools
-                .Where(tool => tool.UserId == user.Id)
+            Tools = user.Tools
                 .OrderBy(tool => tool.Name)
                 .Select(tool => new SelectListItem
                 {
                     Text = tool.Name,
                     Value = tool.Id.ToString()
                 })
-                .ToListAsync();
+                .ToList();
 
             ToolPlacements = Enum.GetNames(typeof(ResourceLink.LinkContexts))
                 .Select(t => new SelectListItem

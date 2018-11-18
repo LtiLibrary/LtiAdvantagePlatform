@@ -1,13 +1,15 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
 
 namespace AdvantagePlatform.Data
 {
     // Add profile data for application users by adding properties to the AdvantagePlatformUser class
     public class AdvantagePlatformUser : IdentityUser
     {
-        public string CourseId { get; set; }
-        public string PlatformId { get; set; }
-        public string StudentId { get; set; }
-        public string TeacherId { get; set; }
+        public Course Course { get; set; }
+        public Platform Platform { get; set; }
+        public ICollection<Person> People { get; set; }
+        public ICollection<ResourceLink> ResourceLinks { get; set; }
+        public ICollection<Tool> Tools { get; set; }
     }
 }

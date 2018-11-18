@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using LtiAdvantageLibrary.Lti;
 using LtiAdvantageLibrary.NamesRoleService;
 using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.Identity;
 
 namespace AdvantagePlatform.Controllers
 {
@@ -16,12 +17,10 @@ namespace AdvantagePlatform.Controllers
     public class NamesRoleServiceController : NamesRoleServiceControllerBase
     {
         private readonly ApplicationDbContext _appContext;
-        private readonly UserManager<AdvantagePlatformUser> _userManager;
 
-        public NamesRoleServiceController(ApplicationDbContext appContext, UserManager<AdvantagePlatformUser> userManager)
+        public NamesRoleServiceController(ApplicationDbContext appContext)
         {
             _appContext = appContext;
-            _userManager = userManager;
         }
 
         /// <summary>
@@ -46,40 +45,29 @@ namespace AdvantagePlatform.Controllers
                 return NotFound("Context not found");
             }
 
-            var user = await _userManager.FindByIdAsync(course.UserId);
+            var user = await _appContext.Users.FindAsync(course.User.Id);
             if (user == null)
             {
                 return NotFound("User not found");
             }
 
-            var student = await _appContext.People.FindAsync(user.StudentId);
-            var teacher = await _appContext.People.FindAsync(user.TeacherId);
-
-            response.MembershipContainer.Members = new List<Member>
+            var people = user.People;
+            if (people.Any())
             {
-                new Member
-                {
-                    ContextId = course.Id,
-                    ContextTitle = course.Name,
-                    FamilyName = student.LastName,
-                    GivenName = student.FirstName,
-                    Roles = new [] { Role.ContextLearner, Role.InstitutionLearner },
-                    Status = MemberStatus.Active,
-                    SourcedId = student.SisId,
-                    UserId = student.Id
-                },
-                new Member
-                {
-                    ContextId = course.Id,
-                    ContextTitle = course.Name,
-                    FamilyName = teacher.LastName,
-                    GivenName = teacher.FirstName,
-                    Roles = new [] { Role.ContextInstructor, Role.InstitutionFaculty },
-                    SourcedId = teacher.SisId,
-                    Status = MemberStatus.Active,
-                    UserId = teacher.Id
-                }
-            };
+                response.MembershipContainer.Members = people
+                    .Select(p => new Member
+                    {
+                        ContextId = course.Id,
+                        ContextTitle = course.Name,
+                        FamilyName = p.LastName,
+                        GivenName = p.FirstName,
+                        Roles = AdvantagePlatform.Areas.Identity.Pages.Account.Manage.PeopleModel.ParsePersonRoles(p.Roles),
+                        Status = MemberStatus.Active,
+                        SourcedId = p.SisId,
+                        UserId = p.Id
+                    })
+                    .ToList();
+            }
 
             return response;
         }

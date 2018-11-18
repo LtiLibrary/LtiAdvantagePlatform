@@ -19,18 +19,20 @@
         public int IdentityServerClientId { get; set; }
 
         /// <summary>
-        /// The Tool name.
+        /// The tool's JWKS endpoint.
         /// </summary>
-        public string Name { get; set; }
-        
+        public string JsonWebKeySetUrl { get; set; }
+
         /// <summary>
         /// The URL used to launch the Tool.
         /// </summary>
-        public string Url { get; set; }
+        public string LaunchUrl { get; set; }
 
         /// <summary>
-        /// The ID of the AdvantagePlatformUser that created this ResourceLink.
+        /// The Tool name.
         /// </summary>
-        public string UserId { get; set; }
+        public string Name { get; set; }
+
+        public AdvantagePlatformUser User { get; set; }
     }
 }

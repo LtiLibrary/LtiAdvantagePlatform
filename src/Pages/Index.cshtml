@@ -60,7 +60,16 @@
                                     <dl class="col">
                                         <dt>@Html.DisplayNameFor(m => m.Platform.Name)</dt>
                                         <dd>
-                                            @Html.DisplayFor(m => m.Platform.Name)
+                                            <div>
+                                                @(Model.Platform.Name ?? "(no name)")
+                                            </div>
+                                            <div>
+                                                @(Model.Platform.Description ?? "(no description)")
+                                            </div>
+                                            <div>
+                                                @(Model.Platform.ProductFamilyCode ?? "(no family code)")
+                                                @(Model.Platform.Version ?? "(no version)")
+                                            </div>
                                         </dd>
                                     </dl>
                                 </div>
@@ -81,10 +90,9 @@
                                                 <div class="card bg-warning mb-3 text-dark">
                                                     <h5 class="card-header text-truncate"><span title="@link.Title">@link.Title</span></h5>
                                                     <div class="card-body">
-                                                        <dl>
-                                                            <dt>@Html.DisplayNameFor(m => m.PlatformResourceLinks[0].ToolName)</dt>
-                                                            <dd>@link.ToolName</dd>
-                                                        </dl>
+                                                        <div class="card-title">
+                                                            @(link.ToolName ?? "(no tool name)")
+                                                        </div>
                                                         <a class="btn btn-sm btn-secondary mt-2 mb-2" target="_blank"
                                                            data-toggle="tooltip" title="Launch this tool as the teacher"
                                                            asp-page="ResourceLinks/LaunchPage"
@@ -103,7 +111,7 @@
                                 }
                                 else
                                 {
-                                    <p>No resource links deployed to the platform yet. See Getting Started.</p>
+                                    <p>No resource links in the platform yet. See Getting Started.</p>
                                 }
                             </div>
                             <div class="col-8">
@@ -121,7 +129,14 @@
                                         <div class="row">
                                             <dl class="col-sm-4">
                                                 <dt>@Html.DisplayNameFor(m => m.Course.Name)</dt>
-                                                <dd>@Html.DisplayFor(m => m.Course.Name)</dd>
+                                                <dd>
+                                                    <div>
+                                                        @(Model.Course.Name ?? "(no name)")
+                                                    </div>
+                                                    <div>
+                                                        @(Model.Course.SisId ?? "(no sis id)")
+                                                    </div>
+                                                </dd>
                                             </dl>
                                         </div>
                                         <h6 class="font-weight-bold">
@@ -134,14 +149,35 @@
                                             </a>
                                         </h6>
                                         <div class="row">
-                                            <dl class="col-sm-4">
-                                                <dt>Teacher</dt>
-                                                <dd>@Html.DisplayFor(m => m.Teacher.FirstName) @Html.DisplayFor(m => m.Teacher.LastName)</dd>
-                                            </dl>
-                                            <dl class="col-sm-4">
-                                                <dt>Student</dt>
-                                                <dd>@Html.DisplayFor(m => m.Student.FirstName) @Html.DisplayFor(m => m.Student.LastName)</dd>
-                                            </dl>
+                                            @if (Model.People == null)
+                                            {
+                                                <p>
+                                                    No people have been defined.
+                                                </p>
+                                            }
+                                            else
+                                            {
+                                                foreach (var person in Model.People)
+                                                {
+                                                    <div class="card bg-secondary mb-3" style="width: 12rem">
+                                                        <div class="card-body text-truncate">
+                                                            <div class="card-title">
+                                                                @(person.FirstName ?? "(no first name)")
+                                                                @(person.LastName ?? "(no last name)")
+                                                            </div>
+                                                            <div>
+                                                                @(person.Email ?? "(no email)")
+                                                            </div>
+                                                            <div>
+                                                                @(person.Roles ?? "(no roles)")
+                                                            </div>
+                                                            <div>
+                                                                @(person.SisId ?? "(no sis id)")
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            }
                                         </div>
                                         <h6 class="font-weight-bold">
                                             Resource Links
@@ -160,10 +196,9 @@
                                                         <div class="card bg-warning mb-3 text-dark">
                                                             <h5 class="card-header text-truncate"><span title="@link.Title">@link.Title</span></h5>
                                                             <div class="card-body">
-                                                                <dl>
-                                                                    <dt>@Html.DisplayNameFor(m => m.CourseResourceLinks[0].ToolName)</dt>
-                                                                    <dd>@link.ToolName</dd>
-                                                                </dl>
+                                                                <div class="card-title">
+                                                                    @(link.ToolName ?? "(no tool name)")
+                                                                </div>
                                                                 <a class="btn btn-sm btn-secondary mb-2 mt-2" target="_blank"
                                                                    data-toggle="tooltip" title="Launch this tool as the teacher"
                                                                    asp-page="ResourceLinks/LaunchPage"
@@ -214,8 +249,8 @@
                                                             <h5 class="card-header text-truncate">@tool.Name</h5>
                                                             <div class="card-body">
                                                                 <dl>
-                                                                    <dt>@Html.DisplayNameFor(m => m.Tools[0].Url)</dt>
-                                                                    <dd class="text-truncate"><span title="@tool.Url">@tool.Url</span></dd>
+                                                                    <dt>@Html.DisplayNameFor(m => m.Tools[0].LaunchUrl)</dt>
+                                                                    <dd class="text-truncate"><span title="@tool.LaunchUrl">@tool.LaunchUrl</span></dd>
                                                                     <dt>@Html.DisplayNameFor(m => m.Tools[0].ClientId)</dt>
                                                                     <dd>@tool.ClientId</dd>
                                                                     <dt>@Html.DisplayNameFor(m => m.Tools[0].DeploymentId)</dt>
