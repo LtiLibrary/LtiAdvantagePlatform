@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using IdentityModel;
-using LtiAdvantageLibrary;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -52,6 +49,29 @@ namespace AdvantagePlatform.Data
                 throw new ArgumentNullException(nameof(principal));
             }
             var id = GetUserId(principal);
+            if (id == null)
+            {
+                return null;
+            }
+
+            return await Users
+                .Include(u => u.Course)
+                .Include(u => u.People)
+                .Include(u => u.Platform)
+                .Include(u => u.ResourceLinks)
+                .ThenInclude(r => r.Tool)
+                .Include(u => u.Tools)
+                .SingleOrDefaultAsync(u => u.Id == id);
+        }
+
+        /// <summary>
+        /// Returns the fully populated <see cref="AdvantagePlatformUser"/> corresponding to the
+        /// IdentityOptions.ClaimsIdentity.UserIdClaimType claim in the principal or null.
+        /// </summary>
+        /// <param name="id">The user id.</param>
+        /// <returns>The user corresponding to the user id.</returns>
+        public async Task<AdvantagePlatformUser> GetUserAsync(string id)
+        {
             if (id == null)
             {
                 return null;

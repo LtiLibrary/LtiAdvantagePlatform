@@ -45,7 +45,7 @@ namespace AdvantagePlatform.Controllers
                 return NotFound("Context not found");
             }
 
-            var user = await _appContext.Users.FindAsync(course.User.Id);
+            var user = await _appContext.GetUserAsync(course.UserId);
             if (user == null)
             {
                 return NotFound("User not found");

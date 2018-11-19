@@ -93,16 +93,17 @@
                                                         <div class="card-title">
                                                             @(link.ToolName ?? "(no tool name)")
                                                         </div>
-                                                        <a class="btn btn-sm btn-secondary mt-2 mb-2" target="_blank"
-                                                           data-toggle="tooltip" title="Launch this tool as the teacher"
-                                                           asp-page="ResourceLinks/LaunchPage"
-                                                           asp-route-id="@link.Id"
-                                                           asp-route-persona="teacher"><i class="fas fa-external-link-alt"></i> Teacher</a>
-                                                        <a class="btn btn-sm btn-secondary" target="_blank"
-                                                           data-toggle="tooltip" title="Launch this tool as the student"
-                                                           asp-page="ResourceLinks/LaunchPage"
-                                                           asp-route-id="@link.Id"
-                                                           asp-route-persona="student"><i class="fas fa-external-link-alt"></i> Student</a>
+                                                        @if (Model.People != null)
+                                                        {
+                                                            foreach (var person in Model.People)
+                                                             {
+                                                                 <a class="btn btn-sm btn-secondary mt-2 mb-2" target="_blank"
+                                                                    data-toggle="tooltip" title="@($"Launch this tool as {person.FirstName} {person.LastName}")"
+                                                                    asp-page="ResourceLinks/LaunchPage"
+                                                                    asp-route-id="@link.Id"
+                                                                    asp-route-personId="@person.Id"><i class="fas fa-external-link-alt"></i> @person.FirstName</a>
+                                                             }
+                                                        }
                                                     </div>
                                                 </div>
                                             </div>
@@ -199,16 +200,17 @@
                                                                 <div class="card-title">
                                                                     @(link.ToolName ?? "(no tool name)")
                                                                 </div>
-                                                                <a class="btn btn-sm btn-secondary mb-2 mt-2" target="_blank"
-                                                                   data-toggle="tooltip" title="Launch this tool as the teacher"
-                                                                   asp-page="ResourceLinks/LaunchPage"
-                                                                   asp-route-id="@link.Id"
-                                                                   asp-route-persona="teacher"><i class="fas fa-external-link-alt"></i> Teacher</a>
-                                                                <a class="btn btn-sm btn-secondary mb-2 mt-2" target="_blank"
-                                                                   data-toggle="tooltip" title="Launch this tool as the student"
-                                                                   asp-page="ResourceLinks/LaunchPage"
-                                                                   asp-route-id="@link.Id"
-                                                                   asp-route-persona="student"><i class="fas fa-external-link-alt"></i> Student</a>
+                                                                @if (Model.People != null)
+                                                                {
+                                                                    foreach (var person in Model.People)
+                                                                     {
+                                                                         <a class="btn btn-sm btn-secondary mt-2 mb-2" target="_blank"
+                                                                            data-toggle="tooltip" title="@($"Launch this tool as {person.FirstName} {person.LastName}")"
+                                                                            asp-page="ResourceLinks/LaunchPage"
+                                                                            asp-route-id="@link.Id"
+                                                                            asp-route-personId="@person.Id"><i class="fas fa-external-link-alt"></i> @person.FirstName</a>
+                                                                     }
+                                                                }
                                                             </div>
                                                         </div>
                                                     </div>

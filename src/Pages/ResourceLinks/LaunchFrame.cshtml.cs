@@ -18,18 +18,18 @@ namespace AdvantagePlatform.Pages.ResourceLinks
 {
     public class LaunchFrameModel : PageModel
     {
-        private readonly ApplicationDbContext _appContext;
+        private readonly ApplicationDbContext _context;
         private readonly IConfigurationDbContext _identityContext;
         private readonly IdentityServerTools _tools;
         private readonly UserManager<AdvantagePlatformUser> _userManager;
 
         public LaunchFrameModel(
-            ApplicationDbContext appContext, 
+            ApplicationDbContext context, 
             IConfigurationDbContext identityContext,
             IdentityServerTools tools,
             UserManager<AdvantagePlatformUser> userManager)
         {
-            _appContext = appContext;
+            _context = context;
             _identityContext = identityContext;
             _tools = tools;
             _userManager = userManager;
@@ -42,16 +42,16 @@ namespace AdvantagePlatform.Pages.ResourceLinks
         /// This page is the source for an iframe inside of LaunchPage.
         /// </summary>
         /// <param name="id">The <see cref="ResourceLink"/>.</param>
-        /// <param name="persona">The <see cref="Person"/> launching the resource.</param>
+        /// <param name="personId">The <see cref="Person"/> ID launching the resource.</param>
         /// <returns></returns>
-        public async Task<IActionResult> OnGetAsync(int? id, string persona)
+        public async Task<IActionResult> OnGetAsync(int? id, string personId)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var user = await _userManager.GetUserAsync(User);
+            var user = await _context.GetUserAsync(User);
             if (user == null)
             {
                 return NotFound();
@@ -69,15 +69,17 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 return NotFound();
             }
 
+            var person = user.People.SingleOrDefault(p => p.Id == personId);
+            if (person == null)
+            {
+                return NotFound();
+            }
+
             var client = await _identityContext.Clients.FindAsync(tool.IdentityServerClientId);
             if (client == null)
             {
                 return NotFound();
             }
-
-            var person = persona == "teacher"
-                ? user.People.FirstOrDefault(p => p.Roles.Contains(Role.ContextInstructor.ToString()))
-                : user.People.FirstOrDefault(p => p.Roles.Contains(Role.ContextLearner.ToString()));
 
             var course = resourceLink.LinkContext == ResourceLink.LinkContexts.Course
                 ? user.Course

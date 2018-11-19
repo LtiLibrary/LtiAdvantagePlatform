@@ -8,7 +8,6 @@ using IdentityModel.Jwk;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Interfaces;
 using LtiAdvantage.IdentityServer4;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -18,23 +17,27 @@ namespace AdvantagePlatform.Pages.ResourceLinks
 {
     public class LaunchPageModel : PageModel
     {
-        private readonly ApplicationDbContext _appContext;
+        private readonly ApplicationDbContext _context;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfigurationDbContext _identityContext;
-        private readonly UserManager<AdvantagePlatformUser> _userManager;
 
         public LaunchPageModel(
-            ApplicationDbContext appContext,
+            ApplicationDbContext context,
             IHttpClientFactory httpClientFactory,
-            IConfigurationDbContext identityContext,
-            UserManager<AdvantagePlatformUser> userManager)
+            IConfigurationDbContext identityContext)
         {
-            _appContext = appContext;
+            _context = context;
             _httpClientFactory = httpClientFactory;
             _identityContext = identityContext;
-            _userManager = userManager;
         }
 
+        /// <summary>
+        /// IdentityServer needs the ClientSecrets to be pre-loaded when a request
+        /// to authorize comes in. This method calls the client's JWKS URL to get
+        /// the latest public keys.
+        /// </summary>
+        /// <param name="id">The <see cref="ResourceLink"/> id.</param>
+        /// <returns></returns>
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null)
@@ -42,7 +45,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 return NotFound();
             }
             
-            var user = await _userManager.GetUserAsync(User);
+            var user = await _context.GetUserAsync(User);
             if (user == null)
             {
                 return NotFound();
