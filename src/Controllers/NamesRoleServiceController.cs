@@ -63,7 +63,7 @@ namespace AdvantagePlatform.Controllers
                         GivenName = p.FirstName,
                         Roles = AdvantagePlatform.Areas.Identity.Pages.Account.Manage.PeopleModel.ParsePersonRoles(p.Roles),
                         Status = MemberStatus.Active,
-                        SourcedId = p.SisId,
+                        LisPersonSourcedId = p.SisId,
                         UserId = p.Id
                     })
                     .ToList();
