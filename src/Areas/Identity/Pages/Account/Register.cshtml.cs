@@ -80,24 +80,12 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account
                 {
                     _logger.LogInformation("User created a new account with password.");
 
-                    // Create a Platform for the new user and generate keys
-                    var platform = CreatePlatform(Request, user);
-                    await _context.Platforms.AddAsync(platform);
-
-                    // Create a Course for the new user
-                    var course = CreateCourse(user);
-                    await _context.Courses.AddAsync(course);
-
-                    // Create a default set of people for the course
+                    // Create the basic platform objects for the new user
+                    await CreatePlatformAsync(_context, Request, user);
+                    await CreateCourseAsync(_context, user);
                     await CreatePeopleAsync(_context, user);
-
-                    // Save the platform, course, student, and teacher
-                    await _context.SaveChangesAsync();
-
-                    // Attach the platform, course, student, and teacher to local user
-                    user.Platform = platform;
-                    user.Course = course;
                     await _userManager.UpdateAsync(user);
+                    // Done creating the basic objects
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     var callbackUrl = Url.Page(
@@ -122,7 +110,7 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account
             return Page();
         }
 
-        public static Platform CreatePlatform(HttpRequest request, AdvantagePlatformUser user)
+        private static async Task CreatePlatformAsync(ApplicationDbContext context, HttpRequest request, AdvantagePlatformUser user)
         {
             var platform = new Platform
             {
@@ -134,10 +122,13 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account
                 ProductFamilyCode = "LTI Advantage Platform",
                 Url = $"{request.Scheme}://{request.Host}/"
             };
-            return platform;
+            await context.Platforms.AddAsync(platform);
+            await context.SaveChangesAsync();
+
+            user.Platform = platform;
         }
 
-        public static Course CreateCourse(AdvantagePlatformUser user)
+        public static async Task CreateCourseAsync(ApplicationDbContext context, AdvantagePlatformUser user)
         {
             var placeGenerator = new PlaceNameGenerator();
             var course = new Course
@@ -146,7 +137,10 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account
                 User = user
             };
             course.SisId = course.GetHashCode().ToString();
-            return course;
+            await context.Courses.AddAsync(course);
+            await context.SaveChangesAsync();
+
+            user.Course = course;
         }
 
         /// <summary>
@@ -157,44 +151,27 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account
         /// <returns></returns>
         public static async Task CreatePeopleAsync(ApplicationDbContext context, AdvantagePlatformUser user)
         {
-            // Already have the default number of people?
-            if (user.People.Count >= 2)
-            {
-                return;
-            }
-
             var nameGenerator = new PersonNameGenerator();
 
-            if (!user.People.Any(p => p.Roles.Contains(Role.ContextInstructor.ToString())))
+            var person = new Person
             {
-                var person = new Person
-                {
-                    FirstName = nameGenerator.GenerateRandomFirstName(),
-                    LastName = nameGenerator.GenerateRandomLastName(),
-                    Roles = string.Join(",", new {Role.ContextInstructor, Role.InstitutionFaculty}),
-                    User = user
-                };
-                person.SisId = person.GetHashCode().ToString();
-                await context.People.AddAsync(person);
-                user.People.Add(person);
-                context.Update(user);
-            }
+                FirstName = nameGenerator.GenerateRandomFirstName(),
+                LastName = nameGenerator.GenerateRandomLastName(),
+                Roles = string.Join(", ", new [] { Role.ContextInstructor.ToString(), Role.InstitutionFaculty.ToString() }),
+                User = user
+            };
+            person.SisId = person.GetHashCode().ToString();
+            await context.People.AddAsync(person);
 
-            
-            if (!user.People.Any(p => p.Roles.Contains(Role.ContextInstructor.ToString())))
+            person = new Person
             {
-                var person = new Person
-                {
-                    FirstName = nameGenerator.GenerateRandomFirstName(),
-                    LastName = nameGenerator.GenerateRandomLastName(),
-                    Roles = string.Join(",", new {Role.ContextLearner, Role.InstitutionLearner}),
-                    User = user
-                };
-                person.SisId = person.GetHashCode().ToString();
-                await context.People.AddAsync(person);
-                user.People.Add(person);
-                context.Update(user);
-            }
+                FirstName = nameGenerator.GenerateRandomFirstName(),
+                LastName = nameGenerator.GenerateRandomLastName(),
+                Roles = string.Join(", ", new [] { Role.ContextLearner.ToString(), Role.InstitutionLearner.ToString() }),
+                User = user
+            };
+            person.SisId = person.GetHashCode().ToString();
+            await context.People.AddAsync(person);
 
             await context.SaveChangesAsync();
         }

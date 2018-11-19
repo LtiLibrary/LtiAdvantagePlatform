@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace AdvantagePlatform.Migrations.IdentityServer.ConfigurationDb
+namespace AdvantagePlatform.Data.Migrations.IdentityServer.ConfigurationDb
 {
     public partial class InitialIdentityServerConfigurationDbMigration : Migration
     {

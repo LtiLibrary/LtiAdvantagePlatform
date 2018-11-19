@@ -93,17 +93,14 @@
                                                         <div class="card-title">
                                                             @(link.ToolName ?? "(no tool name)")
                                                         </div>
-                                                        @if (Model.People != null)
-                                                        {
-                                                            foreach (var person in Model.People)
-                                                             {
-                                                                 <a class="btn btn-sm btn-secondary mt-2 mb-2" target="_blank"
-                                                                    data-toggle="tooltip" title="@($"Launch this tool as {person.FirstName} {person.LastName}")"
-                                                                    asp-page="ResourceLinks/LaunchPage"
-                                                                    asp-route-id="@link.Id"
-                                                                    asp-route-personId="@person.Id"><i class="fas fa-external-link-alt"></i> @person.FirstName</a>
-                                                             }
-                                                        }
+                                                        @foreach (var person in Model.People)
+                                                         {
+                                                             <a class="btn btn-sm btn-secondary mt-2 mb-2" target="_blank"
+                                                                data-toggle="tooltip" title="@($"Launch this tool as {person.FirstName} {person.LastName}")"
+                                                                asp-page="ResourceLinks/LaunchPage"
+                                                                asp-route-id="@link.Id"
+                                                                asp-route-personId="@person.Id"><i class="fas fa-external-link-alt"></i> @person.FirstName</a>
+                                                         }
                                                     </div>
                                                 </div>
                                             </div>
@@ -112,7 +109,7 @@
                                 }
                                 else
                                 {
-                                    <p>No resource links in the platform yet. See Getting Started.</p>
+                                    <p>No resource links in the platform yet.</p>
                                 }
                             </div>
                             <div class="col-8">
@@ -150,34 +147,25 @@
                                             </a>
                                         </h6>
                                         <div class="row">
-                                            @if (Model.People == null)
+                                            @foreach (var person in Model.People)
                                             {
-                                                <p>
-                                                    No people have been defined.
-                                                </p>
-                                            }
-                                            else
-                                            {
-                                                foreach (var person in Model.People)
-                                                {
-                                                    <div class="card bg-secondary mb-3" style="width: 12rem">
-                                                        <div class="card-body text-truncate">
-                                                            <div class="card-title">
-                                                                @(person.FirstName ?? "(no first name)")
-                                                                @(person.LastName ?? "(no last name)")
-                                                            </div>
-                                                            <div>
-                                                                @(person.Email ?? "(no email)")
-                                                            </div>
-                                                            <div>
-                                                                @(person.Roles ?? "(no roles)")
-                                                            </div>
-                                                            <div>
-                                                                @(person.SisId ?? "(no sis id)")
-                                                            </div>
+                                                <div class="card bg-secondary mb-3" style="width: 12rem">
+                                                    <div class="card-body">
+                                                        <div class="card-title">
+                                                            @(person.FirstName ?? "(no first name)")
+                                                            @(person.LastName ?? "(no last name)")
+                                                        </div>
+                                                        <div>
+                                                            @(person.Email ?? "(no email)")
+                                                        </div>
+                                                        <div>
+                                                            @(person.Roles ?? "(no roles)")
+                                                        </div>
+                                                        <div>
+                                                            @(person.SisId ?? "(no sis id)")
                                                         </div>
                                                     </div>
-                                                }
+                                                </div>
                                             }
                                         </div>
                                         <h6 class="font-weight-bold">
@@ -219,7 +207,7 @@
                                         }
                                         else
                                         {
-                                            <p>No resource links deployed to the course yet. See Getting Started.</p>
+                                            <p>No resource links deployed to the course yet.</p>
                                         }
                                     </div>
                                 </div>
