@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AdvantagePlatform.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20181119003833_InitialApplicationSchema")]
+    [Migration("20181119052546_InitialApplicationSchema")]
     partial class InitialApplicationSchema
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

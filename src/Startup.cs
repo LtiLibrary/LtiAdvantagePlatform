@@ -63,8 +63,8 @@ namespace AdvantagePlatform
             // (Client) can get the public key to validate the requests, and 2) issue access tokens to
             // the Tool and validate requests that originate from the Tool.
 
-            // This app uses ASP.NET Core Idenity to manage local accounts (see AddDefaultIdentity above).
-            // I have added IndentityServer following the instructions here:
+            // This app uses ASP.NET Core Identity to manage local accounts (see AddDefaultIdentity above).
+            // I have added IdentityServer following the instructions here:
             // https://identityserver4.readthedocs.io/en/release/quickstarts/6_aspnet_identity.html
             // https://github.com/IdentityServer/IdentityServer4/issues/2373#issuecomment-398824428
             services.AddIdentityServer(options =>
