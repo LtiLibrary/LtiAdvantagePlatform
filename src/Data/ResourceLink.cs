@@ -6,6 +6,7 @@
         public LinkContexts? LinkContext { get; set; }
         public string Title { get; set; }
         public int ToolId { get; set; }
+        public Tool Tool { get; set; }
         public AdvantagePlatformUser User { get; set; }
 
         public enum LinkContexts

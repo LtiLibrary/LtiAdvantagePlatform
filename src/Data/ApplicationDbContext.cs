@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityModel;
@@ -61,6 +62,7 @@ namespace AdvantagePlatform.Data
                 .Include(u => u.People)
                 .Include(u => u.Platform)
                 .Include(u => u.ResourceLinks)
+                .ThenInclude(r => r.Tool)
                 .Include(u => u.Tools)
                 .SingleOrDefaultAsync(u => u.Id == id);
         }

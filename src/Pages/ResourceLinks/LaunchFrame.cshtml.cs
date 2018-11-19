@@ -63,7 +63,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 return NotFound();
             }
 
-            var tool = user.Tools.SingleOrDefault(t => t.Id == resourceLink.ToolId);
+            var tool = resourceLink.Tool;
             if (tool == null)
             {
                 return NotFound();

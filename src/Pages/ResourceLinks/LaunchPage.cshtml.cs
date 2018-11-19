@@ -54,7 +54,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 return NotFound();
             }
 
-            var tool = await _appContext.Tools.FindAsync(resourceLink.ToolId);
+            var tool = resourceLink.Tool;
             if (tool == null)
             {
                 return NotFound();

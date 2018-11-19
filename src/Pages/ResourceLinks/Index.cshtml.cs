@@ -37,7 +37,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
 
             foreach (var link in resourceLinks)
             {
-                var tool = user.Tools.SingleOrDefault(t => t.Id == link.ToolId);
+                var tool = link.Tool;
 
                 if (tool == null)
                 {

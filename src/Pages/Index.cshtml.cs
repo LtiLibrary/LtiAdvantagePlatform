@@ -54,14 +54,13 @@ namespace AdvantagePlatform.Pages
 
             foreach (var link in links)
             {
-                var tool = user.Tools.SingleOrDefault(t => t.Id == link.ToolId);
-                if (tool != null)
+                if (link.Tool != null)
                 {
                     list.Add(new ResourceLinkModel
                     {
                         Id = link.Id,
                         Title = link.Title,
-                        ToolName = tool.Name,
+                        ToolName = link.Tool.Name,
                         LinkContext = link.LinkContext
                     });
                 }
