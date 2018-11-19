@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using AdvantagePlatform.Utility;
-using Org.BouncyCastle.Bcpg;
+using SharedAdvantageSamplesLibrary;
 
 namespace AdvantagePlatform.Data
 {

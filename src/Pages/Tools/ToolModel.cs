@@ -2,9 +2,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using AdvantagePlatform.Data;
-using AdvantagePlatform.Utility;
 using IdentityServer4.EntityFramework.Entities;
 using LtiAdvantage.IdentityServer4;
+using SharedAdvantageSamplesLibrary;
 
 namespace AdvantagePlatform.Pages.Tools
 {

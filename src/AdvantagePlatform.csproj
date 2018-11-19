@@ -12,7 +12,7 @@
     <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="2.6.0" />
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="2.1.0" />
     <PackageReference Include="IdentityServer4.EntityFramework" Version="2.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.1.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
@@ -30,6 +30,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\LTI\LtiAdvantage\src\LtiAdvantage.IdentityServer4\LtiAdvantage.IdentityServer4.csproj" />
     <ProjectReference Include="..\..\..\LTI\LtiAdvantage\src\LtiAdvantageLibrary\LtiAdvantageLibrary.csproj" />
+    <ProjectReference Include="..\..\SharedAdvantageSampleLibrary\ClassLibrary1\SharedAdvantageSamplesLibrary.csproj" />
   </ItemGroup>
 
   <ItemGroup>
