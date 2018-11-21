@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using SharedAdvantageSamplesLibrary;
+using AdvantagePlatform.Utility;
 
 namespace AdvantagePlatform.Data
 {
@@ -29,7 +29,7 @@ namespace AdvantagePlatform.Data
         [Display(Name = "Product Family Code")]
         public string ProductFamilyCode { get; set; }
 
-        [NullableUrl]
+        [LocalhostUrl]
         [Display(Name = "URL")]
         public string Url { get; set; }
 

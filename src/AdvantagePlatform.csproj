@@ -30,7 +30,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\LTI\LtiAdvantage\src\LtiAdvantage.IdentityServer4\LtiAdvantage.IdentityServer4.csproj" />
     <ProjectReference Include="..\..\..\LTI\LtiAdvantage\src\LtiAdvantageLibrary\LtiAdvantageLibrary.csproj" />
-    <ProjectReference Include="..\..\SharedAdvantageSampleLibrary\ClassLibrary1\SharedAdvantageSamplesLibrary.csproj" />
   </ItemGroup>
 
   <ItemGroup>

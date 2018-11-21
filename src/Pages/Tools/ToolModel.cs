@@ -2,9 +2,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using AdvantagePlatform.Data;
+using AdvantagePlatform.Utility;
 using IdentityServer4.EntityFramework.Entities;
 using LtiAdvantage.IdentityServer4;
-using SharedAdvantageSamplesLibrary;
 
 namespace AdvantagePlatform.Pages.Tools
 {
@@ -69,7 +69,7 @@ namespace AdvantagePlatform.Pages.Tools
         /// The launch url.
         /// </summary>
         [Required]
-        [NullableUrl]
+        [LocalhostUrl]
         [Display(Name = "Launch URL")]
         public string LaunchUrl { get; set; }
 
@@ -80,7 +80,7 @@ namespace AdvantagePlatform.Pages.Tools
         [Display(Name = "Name")]
         public string Name { get; set; }
         
-        [NullableUrl]
+        [LocalhostUrl]
         [Display(Name = "JSON Web Key Set URL", Description = "URL to retrieve the tool's current public keys. If supplied, the current keys will be retrieved just prior to tool launch, to allow for frequent key rotation.")]
         public string JsonWebKeySetUrl { get; set; }
         
