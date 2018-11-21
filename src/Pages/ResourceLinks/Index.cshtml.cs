@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -25,42 +24,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 return;
             }
 
-            ResourceLinks = GetResourceLinks(user);
-        }
-
-        private IList<ResourceLinkModel> GetResourceLinks(AdvantagePlatformUser user)
-        {
-            var list = new List<ResourceLinkModel>();
-
-            var resourceLinks = user.ResourceLinks
-                .OrderBy(d => d.Title);
-
-            foreach (var link in resourceLinks)
-            {
-                var tool = link.Tool;
-
-                if (tool == null)
-                {
-                    list.Add(new ResourceLinkModel
-                    {
-                        Id = link.Id,
-                        Title = link.Title,
-                        LinkContext = link.LinkContext
-                    });
-                }
-                else
-                {
-                    list.Add(new ResourceLinkModel
-                    {
-                        Id = link.Id,
-                        Title = link.Title,
-                        ToolName = tool.Name,
-                        LinkContext = link.LinkContext
-                    });
-                }
-            }
-
-            return list;
+            ResourceLinks = ResourceLinkModel.GetResourceLinks(user);
         }
     }
 }

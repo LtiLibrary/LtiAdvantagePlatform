@@ -51,8 +51,7 @@ namespace AdvantagePlatform.Pages.Tools
                 return NotFound();
             }
 
-            Tool = new ToolModel(tool, client);
-            Tool.PlatformIssuer = HttpContext.GetIdentityServerIssuerUri();
+            Tool = new ToolModel(tool, client) {PlatformIssuer = HttpContext.GetIdentityServerIssuerUri()};
 
             return Page();
         }

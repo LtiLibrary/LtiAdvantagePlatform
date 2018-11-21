@@ -50,7 +50,6 @@ namespace AdvantagePlatform
                 })
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-
             services.ConfigureApplicationCookie(options => { options.Cookie.Name = "AdvantagePlatform"; });
 
             services.AddMvc()

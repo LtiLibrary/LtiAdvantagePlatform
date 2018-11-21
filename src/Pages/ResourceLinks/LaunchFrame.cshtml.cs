@@ -9,10 +9,8 @@ using LtiAdvantageLibrary;
 using LtiAdvantageLibrary.Lti;
 using LtiAdvantageLibrary.NamesRoleService;
 using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 
 namespace AdvantagePlatform.Pages.ResourceLinks
 {
@@ -21,18 +19,15 @@ namespace AdvantagePlatform.Pages.ResourceLinks
         private readonly ApplicationDbContext _context;
         private readonly IConfigurationDbContext _identityContext;
         private readonly IdentityServerTools _tools;
-        private readonly UserManager<AdvantagePlatformUser> _userManager;
 
         public LaunchFrameModel(
             ApplicationDbContext context, 
             IConfigurationDbContext identityContext,
-            IdentityServerTools tools,
-            UserManager<AdvantagePlatformUser> userManager)
+            IdentityServerTools tools)
         {
             _context = context;
             _identityContext = identityContext;
             _tools = tools;
-            _userManager = userManager;
         }
 
         public string IdToken { get; private set; }

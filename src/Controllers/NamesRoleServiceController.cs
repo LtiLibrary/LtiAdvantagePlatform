@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
-using LtiAdvantageLibrary.Lti;
 using LtiAdvantageLibrary.NamesRoleService;
 using Microsoft.AspNetCore.Http.Extensions;
 
@@ -61,7 +58,7 @@ namespace AdvantagePlatform.Controllers
                         ContextTitle = course.Name,
                         FamilyName = p.LastName,
                         GivenName = p.FirstName,
-                        Roles = AdvantagePlatform.Areas.Identity.Pages.Account.Manage.PeopleModel.ParsePersonRoles(p.Roles),
+                        Roles = Areas.Identity.Pages.Account.Manage.PeopleModel.ParsePersonRoles(p.Roles),
                         Status = MemberStatus.Active,
                         LisPersonSourcedId = p.SisId,
                         UserId = p.Id

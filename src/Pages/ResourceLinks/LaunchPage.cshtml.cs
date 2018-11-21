@@ -111,7 +111,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             return Page();
         }
 
-        private IList<JsonWebKey> GetJsonWebKeySecrets(IList<ClientSecret> clientSecrets)
+        private static IList<JsonWebKey> GetJsonWebKeySecrets(IEnumerable<ClientSecret> clientSecrets)
         {
             var list = new List<JsonWebKey>();
             var secrets = clientSecrets.Where(s => s.Type == Constants.SecretTypes.PublicJsonWebKey).ToList();

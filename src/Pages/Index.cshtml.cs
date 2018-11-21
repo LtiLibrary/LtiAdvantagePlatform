@@ -38,35 +38,9 @@ namespace AdvantagePlatform.Pages
                 Course = user.Course;
                 People = user.People.ToList();
                 Tools = await GetTools(user);
-                PlatformResourceLinks = GetResourceLinks(ResourceLink.LinkContexts.Platform, user);
-                CourseResourceLinks = GetResourceLinks(ResourceLink.LinkContexts.Course, user);
+                PlatformResourceLinks = ResourceLinkModel.GetResourceLinks(user, ResourceLink.LinkContexts.Platform);
+                CourseResourceLinks = ResourceLinkModel.GetResourceLinks(user, ResourceLink.LinkContexts.Course);
             }
-        }
-
-        private IList<ResourceLinkModel> GetResourceLinks(ResourceLink.LinkContexts context, AdvantagePlatformUser user)
-        {
-            var list = new List<ResourceLinkModel>();
-
-            var links = user.ResourceLinks
-                .Where(r => r.LinkContext == context)
-                .OrderBy(r => r.Title)
-                .ToList();
-
-            foreach (var link in links)
-            {
-                if (link.Tool != null)
-                {
-                    list.Add(new ResourceLinkModel
-                    {
-                        Id = link.Id,
-                        Title = link.Title,
-                        ToolName = link.Tool.Name,
-                        LinkContext = link.LinkContext
-                    });
-                }
-            }
-
-            return list;
         }
 
         private async Task<IList<ToolModel>> GetTools(AdvantagePlatformUser user)

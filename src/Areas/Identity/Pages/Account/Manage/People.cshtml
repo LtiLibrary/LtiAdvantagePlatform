@@ -15,37 +15,37 @@
 <form method="post">
     <div class="row">
             <div asp-validation-summary="All" class="text-danger"></div>
-            @for (int i = 0; i < Model.People.Count; i++)
-            {
-                <div class="card col-sm-auto mr-3 mb-3">
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label asp-for="People[i].Id"></label>
-                            <input asp-for="People[i].Id" class="form-control" readonly="readonly" />
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="People[i].FirstName"></label>
-                            <input asp-for="People[i].FirstName" class="form-control" />
-                            <span asp-validation-for="People[i].FirstName" class="text-danger"></span>
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="People[i].LastName"></label>
-                            <input asp-for="People[i].LastName" class="form-control" />
-                            <span asp-validation-for="People[i].LastName" class="text-danger"></span>
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="People[i].Roles"></label>
-                            <input asp-for="People[i].Roles" class="form-control" />
-                            <span asp-validation-for="People[i].Roles" class="text-danger"></span>
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="People[i].SisId"></label>
-                            <input asp-for="People[i].SisId" class="form-control" />
-                            <span asp-validation-for="People[i].SisId" class="text-danger"></span>
-                        </div>
+        @foreach (var person in Model.People)
+        {
+            <div class="card col-sm-auto mr-3 mb-3">
+                <div class="card-body">
+                    <div class="form-group">
+                        <label asp-for="@person.Id"></label>
+                        <input asp-for="@person.Id" class="form-control" readonly="readonly" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="@person.FirstName"></label>
+                        <input asp-for="@person.FirstName" class="form-control" />
+                        <span asp-validation-for="@person.FirstName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="@person.LastName"></label>
+                        <input asp-for="@person.LastName" class="form-control" />
+                        <span asp-validation-for="@person.LastName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="@person.Roles"></label>
+                        <input asp-for="@person.Roles" class="form-control" />
+                        <span asp-validation-for="@person.Roles" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="@person.SisId"></label>
+                        <input asp-for="@person.SisId" class="form-control" />
+                        <span asp-validation-for="@person.SisId" class="text-danger"></span>
                     </div>
                 </div>
-            }
+            </div>
+        }
     </div>
     <div class="row">
         <div class="col-md-6">

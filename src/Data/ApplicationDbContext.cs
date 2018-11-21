@@ -49,19 +49,7 @@ namespace AdvantagePlatform.Data
                 throw new ArgumentNullException(nameof(principal));
             }
             var id = GetUserId(principal);
-            if (id == null)
-            {
-                return null;
-            }
-
-            return await Users
-                .Include(u => u.Course)
-                .Include(u => u.People)
-                .Include(u => u.Platform)
-                .Include(u => u.ResourceLinks)
-                .ThenInclude(r => r.Tool)
-                .Include(u => u.Tools)
-                .SingleOrDefaultAsync(u => u.Id == id);
+            return await GetUserAsync(id);
         }
 
         /// <summary>
