@@ -86,8 +86,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             var custom = new Dictionary<string, string>
             {
                 {"myCustomValue", "123"},
-                {"username", "$User.username"},
-                {"mentors", "$Membership.role.scope.mentor"}
+                {"username", "$User.username"}
             };
 
             IdToken = await GetJwtAsync(resourceLink, tool, client, person, course, platform, custom);
@@ -115,6 +114,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 LaunchPresentation = new LaunchPresentationClaimValueType
                 {
                     DocumentTarget = DocumentTarget.Iframe,
+                    Locale = CultureInfo.CurrentUICulture.Name,
                     ReturnUrl = Request.GetDisplayUrl()
                 },
                 Lis = new LisClaimValueType
@@ -122,7 +122,6 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                     PersonSourcedId = person.SisId,
                     CourseSectionSourcedId = course?.SisId
                 },
-                Locale = CultureInfo.CurrentUICulture.Name,
                 Nonce = LtiResourceLinkRequest.GenerateCryptographicNonce(),
                 Platform = new PlatformClaimValueType
                 {
@@ -175,10 +174,15 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 request.Roles = roles.Where(r => !r.ToString().StartsWith("Context")).ToArray();
             }
 
-            // Add the custom parameters
-            request.UserName = $"{request.GivenName.Substring(0, 1)}{request.FamilyName}".ToLowerInvariant();
-            request.RoleScopeMentor = new[] {"123", "456"};
-            request.Custom = request.ReplaceCustomValues(custom);
+            // Prepare for custom property substitutions
+            var substitutions = new CustomPropertySubstitutions
+            {
+                LtiUser = new LtiUser
+                {
+                    Username = $"{request.GivenName.Substring(0, 1)}{request.FamilyName}".ToLowerInvariant()
+                }
+            };
+            request.Custom = substitutions.ReplaceCustomPropertyValues(custom);
 
             return await _tools.IssueJwtAsync(3600, request.Claims);
         }
