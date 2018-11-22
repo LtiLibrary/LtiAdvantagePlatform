@@ -81,7 +81,7 @@ namespace AdvantagePlatform.Pages.Tools
         public string Name { get; set; }
         
         [LocalhostUrl]
-        [Display(Name = "JSON Web Key Set URL", Description = "URL to retrieve the tool's current public keys. If supplied, the current keys will be retrieved just prior to tool launch, to allow for frequent key rotation.")]
+        [Display(Name = "JWK Set URL", Description = "URL to retrieve the tool's public keys. If supplied, the keys will be retrieved just prior to tool launch, to allow for frequent key rotation.")]
         public string JsonWebKeySetUrl { get; set; }
         
         [Display(Name = "Issuer", Description = "The Issuer for all launch messages from the platform.")]
