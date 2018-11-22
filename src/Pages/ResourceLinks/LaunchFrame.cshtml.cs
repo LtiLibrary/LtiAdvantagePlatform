@@ -83,7 +83,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
 
             var platform = user.Platform;
 
-            var custom = new Dictionary<string, string> {{"myCustomValue", "123"}};
+            var custom = new Dictionary<string, string> {{"myCustomValue", "123"}, {"username", "$User.username"}};
 
             IdToken = await GetJwtAsync(resourceLink, tool, client, person, course, platform, custom);
             ToolUrl = tool.LaunchUrl;
@@ -171,7 +171,8 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             }
 
             // Add the custom parameters
-            request.Custom = custom;
+            request.UserName = $"{request.GivenName.Substring(0, 1)}{request.FamilyName}".ToLowerInvariant();
+            request.Custom = request.ReplaceCustomValues(custom);
 
             return await _tools.IssueJwtAsync(3600, request.Claims);
         }
