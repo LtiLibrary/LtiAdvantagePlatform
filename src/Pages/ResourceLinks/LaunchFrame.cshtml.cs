@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
@@ -182,7 +181,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             {
                 LtiUser = new LtiUser
                 {
-                    Username = $"{request.GivenName.Substring(0, 1)}{request.FamilyName}".ToLowerInvariant()
+                    Username = person.Username
                 }
             };
 

@@ -29,6 +29,9 @@ namespace AdvantagePlatform.Data
         [Display(Name = "SIS ID")]
         public string SisId { get; set; }
 
+        [Display(Name = "Username")]
+        public string Username { get; set; }
+
         public AdvantagePlatformUser User { get; set; }
     }
 }

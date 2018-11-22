@@ -158,6 +158,7 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account
                 User = user
             };
             person.SisId = person.GetHashCode().ToString();
+            person.Username = $"{person.FirstName.Substring(0, 1)}{person.LastName}".ToLowerInvariant();
             await context.People.AddAsync(person);
 
             person = new Person
@@ -168,6 +169,7 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account
                 User = user
             };
             person.SisId = person.GetHashCode().ToString();
+            person.Username = $"{person.FirstName.Substring(0, 1)}{person.LastName}".ToLowerInvariant();
             await context.People.AddAsync(person);
 
             await context.SaveChangesAsync();
