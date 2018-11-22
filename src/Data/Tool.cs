@@ -9,6 +9,11 @@
         public int Id { get; set; }
 
         /// <summary>
+        /// Custom properties included with every resource link that uses this tool.
+        /// </summary>
+        public string CustomProperties { get; set; }
+
+        /// <summary>
         /// The Deployment ID for this Tool/Client combination
         /// </summary>
         public string DeploymentId { get; set; }

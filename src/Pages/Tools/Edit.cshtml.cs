@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
+using AdvantagePlatform.Utility;
 using IdentityModel.Client;
 using IdentityModel.Jwk;
 using IdentityServer4.EntityFramework.Entities;
@@ -68,9 +69,14 @@ namespace AdvantagePlatform.Pages.Tools
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
+            if (Tool.CustomProperties.IsPresent())
             {
-                return Page();
+                if (!Tool.CustomProperties.TryConvertToDictionary(out _))
+                {
+                    ModelState.AddModelError(
+                        $"{nameof(Tool)}.{nameof(Tool.CustomProperties)}",
+                        "Cannot parse the Custom Properties.");
+                }
             }
 
             if (Tool.JsonWebKeySetUrl.IsPresent())
@@ -103,16 +109,22 @@ namespace AdvantagePlatform.Pages.Tools
             if (Tool.JsonWebKeySetUrl.IsMissing() && Tool.PublicKey.IsMissing())
             {
                 ModelState.AddModelError($"{nameof(Tool)}.{nameof(Tool.JsonWebKeySetUrl)}",
-                    "Either JSON Web Key Set URL or Public Key is required.");
+                    "Either JWK Set URL or Public Key is required.");
                 ModelState.AddModelError($"{nameof(Tool)}.{nameof(Tool.PublicKey)}",
-                    "Either JSON Web Key Set URL or Public Key is required.");
+                    "Either JWK Set URL or Public Key is required.");
+                return Page();
+            }
+
+            if (!ModelState.IsValid)
+            {
                 return Page();
             }
 
             var tool = await _context.Tools.FindAsync(Tool.Id);
-            tool.Name = Tool.Name;
-            tool.JsonWebKeySetUrl = Tool.JsonWebKeySetUrl;
+            tool.CustomProperties = Tool.CustomProperties;
             tool.LaunchUrl = Tool.LaunchUrl;
+            tool.JsonWebKeySetUrl = Tool.JsonWebKeySetUrl;
+            tool.Name = Tool.Name;
 
             _context.Tools.Attach(tool).State = EntityState.Modified;
             await _context.SaveChangesAsync();

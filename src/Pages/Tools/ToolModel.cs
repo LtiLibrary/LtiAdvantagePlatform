@@ -33,6 +33,7 @@ namespace AdvantagePlatform.Pages.Tools
             IdentityServerClientId = tool.IdentityServerClientId;
 
             ClientId = client.ClientId;
+            CustomProperties = tool.CustomProperties;
             DeploymentId = tool.DeploymentId;
             JsonWebKeySetUrl = tool.JsonWebKeySetUrl;
             LaunchUrl = tool.LaunchUrl;
@@ -58,6 +59,9 @@ namespace AdvantagePlatform.Pages.Tools
         [Required]
         [Display(Name = "Client ID")]
         public string ClientId { get; set; }
+
+        [Display(Name = "Custom Properties", Description = "<p>Custom properties to include in all tool launches.<p><p>Put each name=value pair on a separate line.</p>")]
+        public string CustomProperties { get; set; }
 
         /// <summary>
         /// Generated and immutable deployment id.

@@ -46,6 +46,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             ResourceLink = new ResourceLinkModel
             {
                 Id = resourceLink.Id,
+                CustomProperties = resourceLink.CustomProperties,
                 Title = resourceLink.Title,
                 ToolName = tool.Name,
                 LinkContext = resourceLink.LinkContext

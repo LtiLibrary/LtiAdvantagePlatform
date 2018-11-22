@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
+using AdvantagePlatform.Utility;
+using LtiAdvantage.IdentityServer4;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -54,6 +56,16 @@ namespace AdvantagePlatform.Pages.ResourceLinks
 
         public async Task<IActionResult> OnPostAsync()
         {
+            if (ResourceLink.CustomProperties.IsPresent())
+            {
+                if (!ResourceLink.CustomProperties.TryConvertToDictionary(out _))
+                {
+                    ModelState.AddModelError(
+                        $"{nameof(Tool)}.{nameof(Tool.CustomProperties)}",
+                        "Cannot parse the Custom Properties.");
+                }
+            }
+
             if (!ModelState.IsValid)
             {
                 return Page();
@@ -63,6 +75,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
 
             var resourceLink = new ResourceLink
             {
+                CustomProperties = ResourceLink.CustomProperties,
                 LinkContext = ResourceLink.LinkContext,
                 Title = ResourceLink.Title,
                 ToolId = ResourceLink.ToolId,

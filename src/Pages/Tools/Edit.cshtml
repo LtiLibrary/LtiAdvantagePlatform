@@ -29,6 +29,12 @@
                             <span asp-validation-for="Tool.LaunchUrl" class="text-danger"></span>
                         </div>
                         <div class="form-group">
+                            <label asp-for="Tool.CustomProperties"></label>
+                            <tooltip asp-for="Tool.CustomProperties" html="true"></tooltip>
+                            <textarea asp-for="Tool.CustomProperties" class="form-control text-monospace" rows="3"></textarea>
+                            <span asp-validation-for="Tool.CustomProperties" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
                             <label asp-for="Tool.ClientId"></label>
                             <input asp-for="Tool.ClientId" class="form-control" />
                             <span asp-validation-for="Tool.ClientId" class="text-danger"></span>

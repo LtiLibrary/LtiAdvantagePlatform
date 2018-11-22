@@ -24,6 +24,9 @@ namespace AdvantagePlatform.Pages.ResourceLinks
         [Display(Name = "Context")]
         public ResourceLink.LinkContexts? LinkContext { get; set; }
 
+        [Display(Name = "Custom Properties", Description = "<p>Custom properties to include in all tool launches.<p><p>Put each name=value pair on a separate line.</p>")]
+        public string CustomProperties { get; set; }
+
         /// <summary>
         /// Get the user's resource links.
         /// </summary>
@@ -52,7 +55,8 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                     {
                         Id = link.Id,
                         Title = link.Title,
-                        LinkContext = link.LinkContext
+                        LinkContext = link.LinkContext,
+                        CustomProperties = link.CustomProperties
                     });
                 }
                 else
@@ -62,7 +66,8 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                         Id = link.Id,
                         Title = link.Title,
                         ToolName = tool.Name,
-                        LinkContext = link.LinkContext
+                        LinkContext = link.LinkContext,
+                        CustomProperties = link.CustomProperties
                     });
                 }
             }

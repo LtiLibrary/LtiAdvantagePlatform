@@ -10,6 +10,7 @@ using IdentityModel.Client;
 using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Models;
+using LtiAdvantage.IdentityServer4;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.IdentityModel.Tokens;
@@ -50,6 +51,16 @@ namespace AdvantagePlatform.Pages.Tools
 
         public async Task<IActionResult> OnPostAsync()
         {
+            if (Tool.CustomProperties.IsPresent())
+            {
+                if (!Tool.CustomProperties.TryConvertToDictionary(out _))
+                {
+                    ModelState.AddModelError(
+                        $"{nameof(Tool)}.{nameof(Tool.CustomProperties)}",
+                        "Cannot parse the Custom Properites.");
+                }
+            }
+
             if (Tool.JsonWebKeySetUrl.IsPresent())
             {
                 var httpClient = _httpClientFactory.CreateClient();
@@ -79,14 +90,15 @@ namespace AdvantagePlatform.Pages.Tools
             if (Tool.JsonWebKeySetUrl.IsMissing() && Tool.PublicKey.IsMissing())
             {
                 ModelState.AddModelError($"{nameof(Tool)}.{nameof(Tool.JsonWebKeySetUrl)}",
-                    "Either JSON Web Key Set URL or Public Key is required.");
+                    "Either JWK Set URL or Public Key is required.");
                 ModelState.AddModelError($"{nameof(Tool)}.{nameof(Tool.PublicKey)}",
-                    "Either JSON Web Key Set URL or Public Key is required.");
+                    "Either JWK Set URL or Public Key is required.");
             }
 
             if (_identityContext.Clients.Any(c => c.ClientId == Tool.ClientId))
             {
-                ModelState.AddModelError($"{nameof(Tool)}.{nameof(Tool.ClientId)}", "This Client ID already exists.");
+                ModelState.AddModelError($"{nameof(Tool)}.{nameof(Tool.ClientId)}",
+                    "This Client ID already exists.");
             }
 
             if (!ModelState.IsValid)
@@ -128,6 +140,7 @@ namespace AdvantagePlatform.Pages.Tools
             var user = await _context.GetUserAsync(User);
             var tool = new Tool
             {
+                CustomProperties = Tool.CustomProperties,
                 DeploymentId = Tool.DeploymentId,
                 IdentityServerClientId = entity.Id,
                 Name = Tool.Name,

@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
+using AdvantagePlatform.Utility;
 using IdentityServer4;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Interfaces;
@@ -83,13 +84,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
 
             var platform = user.Platform;
 
-            var custom = new Dictionary<string, string>
-            {
-                {"myCustomValue", "123"},
-                {"username", "$User.username"}
-            };
-
-            IdToken = await GetJwtAsync(resourceLink, tool, client, person, course, platform, custom);
+            IdToken = await GetJwtAsync(resourceLink, tool, client, person, course, platform);
             ToolUrl = tool.LaunchUrl;
 
             return Page();
@@ -101,9 +96,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             Client client, 
             Person person, 
             Course course, 
-            Platform platform,
-            Dictionary<string, string> custom
-            )
+            Platform platform)
         {
             var request = new LtiResourceLinkRequest
             {
@@ -174,6 +167,16 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 request.Roles = roles.Where(r => !r.ToString().StartsWith("Context")).ToArray();
             }
 
+            // Collect custom properties
+            tool.CustomProperties.TryConvertToDictionary(out var custom);
+            if (resourceLink.CustomProperties.TryConvertToDictionary(out var linkDictionary))
+            {
+                foreach (var property in linkDictionary)
+                {
+                    custom.Add(property.Key, property.Value);
+                }
+            }
+
             // Prepare for custom property substitutions
             var substitutions = new CustomPropertySubstitutions
             {
@@ -182,6 +185,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                     Username = $"{request.GivenName.Substring(0, 1)}{request.FamilyName}".ToLowerInvariant()
                 }
             };
+
             request.Custom = substitutions.ReplaceCustomPropertyValues(custom);
 
             return await _tools.IssueJwtAsync(3600, request.Claims);
