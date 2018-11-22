@@ -121,6 +121,8 @@ namespace AdvantagePlatform.Pages.Tools
                 .Include(c => c.ClientSecrets)
                 .SingleOrDefaultAsync(c => c.Id == tool.IdentityServerClientId);
 
+            client.ClientId = Tool.ClientId;
+
             var publicKey = client.ClientSecrets
                 .SingleOrDefault(s => s.Type == Constants.SecretTypes.PublicPemKey);
 
