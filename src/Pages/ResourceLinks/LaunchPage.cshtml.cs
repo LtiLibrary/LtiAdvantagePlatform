@@ -11,6 +11,7 @@ using LtiAdvantage.IdentityServer4;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace AdvantagePlatform.Pages.ResourceLinks
@@ -18,17 +19,21 @@ namespace AdvantagePlatform.Pages.ResourceLinks
     public class LaunchPageModel : PageModel
     {
         private readonly ApplicationDbContext _context;
-        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfigurationDbContext _identityContext;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ILogger<LaunchPageModel> _logger;
 
         public LaunchPageModel(
             ApplicationDbContext context,
+            IConfigurationDbContext identityContext,
             IHttpClientFactory httpClientFactory,
-            IConfigurationDbContext identityContext)
+            ILogger<LaunchPageModel> logger
+            )
         {
             _context = context;
             _httpClientFactory = httpClientFactory;
             _identityContext = identityContext;
+            _logger = logger;
         }
 
         /// <summary>
@@ -65,6 +70,8 @@ namespace AdvantagePlatform.Pages.ResourceLinks
 
             if (tool.JsonWebKeySetUrl.IsPresent())
             {
+                _logger.LogInformation($"Retrieving JWK Set from {tool.JsonWebKeySetUrl}");
+
                 var httpClient = _httpClientFactory.CreateClient();
                 try
                 {
@@ -101,8 +108,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
-                    throw;
+                    _logger.LogError(e, $"Cannot retrieve JWK Set from {tool.JsonWebKeySetUrl}");
                 }
             }
 
