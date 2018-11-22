@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
@@ -82,14 +83,23 @@ namespace AdvantagePlatform.Pages.ResourceLinks
 
             var platform = user.Platform;
 
-            IdToken = await GetJwtAsync(resourceLink, tool, client, person, course, platform);
+            var custom = new Dictionary<string, string> {{"myCustomValue", "123"}};
+
+            IdToken = await GetJwtAsync(resourceLink, tool, client, person, course, platform, custom);
             ToolUrl = tool.LaunchUrl;
 
             return Page();
         }
 
-        private async Task<string> GetJwtAsync(ResourceLink resourceLink, 
-            Tool tool, Client client, Person person, Course course, Platform platform)
+        private async Task<string> GetJwtAsync(
+            ResourceLink resourceLink, 
+            Tool tool, 
+            Client client, 
+            Person person, 
+            Course course, 
+            Platform platform,
+            Dictionary<string, string> custom
+            )
         {
             var request = new LtiResourceLinkRequest
             {
@@ -159,6 +169,9 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 var roles = Areas.Identity.Pages.Account.Manage.PeopleModel.ParsePersonRoles(person.Roles);
                 request.Roles = roles.Where(r => !r.ToString().StartsWith("Context")).ToArray();
             }
+
+            // Add the custom parameters
+            request.Custom = custom;
 
             return await _tools.IssueJwtAsync(3600, request.Claims);
         }
