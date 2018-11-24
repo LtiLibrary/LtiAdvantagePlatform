@@ -1,5 +1,6 @@
 ﻿
 @using Data
+@using Microsoft.AspNetCore.Identity
 @inject SignInManager<AdvantagePlatformUser> SignInManager
 @{
     var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();

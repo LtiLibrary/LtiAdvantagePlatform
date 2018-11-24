@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using IdentityServer4.Models;
-using LtiAdvantageLibrary;
+using LtiAdvantage;
 
 namespace AdvantagePlatform
 {
@@ -20,7 +20,7 @@ namespace AdvantagePlatform
         {
             return new List<ApiResource>
             {
-                new ApiResource(Constants.LtiScopes.MembershipReadonly, "Membership.Readonly"),
+                new ApiResource(Constants.LtiScopes.NamesRoleReadonly, "Membership.Readonly"),
                 new ApiResource(Constants.LtiScopes.AssignmentGradesLineItem, "LineItem"),
                 new ApiResource(Constants.LtiScopes.AssignmentGradesResultReadonly, "Result.Readonly")
             };

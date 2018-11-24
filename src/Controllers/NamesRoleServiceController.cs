@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
-using LtiAdvantageLibrary.NamesRoleService;
+using LtiAdvantage.NamesRoleService;
 using Microsoft.AspNetCore.Http.Extensions;
 
 namespace AdvantagePlatform.Controllers

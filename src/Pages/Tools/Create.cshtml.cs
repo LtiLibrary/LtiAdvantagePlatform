@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
-using Constants = LtiAdvantageLibrary.Constants;
+using Constants = LtiAdvantage.Constants;
 using JsonWebKeySet = IdentityModel.Jwk.JsonWebKeySet;
 
 namespace AdvantagePlatform.Pages.Tools
@@ -116,7 +116,7 @@ namespace AdvantagePlatform.Pages.Tools
                 {
                     Constants.LtiScopes.AssignmentGradesLineItem, 
                     Constants.LtiScopes.AssignmentGradesResultReadonly,
-                    Constants.LtiScopes.MembershipReadonly
+                    Constants.LtiScopes.NamesRoleReadonly
                 }
             };
             if (Tool.PublicKey.IsPresent())

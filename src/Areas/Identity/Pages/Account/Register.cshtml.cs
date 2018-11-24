@@ -2,7 +2,7 @@
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
-using LtiAdvantageLibrary.Lti;
+using LtiAdvantage.Lti;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
