@@ -29,8 +29,8 @@
                         </div>
                         <div class="form-group">
                             <label asp-for="Tool.CustomProperties"></label>
-                            <tooltip asp-for="Tool.CustomProperties" html="true"></tooltip>
-                            <textarea asp-for="Tool.CustomProperties" class="form-control text-monospace" rows="3"></textarea>
+                            <tooltip asp-for="Tool.CustomProperties"></tooltip>
+                            <textarea asp-for="Tool.CustomProperties" class="form-control text-monospace" rows="3" placeholder="Put each name=value pair on a separate line."></textarea>
                             <span asp-validation-for="Tool.CustomProperties" class="text-danger"></span>
                         </div>
                         <div class="form-group">
@@ -39,10 +39,10 @@
                             <span asp-validation-for="Tool.ClientId" class="text-danger"></span>
                         </div>
                         <div class="form-group">
-                            <label asp-for="Tool.JsonWebKeySetUrl"></label>
-                            <tooltip asp-for="Tool.JsonWebKeySetUrl"></tooltip>
-                            <input asp-for="Tool.JsonWebKeySetUrl" class="form-control" />
-                            <span asp-validation-for="Tool.JsonWebKeySetUrl" class="text-danger"></span>
+                            <label asp-for="Tool.JwkSetUrl"></label>
+                            <tooltip asp-for="Tool.JwkSetUrl"></tooltip>
+                            <input asp-for="Tool.JwkSetUrl" class="form-control" />
+                            <span asp-validation-for="Tool.JwkSetUrl" class="text-danger"></span>
                         </div>
                         <div class="form-group">
                             <label asp-for="Tool.PublicKey"></label>

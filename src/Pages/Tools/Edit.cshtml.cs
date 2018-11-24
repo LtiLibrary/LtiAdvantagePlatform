@@ -79,36 +79,36 @@ namespace AdvantagePlatform.Pages.Tools
                 }
             }
 
-            if (Tool.JsonWebKeySetUrl.IsPresent())
+            if (Tool.JwkSetUrl.IsPresent())
             {
                 var httpClient = _httpClientFactory.CreateClient();
 
                 // Test whether JsonWebKeySetUrl points to a Discovery Document
-                var disco = await httpClient.GetDiscoveryDocumentAsync(Tool.JsonWebKeySetUrl);
+                var disco = await httpClient.GetDiscoveryDocumentAsync(Tool.JwkSetUrl);
                 if (!disco.IsError)
                 {
-                    Tool.JsonWebKeySetUrl = disco.JwksUri;
+                    Tool.JwkSetUrl = disco.JwksUri;
                 }
                 else
                 {
                     // Test that JsonWebKeySetUrl points to a JWKS endpoint
                     try
                     {
-                        var keySetJson = await httpClient.GetStringAsync(Tool.JsonWebKeySetUrl);
+                        var keySetJson = await httpClient.GetStringAsync(Tool.JwkSetUrl);
                         JsonConvert.DeserializeObject<JsonWebKeySet>(keySetJson);
                     }
                     catch (Exception e)
                     {
-                        ModelState.AddModelError($"{nameof(Tool)}.{nameof(Tool.JsonWebKeySetUrl)}",
+                        ModelState.AddModelError($"{nameof(Tool)}.{nameof(Tool.JwkSetUrl)}",
                             e.Message);
                         return Page();
                     }
                 }
             }
 
-            if (Tool.JsonWebKeySetUrl.IsMissing() && Tool.PublicKey.IsMissing())
+            if (Tool.JwkSetUrl.IsMissing() && Tool.PublicKey.IsMissing())
             {
-                ModelState.AddModelError($"{nameof(Tool)}.{nameof(Tool.JsonWebKeySetUrl)}",
+                ModelState.AddModelError($"{nameof(Tool)}.{nameof(Tool.JwkSetUrl)}",
                     "Either JWK Set URL or Public Key is required.");
                 ModelState.AddModelError($"{nameof(Tool)}.{nameof(Tool.PublicKey)}",
                     "Either JWK Set URL or Public Key is required.");
@@ -123,7 +123,7 @@ namespace AdvantagePlatform.Pages.Tools
             var tool = await _context.Tools.FindAsync(Tool.Id);
             tool.CustomProperties = Tool.CustomProperties;
             tool.LaunchUrl = Tool.LaunchUrl;
-            tool.JsonWebKeySetUrl = Tool.JsonWebKeySetUrl;
+            tool.JsonWebKeySetUrl = Tool.JwkSetUrl;
             tool.Name = Tool.Name;
 
             _context.Tools.Attach(tool).State = EntityState.Modified;

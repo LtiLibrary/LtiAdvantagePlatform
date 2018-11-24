@@ -35,7 +35,7 @@ namespace AdvantagePlatform.Pages.Tools
             ClientId = client.ClientId;
             CustomProperties = tool.CustomProperties;
             DeploymentId = tool.DeploymentId;
-            JsonWebKeySetUrl = tool.JsonWebKeySetUrl;
+            JwkSetUrl = tool.JsonWebKeySetUrl;
             LaunchUrl = tool.LaunchUrl;
             Name = tool.Name;
             PublicKey = client.ClientSecrets
@@ -60,7 +60,7 @@ namespace AdvantagePlatform.Pages.Tools
         [Display(Name = "Client ID")]
         public string ClientId { get; set; }
 
-        [Display(Name = "Custom Properties", Description = "<p>Custom properties to include in all tool launches.<p><p>Put each name=value pair on a separate line.</p>")]
+        [Display(Name = "Custom Properties", Description = "Custom properties to include in all tool launches.")]
         public string CustomProperties { get; set; }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace AdvantagePlatform.Pages.Tools
         
         [LocalhostUrl]
         [Display(Name = "JWK Set URL", Description = "URL to retrieve the tool's public keys. If supplied, the keys will be retrieved just prior to tool launch, to allow for frequent key rotation.")]
-        public string JsonWebKeySetUrl { get; set; }
+        public string JwkSetUrl { get; set; }
         
         [Display(Name = "Issuer", Description = "The Issuer for all launch messages from the platform.")]
         public string PlatformIssuer { get; set; }
