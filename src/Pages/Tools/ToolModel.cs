@@ -5,6 +5,7 @@ using AdvantagePlatform.Data;
 using AdvantagePlatform.Utility;
 using IdentityServer4.EntityFramework.Entities;
 using LtiAdvantage.IdentityServer4;
+using LtiAdvantage.IdentityServer4.Validation;
 
 namespace AdvantagePlatform.Pages.Tools
 {

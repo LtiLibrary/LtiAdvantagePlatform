@@ -8,6 +8,7 @@ using IdentityModel.Jwk;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Interfaces;
 using LtiAdvantage.IdentityServer4;
+using LtiAdvantage.IdentityServer4.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;

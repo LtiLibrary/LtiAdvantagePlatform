@@ -125,7 +125,7 @@ namespace AdvantagePlatform.Pages.Tools
                 {
                     new Secret
                     {
-                        Type = LtiAdvantage.IdentityServer4.Constants.SecretTypes.PublicPemKey,
+                        Type = LtiAdvantage.IdentityServer4.Validation.Constants.SecretTypes.PublicPemKey,
                         Value = Tool.PublicKey
                     }
                 };

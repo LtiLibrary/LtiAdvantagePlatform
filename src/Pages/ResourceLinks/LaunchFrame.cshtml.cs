@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
@@ -7,8 +8,9 @@ using IdentityServer4;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Interfaces;
 using LtiAdvantage;
+using LtiAdvantage.AssignmentGradeServices;
 using LtiAdvantage.Lti;
-using LtiAdvantage.NamesRoleService;
+using LtiAdvantage.NamesRoleProvisioningService;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -149,12 +151,28 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 // a context.
                 request.Roles = Areas.Identity.Pages.Account.Manage.PeopleModel.ParsePersonRoles(person.Roles);
 
-                // Only include Names and Role Provisioning Service claim if
-                // the launch includes a context.
+                // Only include the Assignment and Grade Services claim if the launch includes a context.
+                request.AssignmentGradeServices = new AssignmentGradeServicesClaimValueType
+                {
+                    Scope = new List<string>
+                    {
+                        Constants.LtiScopes.AssignmentGradesLineItem
+                    },
+                    LineItem = Url.RouteUrl(Constants.ServiceEndpoints.LineItemsService,
+                        new { contextId = course.Id, id = resourceLink.Id.ToString() },
+                        "https",
+                        Request.Host.ToString()),
+                    LineItems = Url.RouteUrl(Constants.ServiceEndpoints.LineItemsService,
+                        new { contextId = course.Id },
+                        "https",
+                        Request.Host.ToString())
+                };
+
+                // Only include Names and Role Provisioning Service claim if the launch includes a context.
                 request.NamesRoleService = new NamesRoleServiceClaimValueType
                 {
                     ContextMembershipUrl = 
-                        Url.RouteUrl(Constants.LtiClaims.NamesRoleService, 
+                        Url.RouteUrl(Constants.ServiceEndpoints.MembershipService, 
                             new { contextId = course.Id },
                             "https",
                             Request.Host.ToString())

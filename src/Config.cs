@@ -22,7 +22,8 @@ namespace AdvantagePlatform
             {
                 new ApiResource(Constants.LtiScopes.NamesRoleReadonly, "Membership.Readonly"),
                 new ApiResource(Constants.LtiScopes.AssignmentGradesLineItem, "LineItem"),
-                new ApiResource(Constants.LtiScopes.AssignmentGradesResultReadonly, "Result.Readonly")
+                new ApiResource(Constants.LtiScopes.AssignmentGradesResultReadonly, "Result.Readonly"),
+                new ApiResource(Constants.LtiScopes.AssignmentGradesScoreWriteonly, "Score")
             };
         }
     }

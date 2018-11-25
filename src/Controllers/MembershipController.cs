@@ -1,8 +1,11 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
-using LtiAdvantage.NamesRoleService;
+using LtiAdvantage.AssignmentGradeServices;
+using LtiAdvantage.NamesRoleProvisioningService;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace AdvantagePlatform.Controllers
 {
@@ -11,11 +14,11 @@ namespace AdvantagePlatform.Controllers
     /// Sample membership controller that implements the Membership service.
     /// See https://www.imsglobal.org/spec/lti-nrps/v2p0.
     /// </summary>
-    public class NamesRoleServiceController : NamesRoleServiceControllerBase
+    public class MembershipController : MembershipControllerBase
     {
         private readonly ApplicationDbContext _appContext;
 
-        public NamesRoleServiceController(ApplicationDbContext appContext)
+        public MembershipController(ILogger<MembershipControllerBase> logger, ApplicationDbContext appContext) : base(logger)
         {
             _appContext = appContext;
         }
@@ -24,29 +27,32 @@ namespace AdvantagePlatform.Controllers
         /// Sample implementation of OnGetMembershipAsync returns both members of the
         /// sample course. This sample ignores limit, rlid, and role parameters.
         /// </summary>
-        /// <param name="request">The <see cref="GetNamesRolesRequest"/> including the course id.</param>
+        /// <param name="request">The <see cref="GetMembershipRequest"/> including the course id.</param>
         /// <returns>The members of the sample course.</returns>
-        protected override async Task<GetNamesRolesResponse> OnGetMembershipAsync(GetNamesRolesRequest request)
+        protected override async Task<GetMembershipResponse> OnGetMembershipAsync(GetMembershipRequest request)
         {
-            var response = new GetNamesRolesResponse
-            {
-                MembershipContainer = new MembershipContainer
-                {
-                    Id = Request.GetDisplayUrl()
-                }
-            };
+            var response = new GetMembershipResponse();
 
             var course = await _appContext.Courses.FindAsync(request.ContextId);
             if (course == null)
             {
-                return NotFound("Context not found");
+                response.StatusCode = StatusCodes.Status404NotFound;
+                response.StatusValue = "Context not found";
+                return response;
             }
 
             var user = await _appContext.GetUserAsync(course.UserId);
             if (user == null)
             {
-                return NotFound("User not found");
+                response.StatusCode = StatusCodes.Status404NotFound;
+                response.StatusValue = "Context not found";
+                return response;
             }
+
+            response.MembershipContainer = new MembershipContainer
+            {
+                Id = Request.GetDisplayUrl()
+            };
 
             var people = user.People;
             if (people.Any())
