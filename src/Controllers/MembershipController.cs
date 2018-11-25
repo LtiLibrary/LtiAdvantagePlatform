@@ -29,27 +29,26 @@ namespace AdvantagePlatform.Controllers
         /// </summary>
         /// <param name="request">The <see cref="GetMembershipRequest"/> including the course id.</param>
         /// <returns>The members of the sample course.</returns>
-        protected override async Task<GetMembershipResponse> OnGetMembershipAsync(GetMembershipRequest request)
+        protected override async Task<MembershipContainerResult> OnGetMembershipAsync(GetMembershipRequest request)
         {
-            var response = new GetMembershipResponse();
+            var result = new MembershipContainerResult(StatusCodes.Status200OK);
 
             var course = await _appContext.Courses.FindAsync(request.ContextId);
             if (course == null)
             {
-                response.StatusCode = StatusCodes.Status404NotFound;
-                response.StatusValue = "Context not found";
-                return response;
+
+                result.StatusCode = StatusCodes.Status404NotFound;
+                return result;
             }
 
             var user = await _appContext.GetUserAsync(course.UserId);
             if (user == null)
             {
-                response.StatusCode = StatusCodes.Status404NotFound;
-                response.StatusValue = "Context not found";
-                return response;
+                result.StatusCode = StatusCodes.Status404NotFound;
+                return result;
             }
 
-            response.MembershipContainer = new MembershipContainer
+            result.MembershipContainer = new MembershipContainer()
             {
                 Id = Request.GetDisplayUrl()
             };
@@ -57,7 +56,7 @@ namespace AdvantagePlatform.Controllers
             var people = user.People;
             if (people.Any())
             {
-                response.MembershipContainer.Members = people
+                result.MembershipContainer.Members = people
                     .Select(p => new Member
                     {
                         ContextId = course.Id,
@@ -72,7 +71,7 @@ namespace AdvantagePlatform.Controllers
                     .ToList();
             }
 
-            return response;
+            return result;
         }
     }
 }

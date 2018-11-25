@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using LtiAdvantage.AssignmentGradeServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -12,35 +11,39 @@ namespace AdvantagePlatform.Controllers
         {
         }
 
-        protected override Task<LineItemResult> OnCreateLineItemAsync(PostLineItemRequest request)
+        protected override async Task<LineItemResult> OnCreateLineItemAsync(PostLineItemRequest request)
         {
-            throw new NotImplementedException();
+            var lineItem = new LineItem();
+            lineItem.Id = lineItem.GetHashCode().ToString();
+            return Created(lineItem);
         }
 
-        protected override Task<IActionResult> OnDeleteLineItemAsync(DeleteLineItemRequest request)
+        protected override async Task<IActionResult> OnDeleteLineItemAsync(DeleteLineItemRequest request)
         {
-            throw new NotImplementedException();
+            return Ok();
         }
 
-        protected override Task<LineItemResult> OnGetLineItemAsync(GetLineItemRequest request)
+        protected override async Task<LineItemResult> OnGetLineItemAsync(GetLineItemRequest request)
         {
-            var result = new LineItemResult(new LineItem());
-            return Task.FromResult(result);
+            var lineItem = new LineItem();
+            lineItem.Id = lineItem.GetHashCode().ToString();
+            return Ok(lineItem);
         }
 
-        protected override Task<IActionResult> OnUpdateLineItemAsync(PutLineItemRequest request)
+        protected override async Task<IActionResult> OnUpdateLineItemAsync(PutLineItemRequest request)
         {
-            throw new NotImplementedException();
+            return Ok();
         }
 
-        protected override Task<LineItemContainerResult> OnGetLineItemsAsync(GetLineItemsRequest request)
+        protected override async Task<LineItemContainerResult> OnGetLineItemsAsync(GetLineItemsRequest request)
         {
+            var lineItem = new LineItem();
+            lineItem.Id = lineItem.GetHashCode().ToString();
             var lineitems = new LineItemContainer
             {
-                new LineItem()
+                lineItem
             };
-            var result = new LineItemContainerResult(lineitems);
-            return Task.FromResult(result);
+            return Ok(lineitems);
         }
     }
 }
