@@ -10,6 +10,7 @@ using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Validation;
 using LtiAdvantage.IdentityServer4.Validation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
@@ -124,6 +125,25 @@ namespace AdvantagePlatform
                         ValidAudiences = Config.GetApiResources().Select(a => a.Name)
                     };
                 });
+
+            // Define the policies that control access to the LTI Advantage services
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("lineitems", builder =>
+                {
+                    builder.RequireScope
+                    (
+                        LtiAdvantage.Constants.LtiScopes.AssignmentGradesLineItem
+                    );
+                });
+                options.AddPolicy("membership", builder =>
+                {
+                    builder.RequireScope
+                    (
+                        LtiAdvantage.Constants.LtiScopes.NamesRoleReadonly
+                    );
+                });
+            });
 
             services.AddHttpClient();
         }
