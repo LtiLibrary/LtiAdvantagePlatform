@@ -1,9 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
-using LtiAdvantage;
 using LtiAdvantage.AssignmentGradeServices;
-using Microsoft.AspNetCore.Identity.UI.Pages.Internal.Account;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -35,9 +33,36 @@ namespace AdvantagePlatform.Controllers
 
         protected override async Task<LineItemResult> OnGetLineItemAsync(GetLineItemRequest request)
         {
-            var lineItem = new LineItem();
-            lineItem.Id = lineItem.GetHashCode().ToString();
-            return Ok(lineItem);
+            var course = await _context.Courses.FindAsync(request.ContextId);
+            if (course == null)
+            {
+                return NotFound(default(LineItem));
+            }
+
+            var user = await _context.Users
+                .Include(u => u.ResourceLinks)
+                .Include(u => u.Tools)
+                .SingleOrDefaultAsync(u => u.Id == course.UserId);
+            if (user == null)
+            {
+                return NotFound(default(LineItem));
+            }
+            
+            // This assumes a 1:1 relationship between a line item and a resource link.
+            var resourceLink = user.ResourceLinks.SingleOrDefault(l => l.Id.ToString() == request.Id);
+            if (resourceLink == null)
+            {
+                return NotFound(default(LineItem));
+            }
+
+            var lineitem = new LineItem
+            {
+                LtiLinkId = resourceLink.Id.ToString(),
+                ScoreMaximum = 100
+            };
+            lineitem.Id = lineitem.GetHashCode().ToString();
+
+            return Ok(lineitem);
         }
 
         protected override async Task<IActionResult> OnUpdateLineItemAsync(PutLineItemRequest request)
@@ -50,7 +75,7 @@ namespace AdvantagePlatform.Controllers
             var course = await _context.Courses.FindAsync(request.ContextId);
             if (course == null)
             {
-                return NotFound();
+                return NotFound(default(LineItemContainer));
             }
 
             var user = await _context.Users
@@ -59,10 +84,10 @@ namespace AdvantagePlatform.Controllers
                 .SingleOrDefaultAsync(u => u.Id == course.UserId);
             if (user == null)
             {
-                return NotFound();
+                return NotFound(default(LineItemContainer));
             }
             
-            // This simulates the declaritive/couple relationship between a line item and a resource link.
+            // This assumes a 1:1 relationship between a line item and a resource link.
             var lineitems = new LineItemContainer();
             var resourceLinks = user.ResourceLinks
                 .Where(l => l.LinkContext == ResourceLink.LinkContexts.Course)
