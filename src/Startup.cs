@@ -10,6 +10,7 @@ using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Validation;
 using LtiAdvantage.IdentityServer4.Validation;
+using LtiAdvantage.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -126,28 +127,42 @@ namespace AdvantagePlatform
                     };
                 });
 
-            // Define the policies that control access to the LTI Advantage services
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("lineitems", builder =>
-                {
-                    builder.RequireScope
-                    (
-                        LtiAdvantage.Constants.LtiScopes.AssignmentGradesLineItem
-                    );
-                });
-                options.AddPolicy("membership", builder =>
-                {
-                    builder.RequireScope
-                    (
-                        LtiAdvantage.Constants.LtiScopes.NamesRoleReadonly
-                    );
-                });
-            });
+            // Add LTI Advantage service authorization policies
+            services.AddLtiAdvantagePolicies();
 
             services.AddHttpClient();
         }
-        
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        {
+            InitializeDatabase(app);
+
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+                app.UseDatabaseErrorPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/Error");
+                app.UseHsts();
+            }
+
+            //app.UseStatusCodePagesWithRedirects("/Error?httpStatusCode={0}");
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+            app.UseCookiePolicy();
+
+            app.UseIdentityServer();
+
+            app.UseMvc();
+        }
+
+        /// <summary>
+        /// Configure the Identity Server.
+        /// </summary>
+        /// <param name="app"></param>
         private static void InitializeDatabase(IApplicationBuilder app)
         {
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
@@ -177,32 +192,6 @@ namespace AdvantagePlatform
                 }
                 context.SaveChanges();
             }
-        }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-        {
-            InitializeDatabase(app);
-
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                app.UseDatabaseErrorPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Error");
-                app.UseHsts();
-            }
-
-            //app.UseStatusCodePagesWithRedirects("/Error?httpStatusCode={0}");
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
-            app.UseCookiePolicy();
-
-            app.UseIdentityServer();
-
-            app.UseMvc();
         }
     }
 }
