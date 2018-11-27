@@ -114,9 +114,9 @@ namespace AdvantagePlatform.Pages.Tools
                 AllowedGrantTypes = GrantTypes.ClientCredentials,
                 AllowedScopes =
                 {
-                    Constants.LtiScopes.AssignmentGradesLineItem, 
-                    Constants.LtiScopes.AssignmentGradesResultReadonly,
-                    Constants.LtiScopes.NamesRoleReadonly
+                    Constants.LtiScopes.AgsLineItem, 
+                    Constants.LtiScopes.AgsResultReadonly,
+                    Constants.LtiScopes.NrpsMembershipReadonly
                 }
             };
             if (Tool.PublicKey.IsPresent())

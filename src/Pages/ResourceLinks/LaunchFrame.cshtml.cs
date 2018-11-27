@@ -156,13 +156,13 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 {
                     Scope = new List<string>
                     {
-                        Constants.LtiScopes.AssignmentGradesLineItem
+                        Constants.LtiScopes.AgsLineItem
                     },
-                    LineItem = Url.RouteUrl(Constants.ServiceEndpoints.LineItemsService,
+                    LineItem = Url.RouteUrl(Constants.ServiceEndpoints.AgsLineItemService,
                         new { contextId = course.Id, id = resourceLink.Id.ToString() },
                         "https",
                         Request.Host.ToString()),
-                    LineItems = Url.RouteUrl(Constants.ServiceEndpoints.LineItemsService,
+                    LineItems = Url.RouteUrl(Constants.ServiceEndpoints.AgsLineItemService,
                         new { contextId = course.Id },
                         "https",
                         Request.Host.ToString())
@@ -172,7 +172,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 request.NamesRoleService = new NamesRoleServiceClaimValueType
                 {
                     ContextMembershipUrl = 
-                        Url.RouteUrl(Constants.ServiceEndpoints.MembershipService, 
+                        Url.RouteUrl(Constants.ServiceEndpoints.NrpsMembershipService, 
                             new { contextId = course.Id },
                             "https",
                             Request.Host.ToString())
