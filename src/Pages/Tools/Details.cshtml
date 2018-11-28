@@ -27,16 +27,11 @@
                         <dt>@Html.DisplayNameFor(m => m.Tool.ClientId)</dt>
                         <dd>@Model.Tool.ClientId</dd>
                         <dt>
-                            @Html.DisplayNameFor(m => m.Tool.JwkSetUrl)
-                            <tooltip asp-for="Tool.JwkSetUrl"></tooltip>
-                        </dt>
-                        <dd>@(Model.Tool.JwkSetUrl ?? "[Not Set]")</dd>
-                        <dt>
-                            @Html.DisplayNameFor(m => m.Tool.PublicKey)
-                            <tooltip asp-for="Tool.PublicKey"></tooltip>
+                            @Html.DisplayNameFor(m => m.Tool.PrivateKey)
+                            <tooltip asp-for="Tool.PrivateKey"></tooltip>
                         </dt>
                         <dd>
-                            <pre id="@Html.IdFor(m => m.Tool.PublicKey)" class="securitykey">@(Model.Tool.PublicKey ?? "[Not Set]")</pre>
+                            <pre class="securitykey">@Model.Tool.PrivateKey</pre>
                         </dd>
                     </dl>
                 </div>

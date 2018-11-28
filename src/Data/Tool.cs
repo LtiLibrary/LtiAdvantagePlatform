@@ -24,11 +24,6 @@
         public int IdentityServerClientId { get; set; }
 
         /// <summary>
-        /// The tool's JWKS endpoint.
-        /// </summary>
-        public string JsonWebKeySetUrl { get; set; }
-
-        /// <summary>
         /// The URL used to launch the Tool.
         /// </summary>
         public string LaunchUrl { get; set; }

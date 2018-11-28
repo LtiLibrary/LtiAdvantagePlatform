@@ -4,7 +4,6 @@ using System.Linq;
 using AdvantagePlatform.Data;
 using AdvantagePlatform.Utility;
 using IdentityServer4.EntityFramework.Entities;
-using LtiAdvantage.IdentityServer4;
 using LtiAdvantage.IdentityServer4.Validation;
 
 namespace AdvantagePlatform.Pages.Tools
@@ -18,7 +17,7 @@ namespace AdvantagePlatform.Pages.Tools
         /// <summary>
         /// Create an instance of <see cref="ToolModel"/>.
         /// </summary>
-        public ToolModel() {}
+        public ToolModel() { }
 
         /// <summary>
         /// Create an instance of <see cref="ToolModel"/> using tool and client entities.
@@ -36,11 +35,10 @@ namespace AdvantagePlatform.Pages.Tools
             ClientId = client.ClientId;
             CustomProperties = tool.CustomProperties;
             DeploymentId = tool.DeploymentId;
-            JwkSetUrl = tool.JsonWebKeySetUrl;
             LaunchUrl = tool.LaunchUrl;
             Name = tool.Name;
-            PublicKey = client.ClientSecrets
-                ?.FirstOrDefault(s => s.Type == Constants.SecretTypes.PublicPemKey)
+            PrivateKey = client.ClientSecrets
+                ?.FirstOrDefault(s => s.Type == Constants.SecretTypes.PrivatePemKey)
                 ?.Value;
         }
 
@@ -48,6 +46,8 @@ namespace AdvantagePlatform.Pages.Tools
         /// The primary key.
         /// </summary>
         public int Id { get; set; }
+
+        #region Identity Server Client properties
 
         /// <summary>
         /// The primary key of the IdentityServer Client associated with the tool.
@@ -61,17 +61,25 @@ namespace AdvantagePlatform.Pages.Tools
         [Display(Name = "Client ID")]
         public string ClientId { get; set; }
 
+        /// <summary>
+        /// The client private signing key.
+        /// </summary>
+        [Required]
+        [Display(Name = "Private Key", Description = "Private key to sign messages sent by the tool.")]
+        public string PrivateKey { get; set; }
+
+        #endregion
+
+        #region Tool properties
+
+        /// <summary>
+        /// Custom properties to include with all tool launches.
+        /// </summary>
         [Display(Name = "Custom Properties", Description = "Custom properties to include in all tool launches.")]
         public string CustomProperties { get; set; }
 
         /// <summary>
-        /// Generated and immutable deployment id.
-        /// </summary>
-        [Display(Name = "Deployment ID", Description = "This deployment ID will be sent with all launch messages from the platform.")]
-        public string DeploymentId { get; set; }
-        
-        /// <summary>
-        /// The launch url.
+        /// Tool launch url.
         /// </summary>
         [Required]
         [LocalhostUrl]
@@ -79,23 +87,25 @@ namespace AdvantagePlatform.Pages.Tools
         public string LaunchUrl { get; set; }
 
         /// <summary>
-        /// The display name of the tool.
+        /// Tool display name.
         /// </summary>
         [Required]
-        [Display(Name = "Name")]
+        [Display(Name = "Display Name")]
         public string Name { get; set; }
-        
-        [LocalhostUrl]
-        [Display(Name = "JWK Set URL", Description = "URL to retrieve the tool's public keys. If supplied, the keys will be retrieved just prior to tool launch, to allow for frequent key rotation.")]
-        public string JwkSetUrl { get; set; }
-        
+
+        #endregion
+
+        #region Platform properties
+
+        /// <summary>
+        /// Generated and immutable deployment id.
+        /// </summary>
+        [Display(Name = "Deployment ID", Description = "This deployment ID will be sent with all launch messages from the platform.")]
+        public string DeploymentId { get; set; }
+
         [Display(Name = "Issuer", Description = "The Issuer for all launch messages from the platform.")]
         public string PlatformIssuer { get; set; }
 
-        /// <summary>
-        /// The public signing key.
-        /// </summary>
-        [Display(Name = "Public Key", Description = "Public key to validate messages signed by the tool.")]
-        public string PublicKey { get; set; }
+        #endregion
     }
 }

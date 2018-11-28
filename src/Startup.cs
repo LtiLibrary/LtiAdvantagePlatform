@@ -79,7 +79,7 @@ namespace AdvantagePlatform
 
                 // Add JWT client credentials validation
                 .AddSecretParser<JwtBearerClientAssertionSecretParser>()
-                .AddSecretValidator<PublicKeyJwtSecretValidator>()
+                .AddSecretValidator<PrivatePemKeyJwtSecretValidator>()
 
                 // Store Configuration and Operational data in the database
                 .AddConfigurationStore(options =>
