@@ -1,4 +1,5 @@
 ﻿@page
+@using IdentityServer4.Extensions
 @model CreateModel
 
 @{
@@ -57,6 +58,11 @@
                             <label asp-for="Tool.DeploymentId"></label>
                             <tooltip asp-for="Tool.DeploymentId"></tooltip>
                             <input asp-for="Tool.DeploymentId" class="form-control" value="@Model.Tool.DeploymentId" readonly="readonly" />
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Tool.PlatformIssuer"></label>
+                            <tooltip asp-for="Tool.PlatformIssuer"></tooltip>
+                            <input asp-for="Tool.PlatformIssuer" class="form-control" value="@(Request.HttpContext.GetIdentityServerIssuerUri())" readonly="readonly" />
                         </div>
                     </div>
                 </div>

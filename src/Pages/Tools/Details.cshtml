@@ -1,4 +1,5 @@
 ﻿@page
+@using IdentityServer4.Extensions
 @model DetailsModel
 
 @{
@@ -53,7 +54,7 @@
                             @Html.DisplayNameFor(m => m.Tool.PlatformIssuer)
                             <tooltip asp-for="Tool.PlatformIssuer"></tooltip>
                         </dt>
-                        <dd>@Model.Tool.PlatformIssuer</dd>
+                        <dd>@(Request.HttpContext.GetIdentityServerIssuerUri())</dd>
                     </dl>
                 </div>
             </div>

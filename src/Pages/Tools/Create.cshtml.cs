@@ -1,16 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using AdvantagePlatform.Utility;
+using IdentityModel;
 using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Models;
 using LtiAdvantage.IdentityServer4;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.IdentityModel.Tokens;
 using Constants = LtiAdvantage.Constants;
 
 namespace AdvantagePlatform.Pages.Tools
@@ -33,9 +32,13 @@ namespace AdvantagePlatform.Pages.Tools
 
         public IActionResult OnGet()
         {
+            // Create the Client for this tool registration
+            var keyPair = PemHelper.GenerateRsaKeyPair();
             Tool = new ToolModel
             {
-                DeploymentId = GenerateRandomString(8)
+                ClientId = CryptoRandom.CreateUniqueId(8),
+                PrivateKey = keyPair.PrivateKey,
+                DeploymentId = CryptoRandom.CreateUniqueId(8)
             };
 
             return Page();
@@ -107,16 +110,6 @@ namespace AdvantagePlatform.Pages.Tools
             await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");
-        }
-
-        private static string GenerateRandomString(int length = 24)
-        {
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                var buffer = new byte[length];
-                rng.GetBytes(buffer);
-                return Base64UrlEncoder.Encode(buffer);
-            }
         }
     }
 }

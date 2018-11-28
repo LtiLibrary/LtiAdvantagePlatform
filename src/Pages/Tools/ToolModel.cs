@@ -103,6 +103,9 @@ namespace AdvantagePlatform.Pages.Tools
         [Display(Name = "Deployment ID", Description = "This deployment ID will be sent with all launch messages from the platform.")]
         public string DeploymentId { get; set; }
 
+        /// <summary>
+        /// This is here for the name and description. The value is calculated in the cshtml.
+        /// </summary>
         [Display(Name = "Issuer", Description = "The Issuer for all launch messages from the platform.")]
         public string PlatformIssuer { get; set; }
 
