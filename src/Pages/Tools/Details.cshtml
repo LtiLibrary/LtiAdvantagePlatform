@@ -1,12 +1,13 @@
 ﻿@page
 @using IdentityServer4.Extensions
+@using LtiAdvantage.IdentityServer4
 @model DetailsModel
 
 @{
     ViewData["Title"] = "Tools";
 }
 <div class="container-fluid">
-    <h4>Tool Details</h4>
+    <h4>Tool Registration Details</h4>
     <hr />
     <div class="row">
         <div class="col-lg-6 mb-3">
@@ -45,16 +46,14 @@
                 </h5>
                 <div class="card-body">
                     <dl>
-                        <dt>
-                            @Html.DisplayNameFor(m => m.Tool.DeploymentId)
-                            <tooltip asp-for="Tool.DeploymentId"></tooltip>
-                        </dt>
+                        <dt>@Html.DisplayNameFor(m => m.Tool.DeploymentId)</dt>
                         <dd>@Model.Tool.DeploymentId</dd>
-                        <dt>
-                            @Html.DisplayNameFor(m => m.Tool.PlatformIssuer)
-                            <tooltip asp-for="Tool.PlatformIssuer"></tooltip>
-                        </dt>
+                        <dt>Issuer</dt>
                         <dd>@(Request.HttpContext.GetIdentityServerIssuerUri())</dd>
+                        <dt>Access Token URL</dt>
+                        <dd>@(Request.HttpContext.GetIdentityServerIssuerUri().EnsureTrailingSlash())token</dd>
+                        <dt>JWK Set URL</dt>
+                        <dd>@(Request.HttpContext.GetIdentityServerIssuerUri().EnsureTrailingSlash()).well-known/openid-configuration/jwks</dd>
                     </dl>
                 </div>
             </div>

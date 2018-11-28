@@ -100,14 +100,8 @@ namespace AdvantagePlatform.Pages.Tools
         /// <summary>
         /// Generated and immutable deployment id.
         /// </summary>
-        [Display(Name = "Deployment ID", Description = "This deployment ID will be sent with all launch messages from the platform.")]
+        [Display(Name = "Deployment ID")]
         public string DeploymentId { get; set; }
-
-        /// <summary>
-        /// This is here for the name and description. The value is calculated in the cshtml.
-        /// </summary>
-        [Display(Name = "Issuer", Description = "The Issuer for all launch messages from the platform.")]
-        public string PlatformIssuer { get; set; }
 
         #endregion
     }

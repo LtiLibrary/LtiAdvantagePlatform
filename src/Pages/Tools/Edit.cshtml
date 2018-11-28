@@ -1,5 +1,6 @@
 ﻿@page
 @using IdentityServer4.Extensions
+@using LtiAdvantage.IdentityServer4
 @model EditModel
 
 @{
@@ -55,16 +56,16 @@
                         Platform Settings
                     </h5>
                     <div class="card-body">
-                        <div class="form-group">
-                            <label asp-for="Tool.DeploymentId"></label>
-                            <tooltip asp-for="Tool.DeploymentId"></tooltip>
-                            <input asp-for="Tool.DeploymentId" class="form-control" value="@Model.Tool.DeploymentId" readonly="readonly" />
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="Tool.PlatformIssuer"></label>
-                            <tooltip asp-for="Tool.PlatformIssuer"></tooltip>
-                            <input asp-for="Tool.PlatformIssuer" class="form-control" value="@(Request.HttpContext.GetIdentityServerIssuerUri())" readonly="readonly" />
-                        </div>
+                        <dl>
+                            <dt>@Html.DisplayNameFor(m => m.Tool.DeploymentId)</dt>
+                            <dd>@Model.Tool.DeploymentId</dd>
+                            <dt>Issuer</dt>
+                            <dd>@(Request.HttpContext.GetIdentityServerIssuerUri())</dd>
+                            <dt>Access Token URL</dt>
+                            <dd>@(Request.HttpContext.GetIdentityServerIssuerUri().EnsureTrailingSlash())token</dd>
+                            <dt>JWK Set URL</dt>
+                            <dd>@(Request.HttpContext.GetIdentityServerIssuerUri().EnsureTrailingSlash()).well-known/openid-configuration/jwks</dd>
+                        </dl>
                     </div>
                 </div>
             </div>
