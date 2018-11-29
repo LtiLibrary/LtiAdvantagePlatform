@@ -38,8 +38,8 @@ namespace AdvantagePlatform.Pages
                 Course = user.Course;
                 People = user.People.ToList();
                 Tools = await GetTools(user);
-                PlatformResourceLinks = ResourceLinkModel.GetResourceLinks(user, ResourceLink.LinkContexts.Platform);
-                CourseResourceLinks = ResourceLinkModel.GetResourceLinks(user, ResourceLink.LinkContexts.Course);
+                PlatformResourceLinks = ResourceLinkModel.GetResourceLinks(user, ResourceLinkModel.LinkContexts.Platform);
+                CourseResourceLinks = ResourceLinkModel.GetResourceLinks(user, ResourceLinkModel.LinkContexts.Course);
             }
         }
 

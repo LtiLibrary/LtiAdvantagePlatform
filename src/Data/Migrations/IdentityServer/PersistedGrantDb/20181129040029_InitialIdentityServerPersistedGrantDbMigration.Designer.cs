@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AdvantagePlatform.Data.Migrations.IdentityServer.PersistedGrantDb
 {
     [DbContext(typeof(PersistedGrantDbContext))]
-    [Migration("20181122015846_IdentityServer231PersistedGrantDbMigration")]
-    partial class IdentityServer231PersistedGrantDbMigration
+    [Migration("20181129040029_InitialIdentityServerPersistedGrantDbMigration")]
+    partial class InitialIdentityServerPersistedGrantDbMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

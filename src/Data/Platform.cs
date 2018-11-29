@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using AdvantagePlatform.Utility;
 
 namespace AdvantagePlatform.Data
@@ -36,7 +37,6 @@ namespace AdvantagePlatform.Data
         [Display(Name = "Version")]
         public string Version { get; set; }
 
-        public string UserId { get; set; }
-        public AdvantagePlatformUser User { get; set; }
+        public ICollection<ResourceLink> ResourceLinks { get; set; }
     }
 }

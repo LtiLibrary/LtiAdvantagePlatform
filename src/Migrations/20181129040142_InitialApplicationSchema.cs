@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace AdvantagePlatform.Data.Migrations
+namespace AdvantagePlatform.Migrations
 {
     public partial class InitialApplicationSchema : Migration
     {
@@ -23,28 +23,34 @@ namespace AdvantagePlatform.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetUsers",
+                name: "Courses",
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
-                    UserName = table.Column<string>(maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(maxLength: 256, nullable: true),
-                    Email = table.Column<string>(maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(nullable: false),
-                    PasswordHash = table.Column<string>(nullable: true),
-                    SecurityStamp = table.Column<string>(nullable: true),
-                    ConcurrencyStamp = table.Column<string>(nullable: true),
-                    PhoneNumber = table.Column<string>(nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
-                    LockoutEnabled = table.Column<bool>(nullable: false),
-                    AccessFailedCount = table.Column<int>(nullable: false)
+                    SisId = table.Column<string>(nullable: true),
+                    Name = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                    table.PrimaryKey("PK_Courses", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Platforms",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    ContactEmail = table.Column<string>(nullable: true),
+                    Description = table.Column<string>(nullable: true),
+                    Guid = table.Column<string>(nullable: true),
+                    Name = table.Column<string>(nullable: true),
+                    ProductFamilyCode = table.Column<string>(nullable: true),
+                    Url = table.Column<string>(nullable: true),
+                    Version = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Platforms", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -66,6 +72,45 @@ namespace AdvantagePlatform.Data.Migrations
                         principalTable: "AspNetRoles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUsers",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    UserName = table.Column<string>(maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(maxLength: 256, nullable: true),
+                    Email = table.Column<string>(maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(nullable: false),
+                    PasswordHash = table.Column<string>(nullable: true),
+                    SecurityStamp = table.Column<string>(nullable: true),
+                    ConcurrencyStamp = table.Column<string>(nullable: true),
+                    PhoneNumber = table.Column<string>(nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
+                    LockoutEnabled = table.Column<bool>(nullable: false),
+                    AccessFailedCount = table.Column<int>(nullable: false),
+                    CourseId = table.Column<string>(nullable: true),
+                    PlatformId = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AspNetUsers_Courses_CourseId",
+                        column: x => x.CourseId,
+                        principalTable: "Courses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_AspNetUsers_Platforms_PlatformId",
+                        column: x => x.PlatformId,
+                        principalTable: "Platforms",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -154,26 +199,6 @@ namespace AdvantagePlatform.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Courses",
-                columns: table => new
-                {
-                    Id = table.Column<string>(nullable: false),
-                    SisId = table.Column<string>(nullable: true),
-                    Name = table.Column<string>(nullable: false),
-                    UserId = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Courses", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Courses_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "People",
                 columns: table => new
                 {
@@ -183,39 +208,15 @@ namespace AdvantagePlatform.Data.Migrations
                     LastName = table.Column<string>(nullable: true),
                     Roles = table.Column<string>(nullable: true),
                     SisId = table.Column<string>(nullable: true),
-                    UserId = table.Column<string>(nullable: true)
+                    Username = table.Column<string>(nullable: true),
+                    AdvantagePlatformUserId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_People", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_People_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Platforms",
-                columns: table => new
-                {
-                    Id = table.Column<string>(nullable: false),
-                    ContactEmail = table.Column<string>(nullable: true),
-                    Description = table.Column<string>(nullable: true),
-                    Guid = table.Column<string>(nullable: true),
-                    Name = table.Column<string>(nullable: true),
-                    ProductFamilyCode = table.Column<string>(nullable: true),
-                    Url = table.Column<string>(nullable: true),
-                    Version = table.Column<string>(nullable: true),
-                    UserId = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Platforms", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Platforms_AspNetUsers_UserId",
-                        column: x => x.UserId,
+                        name: "FK_People_AspNetUsers_AdvantagePlatformUserId",
+                        column: x => x.AdvantagePlatformUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -227,19 +228,19 @@ namespace AdvantagePlatform.Data.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    CustomProperties = table.Column<string>(nullable: true),
                     DeploymentId = table.Column<string>(nullable: true),
                     IdentityServerClientId = table.Column<int>(nullable: false),
-                    JsonWebKeySetUrl = table.Column<string>(nullable: true),
                     LaunchUrl = table.Column<string>(nullable: true),
                     Name = table.Column<string>(nullable: true),
-                    UserId = table.Column<string>(nullable: true)
+                    AdvantagePlatformUserId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Tools", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Tools_AspNetUsers_UserId",
-                        column: x => x.UserId,
+                        name: "FK_Tools_AspNetUsers_AdvantagePlatformUserId",
+                        column: x => x.AdvantagePlatformUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -251,24 +252,38 @@ namespace AdvantagePlatform.Data.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    LinkContext = table.Column<int>(nullable: true),
+                    CustomProperties = table.Column<string>(nullable: true),
                     Title = table.Column<string>(nullable: true),
-                    ToolId = table.Column<int>(nullable: false),
-                    UserId = table.Column<string>(nullable: true)
+                    ToolId = table.Column<int>(nullable: true),
+                    CourseId = table.Column<string>(nullable: true),
+                    AdvantagePlatformUserId = table.Column<string>(nullable: true),
+                    PlatformId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ResourceLinks", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_ResourceLinks_AspNetUsers_AdvantagePlatformUserId",
+                        column: x => x.AdvantagePlatformUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ResourceLinks_Courses_CourseId",
+                        column: x => x.CourseId,
+                        principalTable: "Courses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ResourceLinks_Platforms_PlatformId",
+                        column: x => x.PlatformId,
+                        principalTable: "Platforms",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
                         name: "FK_ResourceLinks_Tools_ToolId",
                         column: x => x.ToolId,
                         principalTable: "Tools",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ResourceLinks_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -301,6 +316,11 @@ namespace AdvantagePlatform.Data.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_CourseId",
+                table: "AspNetUsers",
+                column: "CourseId");
+
+            migrationBuilder.CreateIndex(
                 name: "EmailIndex",
                 table: "AspNetUsers",
                 column: "NormalizedEmail");
@@ -313,23 +333,29 @@ namespace AdvantagePlatform.Data.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Courses_UserId",
-                table: "Courses",
-                column: "UserId",
-                unique: true,
-                filter: "[UserId] IS NOT NULL");
+                name: "IX_AspNetUsers_PlatformId",
+                table: "AspNetUsers",
+                column: "PlatformId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_People_UserId",
+                name: "IX_People_AdvantagePlatformUserId",
                 table: "People",
-                column: "UserId");
+                column: "AdvantagePlatformUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Platforms_UserId",
-                table: "Platforms",
-                column: "UserId",
-                unique: true,
-                filter: "[UserId] IS NOT NULL");
+                name: "IX_ResourceLinks_AdvantagePlatformUserId",
+                table: "ResourceLinks",
+                column: "AdvantagePlatformUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ResourceLinks_CourseId",
+                table: "ResourceLinks",
+                column: "CourseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ResourceLinks_PlatformId",
+                table: "ResourceLinks",
+                column: "PlatformId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ResourceLinks_ToolId",
@@ -337,14 +363,9 @@ namespace AdvantagePlatform.Data.Migrations
                 column: "ToolId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ResourceLinks_UserId",
-                table: "ResourceLinks",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Tools_UserId",
+                name: "IX_Tools_AdvantagePlatformUserId",
                 table: "Tools",
-                column: "UserId");
+                column: "AdvantagePlatformUserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -365,13 +386,7 @@ namespace AdvantagePlatform.Data.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Courses");
-
-            migrationBuilder.DropTable(
                 name: "People");
-
-            migrationBuilder.DropTable(
-                name: "Platforms");
 
             migrationBuilder.DropTable(
                 name: "ResourceLinks");
@@ -384,6 +399,12 @@ namespace AdvantagePlatform.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Courses");
+
+            migrationBuilder.DropTable(
+                name: "Platforms");
         }
     }
 }

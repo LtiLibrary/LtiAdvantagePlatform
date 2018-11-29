@@ -5,6 +5,7 @@ using LtiAdvantage.AssignmentGradeServices;
 using LtiAdvantage.NamesRoleProvisioningService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace AdvantagePlatform.Controllers
@@ -36,12 +37,13 @@ namespace AdvantagePlatform.Controllers
             var course = await _appContext.Courses.FindAsync(request.ContextId);
             if (course == null)
             {
-
                 result.StatusCode = StatusCodes.Status404NotFound;
                 return result;
             }
 
-            var user = await _appContext.GetUserAsync(course.UserId);
+            var user = await _appContext.Users
+                .Include(u => u.People)
+                .SingleOrDefaultAsync(u => u.Course == course);
             if (user == null)
             {
                 result.StatusCode = StatusCodes.Status404NotFound;
@@ -53,10 +55,9 @@ namespace AdvantagePlatform.Controllers
                 Id = Request.GetDisplayUrl()
             };
 
-            var people = user.People;
-            if (people.Any())
+            if (user.People.Any())
             {
-                result.MembershipContainer.Members = people
+                result.MembershipContainer.Members = user.People
                     .Select(p => new Member
                     {
                         ContextId = course.Id,

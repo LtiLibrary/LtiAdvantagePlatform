@@ -33,23 +33,17 @@ namespace AdvantagePlatform.Controllers
 
         protected override async Task<LineItemResult> OnGetLineItemAsync(GetLineItemRequest request)
         {
-            var course = await _context.Courses.FindAsync(request.ContextId);
+            var course = await _context.Courses
+                .Include(c => c.ResourceLinks)
+                .SingleOrDefaultAsync(c => c.Id == request.ContextId);
             if (course == null)
-            {
-                return NotFound(default(LineItem));
-            }
-
-            var user = await _context.Users
-                .Include(u => u.ResourceLinks)
-                .Include(u => u.Tools)
-                .SingleOrDefaultAsync(u => u.Id == course.UserId);
-            if (user == null)
             {
                 return NotFound(default(LineItem));
             }
             
             // This assumes a 1:1 relationship between a line item and a resource link.
-            var resourceLink = user.ResourceLinks.SingleOrDefault(l => l.Id.ToString() == request.Id);
+            var resourceLink = course.ResourceLinks
+                .SingleOrDefault(l => l.Id.ToString() == request.Id);
             if (resourceLink == null)
             {
                 return NotFound(default(LineItem));
@@ -57,8 +51,8 @@ namespace AdvantagePlatform.Controllers
 
             var lineitem = new LineItem
             {
-                LtiLinkId = resourceLink.Id.ToString(),
-                ScoreMaximum = 100
+                ResourceLinkId = resourceLink.Id.ToString(),
+                ScoreMaximum = 100.0
             };
             lineitem.Id = lineitem.GetHashCode().ToString();
 
@@ -72,32 +66,20 @@ namespace AdvantagePlatform.Controllers
 
         protected override async Task<LineItemContainerResult> OnGetLineItemsAsync(GetLineItemsRequest request)
         {
-            var course = await _context.Courses.FindAsync(request.ContextId);
+            var course = await _context.Courses
+                .Include(c => c.ResourceLinks)
+                .SingleOrDefaultAsync(c => c.Id == request.ContextId);
             if (course == null)
             {
                 return NotFound(default(LineItemContainer));
             }
 
-            var user = await _context.Users
-                .Include(u => u.ResourceLinks)
-                .Include(u => u.Tools)
-                .SingleOrDefaultAsync(u => u.Id == course.UserId);
-            if (user == null)
-            {
-                return NotFound(default(LineItemContainer));
-            }
-            
-            // This assumes a 1:1 relationship between a line item and a resource link.
             var lineitems = new LineItemContainer();
-            var resourceLinks = user.ResourceLinks
-                .Where(l => l.LinkContext == ResourceLink.LinkContexts.Course)
-                .ToList();
-
-            foreach (var resourceLink in resourceLinks)
+            foreach (var resourceLink in course.ResourceLinks)
             {
                 var lineitem = new LineItem
                 {
-                    LtiLinkId = resourceLink.Id.ToString(),
+                    ResourceLinkId = resourceLink.Id.ToString(),
                     ScoreMaximum = 100
                 };
                 lineitem.Id = lineitem.GetHashCode().ToString();

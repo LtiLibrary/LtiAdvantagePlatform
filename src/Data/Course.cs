@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace AdvantagePlatform.Data
@@ -20,7 +21,6 @@ namespace AdvantagePlatform.Data
         [Required]
         public string Name { get; set; }
 
-        public string UserId { get; set; }
-        public AdvantagePlatformUser User { get; set; }
+        public ICollection<ResourceLink> ResourceLinks { get; set; }
     }
 }

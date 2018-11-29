@@ -46,9 +46,9 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             {
                 Id = resourceLink.Id,
                 CustomProperties = resourceLink.CustomProperties,
+                LinkContext = user.Course.ResourceLinks.Any(l => l.Id == resourceLink.Id) ? ResourceLinkModel.LinkContexts.Course : ResourceLinkModel.LinkContexts.Platform,
                 Title = resourceLink.Title,
-                ToolName = tool.Name,
-                LinkContext = resourceLink.LinkContext
+                ToolName = tool.Name
             };
 
             return Page();

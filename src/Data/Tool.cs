@@ -32,7 +32,5 @@
         /// The Tool name.
         /// </summary>
         public string Name { get; set; }
-
-        public AdvantagePlatformUser User { get; set; }
     }
 }

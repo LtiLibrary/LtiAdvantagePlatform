@@ -31,7 +31,5 @@ namespace AdvantagePlatform.Data
 
         [Display(Name = "Username")]
         public string Username { get; set; }
-
-        public AdvantagePlatformUser User { get; set; }
     }
 }

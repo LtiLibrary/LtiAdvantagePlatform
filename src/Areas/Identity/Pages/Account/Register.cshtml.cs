@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
@@ -78,9 +79,13 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account
                     _logger.LogInformation("User created a new account with password.");
 
                     // Create the basic platform objects for the new user
-                    await CreatePlatformAsync(_context, Request, user);
-                    await CreateCourseAsync(_context, user);
-                    await CreatePeopleAsync(_context, user);
+                    user.Platform = await CreatePlatformAsync(_context, Request);
+                    user.Course = await CreateCourseAsync(_context);
+                    user.People = new List<Person>();
+                    foreach (var person in await CreatePeopleAsync(_context))
+                    {
+                        user.People.Add(person);
+                    }
                     await _userManager.UpdateAsync(user);
                     // Done creating the basic objects
 
@@ -107,72 +112,85 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account
             return Page();
         }
 
-        private static async Task CreatePlatformAsync(ApplicationDbContext context, HttpRequest request, AdvantagePlatformUser user)
+        /// <summary>
+        /// Create a default platform.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        private static async Task<Platform> CreatePlatformAsync(ApplicationDbContext context, HttpRequest request)
         {
+            var nameGenerator = new PersonNameGenerator();
+            var contact = nameGenerator.GenerateRandomFirstName().Substring(0, 1).ToLowerInvariant()
+                          + nameGenerator.GenerateRandomLastName().ToLowerInvariant();
+
             var platform = new Platform
             {
-                User = user,
-                ContactEmail = user.Email,
+                ContactEmail = $"{contact}@example.edu",
                 Description = "Auto generated platform",
                 Guid = $"{request.Host}",
                 Name = ".NET Core Test Platform",
                 ProductFamilyCode = "LTI Advantage Platform",
-                Url = $"{request.Scheme}://{request.Host}/"
+                Url = $"{request.Scheme}://{request.Host}/",
+                Version = "1.0"
             };
             await context.Platforms.AddAsync(platform);
             await context.SaveChangesAsync();
 
-            user.Platform = platform;
+            return platform;
         }
 
-        public static async Task CreateCourseAsync(ApplicationDbContext context, AdvantagePlatformUser user)
+        /// <summary>
+        /// Create a default course.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static async Task<Course> CreateCourseAsync(ApplicationDbContext context)
         {
             var placeGenerator = new PlaceNameGenerator();
             var course = new Course
             {
                 Name = $"The People of {placeGenerator.GenerateRandomPlaceName()}",
-                User = user
             };
             course.SisId = course.GetHashCode().ToString();
             await context.Courses.AddAsync(course);
             await context.SaveChangesAsync();
 
-            user.Course = course;
+            return course;
         }
 
         /// <summary>
         /// Create a default set of people that will be members of a course.
         /// </summary>
         /// <param name="context">The db context for Person.</param>
-        /// <param name="user">The application user.</param>
         /// <returns></returns>
-        public static async Task CreatePeopleAsync(ApplicationDbContext context, AdvantagePlatformUser user)
+        public static async Task<IEnumerable<Person>> CreatePeopleAsync(ApplicationDbContext context)
         {
             var nameGenerator = new PersonNameGenerator();
 
-            var person = new Person
+            var teacher = new Person
             {
                 FirstName = nameGenerator.GenerateRandomFirstName(),
                 LastName = nameGenerator.GenerateRandomLastName(),
                 Roles = string.Join(", ", Role.ContextInstructor.ToString(), Role.InstitutionFaculty.ToString()),
-                User = user
             };
-            person.SisId = person.GetHashCode().ToString();
-            person.Username = $"{person.FirstName.Substring(0, 1)}{person.LastName}".ToLowerInvariant();
-            await context.People.AddAsync(person);
+            teacher.SisId = teacher.GetHashCode().ToString();
+            teacher.Username = $"{teacher.FirstName.Substring(0, 1)}{teacher.LastName}".ToLowerInvariant();
+            await context.People.AddAsync(teacher);
 
-            person = new Person
+            var student = new Person
             {
                 FirstName = nameGenerator.GenerateRandomFirstName(),
                 LastName = nameGenerator.GenerateRandomLastName(),
                 Roles = string.Join(", ", Role.ContextLearner.ToString(), Role.InstitutionLearner.ToString()),
-                User = user
             };
-            person.SisId = person.GetHashCode().ToString();
-            person.Username = $"{person.FirstName.Substring(0, 1)}{person.LastName}".ToLowerInvariant();
-            await context.People.AddAsync(person);
+            student.SisId = teacher.GetHashCode().ToString();
+            student.Username = $"{teacher.FirstName.Substring(0, 1)}{teacher.LastName}".ToLowerInvariant();
+            await context.People.AddAsync(student);
 
             await context.SaveChangesAsync();
+
+            return new List<Person> { teacher, student };
         }
     }
 }

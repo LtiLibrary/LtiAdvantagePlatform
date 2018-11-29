@@ -7,6 +7,12 @@ namespace AdvantagePlatform.Pages.ResourceLinks
 {
     public class ResourceLinkModel
     {
+        public enum LinkContexts
+        {
+            Course,
+            Platform
+        }
+
         public int Id { get; set; }
 
         [Required]
@@ -22,40 +28,52 @@ namespace AdvantagePlatform.Pages.ResourceLinks
 
         [Required]
         [Display(Name = "Context")]
-        public ResourceLink.LinkContexts? LinkContext { get; set; }
+        public LinkContexts LinkContext { get; set; }
 
         [Display(Name = "Custom Properties", Description = "<p>Custom properties to include in all tool launches.<p><p>Put each name=value pair on a separate line.</p>")]
         public string CustomProperties { get; set; }
 
         /// <summary>
-        /// Get the user's resource links.
+        /// Convert the resource links into ResourceLinkModels.
         /// </summary>
-        /// <param name="user"></param>
-        /// <param name="context"></param>
+        /// <param name="resourceLinks">The resource links to convert.</param>
         /// <returns></returns>
-        public static IList<ResourceLinkModel> GetResourceLinks(AdvantagePlatformUser user, ResourceLink.LinkContexts? context = null)
+        public static IList<ResourceLinkModel> GetResourceLinks(AdvantagePlatformUser user, LinkContexts? linkContextFilter)
         {
             var list = new List<ResourceLinkModel>();
 
-
-            var resourceLinks = context.HasValue
-                ? user.ResourceLinks
-                    .Where(r => r.LinkContext == context)
-                    .OrderBy(d => d.Title)
-                : user.ResourceLinks
-                    .OrderBy(d => d.Title);
+            var resourceLinks = linkContextFilter.HasValue
+                ? linkContextFilter == LinkContexts.Course ? user.Course.ResourceLinks : user.Platform.ResourceLinks
+                : user.ResourceLinks;
 
             foreach (var link in resourceLinks)
             {
                 var tool = link.Tool;
+                LinkContexts linkContext;
+
+                if (linkContextFilter.HasValue)
+                {
+                    linkContext = linkContextFilter.Value;
+                }
+                else
+                {
+                    if (user.Course.ResourceLinks.Any(l => l.Id == link.Id))
+                    {
+                        linkContext = LinkContexts.Course;
+                    }
+                    else
+                    {
+                        linkContext = LinkContexts.Platform;
+                    }
+                }
 
                 if (tool == null)
                 {
                     list.Add(new ResourceLinkModel
                     {
                         Id = link.Id,
+                        LinkContext =  linkContext,
                         Title = link.Title,
-                        LinkContext = link.LinkContext,
                         CustomProperties = link.CustomProperties
                     });
                 }
@@ -64,9 +82,9 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                     list.Add(new ResourceLinkModel
                     {
                         Id = link.Id,
+                        LinkContext =  linkContext,
                         Title = link.Title,
                         ToolName = tool.Name,
-                        LinkContext = link.LinkContext,
                         CustomProperties = link.CustomProperties
                     });
                 }
@@ -74,6 +92,5 @@ namespace AdvantagePlatform.Pages.ResourceLinks
 
             return list;
         }
-
     }
 }

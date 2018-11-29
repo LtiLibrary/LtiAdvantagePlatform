@@ -79,7 +79,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 return NotFound();
             }
 
-            var course = resourceLink.LinkContext == ResourceLink.LinkContexts.Course
+            var course = user.Course.ResourceLinks.Any(l => l.Id == resourceLink.Id)
                 ? user.Course
                 : null;
 

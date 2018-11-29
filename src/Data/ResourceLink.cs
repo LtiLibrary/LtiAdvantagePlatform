@@ -1,5 +1,9 @@
 ﻿namespace AdvantagePlatform.Data
 {
+    /// <summary>
+    /// An LTI resource link. This can belong to the platform (e.g. a district
+    /// reporting tool) or to a course (e.g. an assignment).
+    /// </summary>
     public class ResourceLink
     {
         public int Id { get; set; }
@@ -10,30 +14,13 @@
         public string CustomProperties { get; set; }
 
         /// <summary>
-        /// The context for this resource link (course or platform).
-        /// </summary>
-        public LinkContexts? LinkContext { get; set; }
-
-        /// <summary>
-        /// The resource link title.
+        /// The link title.
         /// </summary>
         public string Title { get; set; }
 
         /// <summary>
-        /// The tool used by this resource link.
+        /// The tool to launch.
         /// </summary>
-        public int ToolId { get; set; }
         public Tool Tool { get; set; }
-
-        /// <summary>
-        /// The user that created this resource link.
-        /// </summary>
-        public AdvantagePlatformUser User { get; set; }
-
-        public enum LinkContexts
-        {
-            Course,
-            Platform
-        }
     }
 }

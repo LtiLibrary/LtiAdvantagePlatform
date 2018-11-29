@@ -20,21 +20,6 @@ namespace AdvantagePlatform.Data
         public DbSet<ResourceLink> ResourceLinks { get; set; }
         public DbSet<Tool> Tools { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder builder)
-        {
-            builder.Entity<AdvantagePlatformUser>()
-                .HasOne(u => u.Platform)
-                .WithOne(p => p.User)
-                .HasForeignKey<Platform>(p => p.UserId);
-
-            builder.Entity<AdvantagePlatformUser>()
-                .HasOne(u => u.Course)
-                .WithOne(p => p.User)
-                .HasForeignKey<Course>(p => p.UserId);
-
-            base.OnModelCreating(builder);
-        }
-
         /// <summary>
         /// Returns the fully populated <see cref="AdvantagePlatformUser"/> corresponding to the
         /// IdentityOptions.ClaimsIdentity.UserIdClaimType claim in the principal or null.
@@ -67,8 +52,10 @@ namespace AdvantagePlatform.Data
 
             return await Users
                 .Include(u => u.Course)
+                .ThenInclude(c => c.ResourceLinks)
                 .Include(u => u.People)
                 .Include(u => u.Platform)
+                .ThenInclude(p => p.ResourceLinks)
                 .Include(u => u.ResourceLinks)
                 .ThenInclude(r => r.Tool)
                 .Include(u => u.Tools)

@@ -24,7 +24,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 return;
             }
 
-            ResourceLinks = ResourceLinkModel.GetResourceLinks(user);
+            ResourceLinks = ResourceLinkModel.GetResourceLinks(user, null);
         }
     }
 }

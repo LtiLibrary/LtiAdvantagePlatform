@@ -95,18 +95,19 @@ namespace AdvantagePlatform.Pages.Tools
             await _identityContext.Clients.AddAsync(entity);
             await _identityContext.SaveChangesAsync();
 
-            var user = await _context.GetUserAsync(User);
             var tool = new Tool
             {
                 CustomProperties = Tool.CustomProperties,
                 DeploymentId = Tool.DeploymentId,
                 IdentityServerClientId = entity.Id,
                 Name = Tool.Name,
-                LaunchUrl = Tool.LaunchUrl,
-                User = user
+                LaunchUrl = Tool.LaunchUrl
             };
-
             await _context.Tools.AddAsync(tool);
+
+            var user = await _context.GetUserAsync(User);
+            user.Tools.Add(tool);
+
             await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");

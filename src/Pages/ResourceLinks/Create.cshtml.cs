@@ -43,7 +43,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 })
                 .ToList();
 
-            ToolPlacements = Enum.GetNames(typeof(ResourceLink.LinkContexts))
+            ToolPlacements = Enum.GetNames(typeof(ResourceLinkModel.LinkContexts))
                 .Select(t => new SelectListItem
                 {
                     Value = t,
@@ -72,17 +72,24 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             }
 
             var user = await _context.GetUserAsync(User);
-
+            var tool = await _context.Tools.FindAsync(ResourceLink.ToolId);
+            
             var resourceLink = new ResourceLink
             {
                 CustomProperties = ResourceLink.CustomProperties,
-                LinkContext = ResourceLink.LinkContext,
                 Title = ResourceLink.Title,
-                ToolId = ResourceLink.ToolId,
-                User = user
+                Tool = tool
             };
-
             _context.ResourceLinks.Add(resourceLink);
+            user.ResourceLinks.Add(resourceLink);
+            if (ResourceLink.LinkContext == ResourceLinkModel.LinkContexts.Course)
+            {
+                user.Course.ResourceLinks.Add(resourceLink);
+            }
+            else
+            {
+                user.Platform.ResourceLinks.Add(resourceLink);
+            }
             await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");
