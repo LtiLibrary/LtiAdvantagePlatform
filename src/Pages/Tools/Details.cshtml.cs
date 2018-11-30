@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using IdentityServer4.EntityFramework.Interfaces;
-using IdentityServer4.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;

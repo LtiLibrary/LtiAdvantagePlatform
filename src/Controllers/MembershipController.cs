@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using AdvantagePlatform.Areas.Identity.Pages.Account.Manage;
 using AdvantagePlatform.Data;
-using LtiAdvantage.AssignmentGradeServices;
 using LtiAdvantage.NamesRoleProvisioningService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -50,7 +50,7 @@ namespace AdvantagePlatform.Controllers
                 return result;
             }
 
-            result.MembershipContainer = new MembershipContainer()
+            result.MembershipContainer = new MembershipContainer
             {
                 Id = Request.GetDisplayUrl()
             };
@@ -64,7 +64,7 @@ namespace AdvantagePlatform.Controllers
                         ContextTitle = course.Name,
                         FamilyName = p.LastName,
                         GivenName = p.FirstName,
-                        Roles = Areas.Identity.Pages.Account.Manage.PeopleModel.ParsePersonRoles(p.Roles),
+                        Roles = PeopleModel.ParsePersonRoles(p.Roles),
                         Status = MemberStatus.Active,
                         LisPersonSourcedId = p.SisId,
                         UserId = p.Id

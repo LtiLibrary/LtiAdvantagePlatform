@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using AdvantagePlatform.Areas.Identity;
+using Microsoft.AspNetCore.Hosting;
 
-[assembly: HostingStartup(typeof(AdvantagePlatform.Areas.Identity.IdentityHostingStartup))]
+[assembly: HostingStartup(typeof(IdentityHostingStartup))]
 namespace AdvantagePlatform.Areas.Identity
 {
     public class IdentityHostingStartup : IHostingStartup

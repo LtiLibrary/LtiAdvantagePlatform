@@ -150,7 +150,7 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account
             var placeGenerator = new PlaceNameGenerator();
             var course = new Course
             {
-                Name = $"The People of {placeGenerator.GenerateRandomPlaceName()}",
+                Name = $"The People of {placeGenerator.GenerateRandomPlaceName()}"
             };
             course.SisId = course.GetHashCode().ToString();
             await context.Courses.AddAsync(course);
@@ -172,7 +172,7 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account
             {
                 FirstName = nameGenerator.GenerateRandomFirstName(),
                 LastName = nameGenerator.GenerateRandomLastName(),
-                Roles = string.Join(", ", Role.ContextInstructor.ToString(), Role.InstitutionFaculty.ToString()),
+                Roles = string.Join(", ", Role.ContextInstructor.ToString(), Role.InstitutionFaculty.ToString())
             };
             teacher.SisId = teacher.GetHashCode().ToString();
             teacher.Username = $"{teacher.FirstName.Substring(0, 1)}{teacher.LastName}".ToLowerInvariant();
@@ -182,10 +182,10 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account
             {
                 FirstName = nameGenerator.GenerateRandomFirstName(),
                 LastName = nameGenerator.GenerateRandomLastName(),
-                Roles = string.Join(", ", Role.ContextLearner.ToString(), Role.InstitutionLearner.ToString()),
+                Roles = string.Join(", ", Role.ContextLearner.ToString(), Role.InstitutionLearner.ToString())
             };
-            student.SisId = teacher.GetHashCode().ToString();
-            student.Username = $"{teacher.FirstName.Substring(0, 1)}{teacher.LastName}".ToLowerInvariant();
+            student.SisId = student.GetHashCode().ToString();
+            student.Username = $"{student.FirstName.Substring(0, 1)}{student.LastName}".ToLowerInvariant();
             await context.People.AddAsync(student);
 
             await context.SaveChangesAsync();

@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using AdvantagePlatform.Areas.Identity.Pages.Account.Manage;
 using AdvantagePlatform.Data;
 using AdvantagePlatform.Utility;
 using IdentityServer4;
@@ -159,7 +160,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
 
                 // Only include context roles if the launch includes
                 // a context.
-                request.Roles = Areas.Identity.Pages.Account.Manage.PeopleModel.ParsePersonRoles(person.Roles);
+                request.Roles = PeopleModel.ParsePersonRoles(person.Roles);
 
                 // Only include the Assignment and Grade Services claim if the launch includes a context.
                 request.AssignmentGradeServices = new AssignmentGradeServicesClaimValueType
@@ -190,7 +191,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             }
             else
             {
-                var roles = Areas.Identity.Pages.Account.Manage.PeopleModel.ParsePersonRoles(person.Roles);
+                var roles = PeopleModel.ParsePersonRoles(person.Roles);
                 request.Roles = roles.Where(r => !r.ToString().StartsWith("Context")).ToArray();
             }
 
