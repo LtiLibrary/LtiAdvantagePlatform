@@ -7,6 +7,12 @@ namespace AdvantagePlatform.Utility
     {
         public static bool TryConvertToDictionary(this string properties, out Dictionary<string, string> dictionary)
         {
+            dictionary = default(Dictionary<string, string>);
+            if (string.IsNullOrWhiteSpace(properties))
+            {
+                return false;
+            }
+
             dictionary = new Dictionary<string, string>();
 
             var lines = properties.Split(new []{'\n', '\r'}, StringSplitOptions.RemoveEmptyEntries);
