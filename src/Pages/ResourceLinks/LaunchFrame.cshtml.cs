@@ -197,7 +197,14 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             {
                 foreach (var property in linkDictionary)
                 {
-                    custom.Add(property.Key, property.Value);
+                    if (custom.ContainsKey(property.Key))
+                    {
+                        custom[property.Key] = property.Value;
+                    }
+                    else
+                    {
+                        custom.Add(property.Key, property.Value);
+                    }
                 }
             }
 

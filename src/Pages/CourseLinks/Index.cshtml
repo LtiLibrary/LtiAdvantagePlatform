@@ -1,0 +1,36 @@
+﻿@page
+@model IndexModel
+
+@{
+    ViewData["Title"] = "Course Links";
+}
+
+<div class="container-fluid">
+    <h4>@ViewData["Title"]</h4>
+    <p>
+        <a asp-page="Create">Create New</a>
+    </p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(m => m.ResourceLinks[0].Title)</th>
+                <th>@Html.DisplayNameFor(m => m.ResourceLinks[0].ToolName)</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.ResourceLinks)
+            {
+            <tr>
+                <td>@Html.DisplayFor(m => item.Title)</td>
+                <td>@Html.DisplayFor(m => item.ToolName)</td>
+                <td>
+                    <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>

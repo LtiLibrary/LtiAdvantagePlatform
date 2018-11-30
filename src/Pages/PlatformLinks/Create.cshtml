@@ -1,0 +1,48 @@
+﻿@page
+@model CreateModel
+
+@{
+    ViewData["Title"] = "Create Platform Link";
+}
+
+<div class="container-fluid">
+
+    <h4>@ViewData["Title"]</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-4">
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="ResourceLink.Title"></label>
+                    <input asp-for="ResourceLink.Title" class="form-control" />
+                    <span asp-validation-for="ResourceLink.Title" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ResourceLink.ToolId"></label>
+                    <select asp-for="ResourceLink.ToolId" asp-items="Model.Tools" asp- class="form-control">
+                        <option value="">Select a Tool</option>
+                    </select>
+                    <span asp-validation-for="ResourceLink.ToolId" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ResourceLink.CustomProperties"></label>
+                    <tooltip asp-for="ResourceLink.CustomProperties" html="true"></tooltip>
+                    <textarea asp-for="ResourceLink.CustomProperties" class="form-control text-monospace" rows="3"></textarea>
+                    <span asp-validation-for="ResourceLink.CustomProperties" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-secondary" />
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div>
+        <a asp-page="Index">Back to List</a>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

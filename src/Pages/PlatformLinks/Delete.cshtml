@@ -6,15 +6,13 @@
 }
 
 <div class="container-fluid">
-    <h4>Resource Link</h4>
+    <h4>Platform Link</h4>
     <hr />
     <dl>
         <dt>@Html.DisplayNameFor(m => m.ResourceLink.Title)</dt>
         <dd>@Model.ResourceLink.Title</dd>
         <dt>@Html.DisplayNameFor(m => m.ResourceLink.ToolName)</dt>
         <dd>@Model.ResourceLink.ToolName</dd>
-        <dt>@Html.DisplayNameFor(m => m.ResourceLink.LinkContext)</dt>
-        <dd>@Model.ResourceLink.LinkContext</dd>
         <dt>@Html.DisplayNameFor(m => m.ResourceLink.CustomProperties)</dt>
         <dd><pre>@(Model.ResourceLink.CustomProperties ?? "[Not Set]")</pre></dd>
     </dl>

@@ -1,0 +1,23 @@
+﻿@page
+@model DetailsModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<div class="container-fluid">
+    <h4>Platform Link</h4>
+    <hr />
+    <dl>
+        <dt>@Html.DisplayNameFor(m => m.ResourceLink.Title)</dt>
+        <dd>@Model.ResourceLink.Title</dd>
+        <dt>@Html.DisplayNameFor(m => m.ResourceLink.ToolName)</dt>
+        <dd>@Model.ResourceLink.ToolName</dd>
+        <dt>@Html.DisplayNameFor(m => m.ResourceLink.CustomProperties)</dt>
+        <dd><pre>@(Model.ResourceLink.CustomProperties ?? "[Not Set]")</pre></dd>
+    </dl>
+    <div>
+        <a asp-page="./Edit" asp-route-id="@Model.ResourceLink.Id">Edit</a> |
+        <a asp-page="./Index">Back to List</a>
+    </div>
+</div>

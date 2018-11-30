@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
+using AdvantagePlatform.Pages.ResourceLinks;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace AdvantagePlatform.Pages.ResourceLinks
+namespace AdvantagePlatform.Pages.CourseLinks
 {
     public class IndexModel : PageModel
     {
@@ -24,7 +25,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 return;
             }
 
-            ResourceLinks = ResourceLinkModel.GetResourceLinks(user, null);
+            ResourceLinks = ResourceLinkModel.GetResourceLinks(user.Course.ResourceLinks);
         }
     }
 }

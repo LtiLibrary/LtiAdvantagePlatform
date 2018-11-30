@@ -52,10 +52,12 @@ namespace AdvantagePlatform
                 })
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
+            // Use app specific cookie name so both AdvantagePlatform and AdvantageTool can run at the same time
             services.ConfigureApplicationCookie(options => { options.Cookie.Name = "AdvantagePlatform"; });
 
             services.AddMvc()
-                .AddRazorPagesOptions(options => { options.Conventions.AuthorizeFolder("/ResourceLinks"); })
+                .AddRazorPagesOptions(options => { options.Conventions.AuthorizeFolder("/CourseLinks"); })
+                .AddRazorPagesOptions(options => { options.Conventions.AuthorizeFolder("/PlatformLinks"); })
                 .AddRazorPagesOptions(options => { options.Conventions.AuthorizeFolder("/Tools"); })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 

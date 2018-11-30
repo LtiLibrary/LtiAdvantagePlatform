@@ -1,10 +1,11 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using AdvantagePlatform.Data;
+using AdvantagePlatform.Pages.ResourceLinks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using AdvantagePlatform.Data;
 
-namespace AdvantagePlatform.Pages.ResourceLinks
+namespace AdvantagePlatform.Pages.CourseLinks
 {
     public class DeleteModel : PageModel
     {
@@ -47,7 +48,6 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             {
                 Id = resourceLink.Id,
                 CustomProperties = resourceLink.CustomProperties,
-                LinkContext = user.Course.ResourceLinks.Any(l => l.Id == resourceLink.Id) ? ResourceLinkModel.LinkContexts.Course : ResourceLinkModel.LinkContexts.Platform,
                 Title = resourceLink.Title,
                 ToolName = tool.Name
             };

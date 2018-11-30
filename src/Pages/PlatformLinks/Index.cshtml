@@ -2,7 +2,7 @@
 @model IndexModel
 
 @{
-    ViewData["Title"] = "Resource Links";
+    ViewData["Title"] = "Platform Links";
 }
 
 <div class="container-fluid">
@@ -15,7 +15,6 @@
             <tr>
                 <th>@Html.DisplayNameFor(m => m.ResourceLinks[0].Title)</th>
                 <th>@Html.DisplayNameFor(m => m.ResourceLinks[0].ToolName)</th>
-                <th>@Html.DisplayNameFor(m => m.ResourceLinks[0].LinkContext)</th>
                 <th></th>
             </tr>
         </thead>
@@ -25,7 +24,6 @@
             <tr>
                 <td>@Html.DisplayFor(m => item.Title)</td>
                 <td>@Html.DisplayFor(m => item.ToolName)</td>
-                <td>@Html.DisplayFor(m => item.LinkContext)</td>
                 <td>
                     <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
                     <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |

@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
+using AdvantagePlatform.Pages.ResourceLinks;
 using AdvantagePlatform.Utility;
 using LtiAdvantage.IdentityServer4;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
-namespace AdvantagePlatform.Pages.ResourceLinks
+namespace AdvantagePlatform.Pages.PlatformLinks
 {
     public class EditModel : PageModel
     {
@@ -23,9 +23,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
 
         [BindProperty]
         public ResourceLinkModel ResourceLink { get; set; }
-
         public IList<SelectListItem> Tools { get; private set; }
-        public IList<SelectListItem> ToolPlacements { get; private set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -50,7 +48,6 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             {
                 Id = resourceLink.Id,
                 CustomProperties = resourceLink.CustomProperties,
-                LinkContext = user.Course.ResourceLinks.Any(l => l.Id == resourceLink.Id) ? ResourceLinkModel.LinkContexts.Course : ResourceLinkModel.LinkContexts.Platform,
                 Title = resourceLink.Title,
                 ToolId = resourceLink.Tool.Id
             };
@@ -61,14 +58,6 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 {
                     Text = tool.Name,
                     Value = tool.Id.ToString()
-                })
-                .ToList();
-
-            ToolPlacements = Enum.GetNames(typeof(ResourceLinkModel.LinkContexts))
-                .Select(t => new SelectListItem
-                {
-                    Value = t,
-                    Text = t
                 })
                 .ToList();
 
@@ -97,24 +86,6 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             resourceLink.CustomProperties = ResourceLink.CustomProperties;
             resourceLink.Title = ResourceLink.Title;
             resourceLink.Tool = tool;
-
-            // If the resourceLink changed, then move it to the right context
-            var user = await _context.GetUserAsync(User);
-            var oldCourse = user.Course.ResourceLinks.Any(l => l.Id == resourceLink.Id) ? user.Course : null;
-            var oldPlatform = user.Platform.ResourceLinks.Any(l => l.Id == resourceLink.Id) ? user.Platform : null;
-            var newCourse = ResourceLink.LinkContext == ResourceLinkModel.LinkContexts.Course ? user.Course : null;
-            var newPlatform = ResourceLink.LinkContext == ResourceLinkModel.LinkContexts.Platform ? user.Platform : null;
-            if (newCourse != oldCourse && oldPlatform != null && newCourse != null)
-            {
-                oldPlatform.ResourceLinks.Remove(resourceLink);
-                newCourse.ResourceLinks.Add(resourceLink);
-            }
-
-            if (newPlatform != oldPlatform && oldCourse != null && newPlatform != null)
-            {
-                oldCourse.ResourceLinks.Remove(resourceLink);
-                newPlatform.ResourceLinks.Add(resourceLink);
-            }
 
             _context.Attach(resourceLink).State = EntityState.Modified;
 
