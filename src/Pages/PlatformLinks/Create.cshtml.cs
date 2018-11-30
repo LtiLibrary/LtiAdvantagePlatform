@@ -71,7 +71,6 @@ namespace AdvantagePlatform.Pages.PlatformLinks
                 Tool = tool
             };
             _context.ResourceLinks.Add(resourceLink);
-            user.ResourceLinks.Add(resourceLink);
             user.Platform.ResourceLinks.Add(resourceLink);
             await _context.SaveChangesAsync();
 

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace AdvantagePlatform.Pages.ResourceLinks
@@ -39,7 +40,9 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 return NotFound();
             }
 
-            var resourceLink = user.ResourceLinks.SingleOrDefault(r => r.Id == id);
+            var resourceLink = await _context.ResourceLinks
+                .Include(l => l.Tool)
+                .SingleOrDefaultAsync(l => l.Id == id);
             if (resourceLink == null)
             {
                 _logger.LogError("Resource link not found.");

@@ -52,12 +52,12 @@ namespace AdvantagePlatform.Data
 
             return await Users
                 .Include(u => u.Course)
-                .ThenInclude(c => c.ResourceLinks)
+                    .ThenInclude(c => c.ResourceLinks)
+                        .ThenInclude(l => l.Tool)
                 .Include(u => u.People)
                 .Include(u => u.Platform)
-                .ThenInclude(p => p.ResourceLinks)
-                .Include(u => u.ResourceLinks)
-                .ThenInclude(r => r.Tool)
+                    .ThenInclude(p => p.ResourceLinks)
+                        .ThenInclude(l => l.Tool)
                 .Include(u => u.Tools)
                 .SingleOrDefaultAsync(u => u.Id == id);
         }

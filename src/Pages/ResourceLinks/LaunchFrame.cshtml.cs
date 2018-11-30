@@ -14,6 +14,7 @@ using LtiAdvantage.NamesRoleProvisioningService;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -60,7 +61,9 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 return NotFound();
             }
 
-            var resourceLink = user.ResourceLinks.SingleOrDefault(r => r.Id == id);
+            var resourceLink = await _context.ResourceLinks
+                .Include(l => l.Tool)
+                .SingleOrDefaultAsync(l => l.Id == id);
             if (resourceLink == null)
             {
                 return NotFound();

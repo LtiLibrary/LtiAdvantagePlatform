@@ -31,7 +31,7 @@ namespace AdvantagePlatform.Pages.PlatformLinks
                 return NotFound();
             }
 
-            var resourceLink = user.ResourceLinks.SingleOrDefault(r => r.Id == id);
+            var resourceLink = user.Platform.ResourceLinks.SingleOrDefault(r => r.Id == id);
             if (resourceLink == null)
             {
                 return NotFound();
