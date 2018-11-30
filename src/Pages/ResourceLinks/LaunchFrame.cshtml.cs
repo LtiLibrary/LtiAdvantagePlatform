@@ -14,6 +14,8 @@ using LtiAdvantage.NamesRoleProvisioningService;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace AdvantagePlatform.Pages.ResourceLinks
 {
@@ -22,15 +24,18 @@ namespace AdvantagePlatform.Pages.ResourceLinks
         private readonly ApplicationDbContext _context;
         private readonly IConfigurationDbContext _identityContext;
         private readonly IdentityServerTools _tools;
+        private readonly ILogger<LaunchFrameModel> _logger;
 
         public LaunchFrameModel(
             ApplicationDbContext context, 
             IConfigurationDbContext identityContext,
-            IdentityServerTools tools)
+            IdentityServerTools tools,
+            ILogger<LaunchFrameModel> logger)
         {
             _context = context;
             _identityContext = identityContext;
             _tools = tools;
+            _logger = logger;
         }
 
         public string IdToken { get; private set; }
@@ -87,6 +92,8 @@ namespace AdvantagePlatform.Pages.ResourceLinks
 
             IdToken = await GetJwtAsync(resourceLink, tool, client, person, course, platform);
             ToolUrl = tool.LaunchUrl;
+
+            _logger.LogInformation($"Launching tool at {ToolUrl}.");
 
             return Page();
         }
@@ -204,6 +211,8 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             };
 
             request.Custom = substitutions.ReplaceCustomPropertyValues(custom);
+
+            _logger.LogInformation($"Payload: {JsonConvert.SerializeObject(request, Formatting.Indented)}");
 
             return await _tools.IssueJwtAsync(3600, request.Claims);
         }
