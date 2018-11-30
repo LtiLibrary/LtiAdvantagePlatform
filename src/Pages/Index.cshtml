@@ -34,8 +34,8 @@
                         This will generate a Client ID which you copy to your Tool. 
                     </li>
                     <li>
-                        <a asp-page="./ResourceLinks/Index">Create a Resource Link</a> to 
-                        place your Tool in the Platform or Course context.
+                        <a asp-page="./CourseLinks/Index">Create a Course Link</a> to 
+                        place your Tool.
                     </li>
                     <li>
                         Launch your Tool as the Teacher or Student and watch your Tool appear!
@@ -74,11 +74,11 @@
                                     </dl>
                                 </div>
                                 <h6 class="font-weight-bold">
-                                    Resource Links
+                                    Platform Links
                                     <a class="btn text-light fas fa-edit"
                                        data-toggle="tooltip"
                                        title="Edit the platform resource links"
-                                       asp-page="./ResourceLinks/Index">
+                                       asp-page="./PlatformLinks/Index">
                                     </a>
                                 </h6>
                                 @if (Model.PlatformResourceLinks.Any())
@@ -169,11 +169,11 @@
                                             }
                                         </div>
                                         <h6 class="font-weight-bold">
-                                            Resource Links
+                                            Course Links
                                             <a class="btn text-light fas fa-edit"
                                                data-toggle="tooltip"
                                                title="Edit the course resource links"
-                                               asp-page="./ResourceLinks/Index">
+                                               asp-page="./CourseLinks/Index">
                                             </a>
                                         </h6>
                                         @if (Model.CourseResourceLinks.Any())
@@ -207,7 +207,7 @@
                                         }
                                         else
                                         {
-                                            <p>No resource links deployed to the course yet.</p>
+                                            <p>No resource links in the course yet.</p>
                                         }
                                     </div>
                                 </div>
