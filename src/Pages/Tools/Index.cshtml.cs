@@ -39,7 +39,7 @@ namespace AdvantagePlatform.Pages.Tools
             foreach (var tool in user.Tools.OrderBy(t => t.Name))
             {
                 var client = await _identityContext.Clients.FindAsync(tool.IdentityServerClientId);
-                var item = new ToolModel(tool, client);
+                var item = new ToolModel(Request.HttpContext, tool, client);
                 list.Add(item);
             }
 

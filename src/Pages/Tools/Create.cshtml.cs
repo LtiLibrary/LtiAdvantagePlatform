@@ -34,7 +34,7 @@ namespace AdvantagePlatform.Pages.Tools
         {
             // Create the Client for this tool registration
             var keyPair = PemHelper.GenerateRsaKeyPair();
-            Tool = new ToolModel
+            Tool = new ToolModel(Request.HttpContext)
             {
                 ClientId = CryptoRandom.CreateUniqueId(8),
                 PrivateKey = keyPair.PrivateKey,
@@ -101,7 +101,8 @@ namespace AdvantagePlatform.Pages.Tools
                 DeploymentId = Tool.DeploymentId,
                 IdentityServerClientId = entity.Id,
                 Name = Tool.Name,
-                LaunchUrl = Tool.LaunchUrl
+                LaunchUrl = Tool.LaunchUrl,
+                LoginUrl = Tool.LoginUrl
             };
             await _context.Tools.AddAsync(tool);
 

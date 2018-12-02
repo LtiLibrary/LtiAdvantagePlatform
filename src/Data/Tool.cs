@@ -24,9 +24,14 @@
         public int IdentityServerClientId { get; set; }
 
         /// <summary>
-        /// The URL used to launch the Tool.
+        /// The endpoint URL used to launch the Tool.
         /// </summary>
         public string LaunchUrl { get; set; }
+
+        /// <summary>
+        /// The endpoint URL used to initiate OIDC authorization..
+        /// </summary>
+        public string LoginUrl { get; set; }
 
         /// <summary>
         /// The Tool name.

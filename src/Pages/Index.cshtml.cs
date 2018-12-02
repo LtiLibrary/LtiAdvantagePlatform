@@ -50,7 +50,7 @@ namespace AdvantagePlatform.Pages
             {
                 var client = await _identityConfig.Clients.FindAsync(tool.IdentityServerClientId);
 
-                list.Add(new ToolModel
+                list.Add(new ToolModel(Request.HttpContext)
                 {
                     ClientId = client.ClientId,
                     DeploymentId = tool.DeploymentId,

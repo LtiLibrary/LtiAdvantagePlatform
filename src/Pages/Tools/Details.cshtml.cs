@@ -50,7 +50,7 @@ namespace AdvantagePlatform.Pages.Tools
                 return NotFound();
             }
 
-            Tool = new ToolModel(tool, client);
+            Tool = new ToolModel(Request.HttpContext, tool, client);
 
             return Page();
         }

@@ -20,27 +20,14 @@
                         <dd>@Model.Tool.Name</dd>
                         <dt>@Html.DisplayNameFor(model => model.Tool.LaunchUrl)</dt>
                         <dd>@Model.Tool.LaunchUrl</dd>
+                        <dt>@Html.DisplayNameFor(model => model.Tool.LoginUrl)</dt>
+                        <dd>@Model.Tool.LoginUrl</dd>
                         <dt>@Html.DisplayNameFor(m => m.Tool.CustomProperties)</dt>
                         <dd><pre>@(Model.Tool.CustomProperties ?? "[Not Set]")</pre></dd>
                         <dt>@Html.DisplayNameFor(model => model.Tool.ClientId)</dt>
                         <dd>@Model.Tool.ClientId</dd>
-                    </dl>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-6 mb-3">
-            <div class="card">
-                <h5 class="card-header bg-secondary text-light">Platform Settings</h5>
-                <div class="card-body">
-                    <dl>
-                        <dt>@Html.DisplayNameFor(model => model.Tool.DeploymentId)</dt>
+                        <dt>@Html.DisplayNameFor(m => m.Tool.DeploymentId)</dt>
                         <dd>@Model.Tool.DeploymentId</dd>
-                        <dt>Issuer</dt>
-                        <dd>@(Request.HttpContext.GetIdentityServerIssuerUri())</dd>
-                        <dt>Access Token URL</dt>
-                        <dd>@(Request.HttpContext.GetIdentityServerIssuerUri().EnsureTrailingSlash())token</dd>
-                        <dt>JWK Set URL</dt>
-                        <dd>@(Request.HttpContext.GetIdentityServerIssuerUri().EnsureTrailingSlash()).well-known/openid-configuration/jwks</dd>
                     </dl>
                 </div>
             </div>

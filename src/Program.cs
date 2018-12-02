@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace AdvantagePlatform
 {
@@ -12,6 +13,7 @@ namespace AdvantagePlatform
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .ConfigureLogging((builder, logging) => { logging.AddDebug(); })
                 .UseStartup<Startup>();
     }
 }

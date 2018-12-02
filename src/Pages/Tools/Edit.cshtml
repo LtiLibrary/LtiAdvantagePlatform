@@ -1,6 +1,4 @@
 ﻿@page
-@using IdentityServer4.Extensions
-@using LtiAdvantage.IdentityServer4
 @model EditModel
 
 @{
@@ -31,6 +29,12 @@
                             <span asp-validation-for="Tool.LaunchUrl" class="text-danger"></span>
                         </div>
                         <div class="form-group">
+                            <label asp-for="Tool.LoginUrl"></label>
+                            <tooltip asp-for="Tool.LoginUrl"></tooltip>
+                            <input asp-for="Tool.LoginUrl" class="form-control" />
+                            <span asp-validation-for="Tool.LoginUrl" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
                             <label asp-for="Tool.CustomProperties"></label>
                             <tooltip asp-for="Tool.CustomProperties"></tooltip>
                             <textarea asp-for="Tool.CustomProperties" class="form-control text-monospace" rows="3" placeholder="Put each name=value pair on a separate line."></textarea>
@@ -47,6 +51,11 @@
                             <textarea asp-for="Tool.PrivateKey" class="form-control text-monospace small" rows="5" placeholder="Enter the private key in PEM format."></textarea>
                             <span asp-validation-for="Tool.PrivateKey" class="text-danger"></span>
                         </div>
+                        <div class="form-group">
+                            <label asp-for="Tool.DeploymentId"></label>
+                            <tooltip asp-for="Tool.DeploymentId"></tooltip>
+                            <input asp-for="Tool.DeploymentId" class="form-control" readonly="readonly" />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -56,15 +65,16 @@
                         Platform Settings
                     </h5>
                     <div class="card-body">
+                        <p>For reference when you register this platform in your tool.</p>
                         <dl>
-                            <dt>@Html.DisplayNameFor(m => m.Tool.DeploymentId)</dt>
-                            <dd>@Model.Tool.DeploymentId</dd>
-                            <dt>Issuer</dt>
-                            <dd>@(Request.HttpContext.GetIdentityServerIssuerUri())</dd>
-                            <dt>Access Token URL</dt>
-                            <dd>@(Request.HttpContext.GetIdentityServerIssuerUri().EnsureTrailingSlash())token</dd>
-                            <dt>JWK Set URL</dt>
-                            <dd>@(Request.HttpContext.GetIdentityServerIssuerUri().EnsureTrailingSlash()).well-known/openid-configuration/jwks</dd>
+                            <dt>@Html.DisplayNameFor(m => m.Tool.Issuer)</dt>
+                            <dd>@Model.Tool.Issuer</dd>
+                            <dt>@Html.DisplayNameFor(m => m.Tool.TokenUrl)</dt>
+                            <dd>@Model.Tool.TokenUrl</dd>
+                            <dt>@Html.DisplayNameFor(m => m.Tool.AuthorizeUrl)</dt>
+                            <dd>@Model.Tool.AuthorizeUrl</dd>
+                            <dt>@Html.DisplayNameFor(m => m.Tool.JwkSetUrl)</dt>
+                            <dd>@Model.Tool.JwkSetUrl</dd>
                         </dl>
                     </div>
                 </div>

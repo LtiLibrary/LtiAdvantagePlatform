@@ -55,7 +55,7 @@ namespace AdvantagePlatform.Pages.Tools
                 return NotFound();
             }
 
-            Tool = new ToolModel(tool, client);
+            Tool = new ToolModel(Request.HttpContext, tool, client);
 
             return Page();
         }
@@ -80,6 +80,7 @@ namespace AdvantagePlatform.Pages.Tools
             var tool = await _context.Tools.FindAsync(Tool.Id);
             tool.CustomProperties = Tool.CustomProperties;
             tool.LaunchUrl = Tool.LaunchUrl;
+            tool.LoginUrl = Tool.LoginUrl;
             tool.Name = Tool.Name;
 
             _context.Tools.Attach(tool).State = EntityState.Modified;

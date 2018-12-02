@@ -1,6 +1,4 @@
 ﻿@page
-@using IdentityServer4.Extensions
-@using LtiAdvantage.IdentityServer4
 @model DetailsModel
 
 @{
@@ -21,6 +19,8 @@
                         <dd>@Model.Tool.Name</dd>
                         <dt>@Html.DisplayNameFor(m => m.Tool.LaunchUrl)</dt>
                         <dd>@Model.Tool.LaunchUrl</dd>
+                        <dt>@Html.DisplayNameFor(m => m.Tool.LoginUrl)</dt>
+                        <dd>@Model.Tool.LoginUrl</dd>
                         <dt>
                             @Html.DisplayNameFor(m => m.Tool.CustomProperties)
                             <tooltip asp-for="Tool.CustomProperties"></tooltip>
@@ -32,9 +32,12 @@
                             @Html.DisplayNameFor(m => m.Tool.PrivateKey)
                             <tooltip asp-for="Tool.PrivateKey"></tooltip>
                         </dt>
-                        <dd>
-                            <pre class="securitykey">@Model.Tool.PrivateKey</pre>
-                        </dd>
+                        <dd><pre class="securitykey">@Model.Tool.PrivateKey</pre></dd>
+                        <dt>
+                            @Html.DisplayNameFor(m => m.Tool.DeploymentId)
+                            <tooltip asp-for="Tool.DeploymentId"></tooltip>
+                        </dt>
+                        <dd>@Model.Tool.DeploymentId</dd>
                     </dl>
                 </div>
             </div>
@@ -45,15 +48,16 @@
                     Platform Settings
                 </h5>
                 <div class="card-body">
+                    <p>For reference when you register this platform in your tool.</p>
                     <dl>
-                        <dt>@Html.DisplayNameFor(m => m.Tool.DeploymentId)</dt>
-                        <dd>@Model.Tool.DeploymentId</dd>
-                        <dt>Issuer</dt>
-                        <dd>@(Request.HttpContext.GetIdentityServerIssuerUri())</dd>
-                        <dt>Access Token URL</dt>
-                        <dd>@(Request.HttpContext.GetIdentityServerIssuerUri().EnsureTrailingSlash())token</dd>
-                        <dt>JWK Set URL</dt>
-                        <dd>@(Request.HttpContext.GetIdentityServerIssuerUri().EnsureTrailingSlash()).well-known/openid-configuration/jwks</dd>
+                        <dt>@Html.DisplayNameFor(m => m.Tool.Issuer)</dt>
+                        <dd>@Model.Tool.Issuer</dd>
+                        <dt>@Html.DisplayNameFor(m => m.Tool.TokenUrl)</dt>
+                        <dd>@Model.Tool.TokenUrl</dd>
+                        <dt>@Html.DisplayNameFor(m => m.Tool.AuthorizeUrl)</dt>
+                        <dd>@Model.Tool.AuthorizeUrl</dd>
+                        <dt>@Html.DisplayNameFor(m => m.Tool.JwkSetUrl)</dt>
+                        <dd>@Model.Tool.JwkSetUrl</dd>
                     </dl>
                 </div>
             </div>

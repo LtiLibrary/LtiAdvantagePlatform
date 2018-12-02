@@ -36,8 +36,8 @@
                     @if (User.Identity.IsAuthenticated)
                     {
                         <li class="nav-item @MainNavPages.ToolsNavClass(ViewContext)"><a class="nav-link" asp-page="/Tools/Index">Tools</a></li>
-                        <li class="nav-item @MainNavPages.CourseLinksNavClass(ViewContext)"><a class="nav-link" asp-page="/CourseLinks/Index">Course Links</a></li>
                         <li class="nav-item @MainNavPages.PlatformLinksNavClass(ViewContext)"><a class="nav-link" asp-page="/PlatformLinks/Index">Platform Links</a></li>
+                        <li class="nav-item @MainNavPages.CourseLinksNavClass(ViewContext)"><a class="nav-link" asp-page="/CourseLinks/Index">Course Links</a></li>
                     }
                     <li class="nav-item @MainNavPages.AboutNavClass(ViewContext)"><a class="nav-link" asp-page="/About">About</a></li>
                 </ul>

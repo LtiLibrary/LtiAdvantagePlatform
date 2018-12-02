@@ -9,10 +9,16 @@ namespace AdvantagePlatform
         // scopes define the resources in your system
         public static IEnumerable<IdentityResource> GetIdentityResources()
         {
+            var lti = new IdentityResource(
+                name: "lti",
+                displayName: "LTI Advantage",
+                claimTypes: new []{ "FullName" });
+
             return new List<IdentityResource>
             {
                 new IdentityResources.OpenId(),
-                new IdentityResources.Profile()
+                new IdentityResources.Profile(),
+                lti
             };
         }
 
