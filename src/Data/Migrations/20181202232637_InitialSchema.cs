@@ -2,9 +2,9 @@
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace AdvantagePlatform.Migrations
+namespace AdvantagePlatform.Data.Migrations
 {
-    public partial class InitialApplicationSchema : Migration
+    public partial class InitialSchema : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -26,7 +26,8 @@ namespace AdvantagePlatform.Migrations
                 name: "Courses",
                 columns: table => new
                 {
-                    Id = table.Column<string>(nullable: false),
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     SisId = table.Column<string>(nullable: true),
                     Name = table.Column<string>(nullable: false)
                 },
@@ -39,7 +40,8 @@ namespace AdvantagePlatform.Migrations
                 name: "Platforms",
                 columns: table => new
                 {
-                    Id = table.Column<string>(nullable: false),
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     ContactEmail = table.Column<string>(nullable: true),
                     Description = table.Column<string>(nullable: true),
                     Guid = table.Column<string>(nullable: true),
@@ -93,8 +95,8 @@ namespace AdvantagePlatform.Migrations
                     LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
                     LockoutEnabled = table.Column<bool>(nullable: false),
                     AccessFailedCount = table.Column<int>(nullable: false),
-                    CourseId = table.Column<string>(nullable: true),
-                    PlatformId = table.Column<string>(nullable: true)
+                    CourseId = table.Column<int>(nullable: true),
+                    PlatformId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -202,7 +204,8 @@ namespace AdvantagePlatform.Migrations
                 name: "People",
                 columns: table => new
                 {
-                    Id = table.Column<string>(nullable: false),
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Email = table.Column<string>(nullable: true),
                     FirstName = table.Column<string>(nullable: true),
                     LastName = table.Column<string>(nullable: true),
@@ -232,6 +235,7 @@ namespace AdvantagePlatform.Migrations
                     DeploymentId = table.Column<string>(nullable: true),
                     IdentityServerClientId = table.Column<int>(nullable: false),
                     LaunchUrl = table.Column<string>(nullable: true),
+                    LoginUrl = table.Column<string>(nullable: true),
                     Name = table.Column<string>(nullable: true),
                     AdvantagePlatformUserId = table.Column<string>(nullable: true)
                 },
@@ -255,19 +259,12 @@ namespace AdvantagePlatform.Migrations
                     CustomProperties = table.Column<string>(nullable: true),
                     Title = table.Column<string>(nullable: true),
                     ToolId = table.Column<int>(nullable: true),
-                    CourseId = table.Column<string>(nullable: true),
-                    AdvantagePlatformUserId = table.Column<string>(nullable: true),
-                    PlatformId = table.Column<string>(nullable: true)
+                    CourseId = table.Column<int>(nullable: true),
+                    PlatformId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ResourceLinks", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ResourceLinks_AspNetUsers_AdvantagePlatformUserId",
-                        column: x => x.AdvantagePlatformUserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_ResourceLinks_Courses_CourseId",
                         column: x => x.CourseId,
@@ -284,6 +281,38 @@ namespace AdvantagePlatform.Migrations
                         name: "FK_ResourceLinks_Tools_ToolId",
                         column: x => x.ToolId,
                         principalTable: "Tools",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "GradebookColumns",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    EndDateTime = table.Column<DateTime>(nullable: true),
+                    Label = table.Column<string>(nullable: true),
+                    ResourceLinkId = table.Column<int>(nullable: true),
+                    ResourceId = table.Column<string>(nullable: true),
+                    ScoreMaximum = table.Column<double>(nullable: true),
+                    StartDateTime = table.Column<DateTime>(nullable: true),
+                    Tag = table.Column<string>(nullable: true),
+                    CourseId = table.Column<int>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GradebookColumns", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_GradebookColumns_Courses_CourseId",
+                        column: x => x.CourseId,
+                        principalTable: "Courses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_GradebookColumns_ResourceLinks_ResourceLinkId",
+                        column: x => x.ResourceLinkId,
+                        principalTable: "ResourceLinks",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -338,13 +367,18 @@ namespace AdvantagePlatform.Migrations
                 column: "PlatformId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_People_AdvantagePlatformUserId",
-                table: "People",
-                column: "AdvantagePlatformUserId");
+                name: "IX_GradebookColumns_CourseId",
+                table: "GradebookColumns",
+                column: "CourseId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ResourceLinks_AdvantagePlatformUserId",
-                table: "ResourceLinks",
+                name: "IX_GradebookColumns_ResourceLinkId",
+                table: "GradebookColumns",
+                column: "ResourceLinkId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_People_AdvantagePlatformUserId",
+                table: "People",
                 column: "AdvantagePlatformUserId");
 
             migrationBuilder.CreateIndex(
@@ -386,13 +420,16 @@ namespace AdvantagePlatform.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "GradebookColumns");
+
+            migrationBuilder.DropTable(
                 name: "People");
 
             migrationBuilder.DropTable(
-                name: "ResourceLinks");
+                name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetRoles");
+                name: "ResourceLinks");
 
             migrationBuilder.DropTable(
                 name: "Tools");

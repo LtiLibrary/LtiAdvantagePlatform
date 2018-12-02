@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace AdvantagePlatform.Migrations
+namespace AdvantagePlatform.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20181201215239_AddLoginUrl")]
-    partial class AddLoginUrl
+    [Migration("20181202232637_InitialSchema")]
+    partial class InitialSchema
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -31,7 +31,7 @@ namespace AdvantagePlatform.Migrations
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken();
 
-                    b.Property<string>("CourseId");
+                    b.Property<int?>("CourseId");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256);
@@ -54,7 +54,7 @@ namespace AdvantagePlatform.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed");
 
-                    b.Property<string>("PlatformId");
+                    b.Property<int?>("PlatformId");
 
                     b.Property<string>("SecurityStamp");
 
@@ -82,8 +82,9 @@ namespace AdvantagePlatform.Migrations
 
             modelBuilder.Entity("AdvantagePlatform.Data.Course", b =>
                 {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Name")
                         .IsRequired();
@@ -95,10 +96,42 @@ namespace AdvantagePlatform.Migrations
                     b.ToTable("Courses");
                 });
 
+            modelBuilder.Entity("AdvantagePlatform.Data.GradebookColumn", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int?>("CourseId");
+
+                    b.Property<DateTime?>("EndDateTime");
+
+                    b.Property<string>("Label");
+
+                    b.Property<string>("ResourceId");
+
+                    b.Property<int?>("ResourceLinkId");
+
+                    b.Property<double?>("ScoreMaximum");
+
+                    b.Property<DateTime?>("StartDateTime");
+
+                    b.Property<string>("Tag");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("ResourceLinkId");
+
+                    b.ToTable("GradebookColumns");
+                });
+
             modelBuilder.Entity("AdvantagePlatform.Data.Person", b =>
                 {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("AdvantagePlatformUserId");
 
@@ -123,8 +156,9 @@ namespace AdvantagePlatform.Migrations
 
             modelBuilder.Entity("AdvantagePlatform.Data.Platform", b =>
                 {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("ContactEmail");
 
@@ -151,11 +185,11 @@ namespace AdvantagePlatform.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("CourseId");
+                    b.Property<int?>("CourseId");
 
                     b.Property<string>("CustomProperties");
 
-                    b.Property<string>("PlatformId");
+                    b.Property<int?>("PlatformId");
 
                     b.Property<string>("Title");
 
@@ -322,6 +356,17 @@ namespace AdvantagePlatform.Migrations
                     b.HasOne("AdvantagePlatform.Data.Platform", "Platform")
                         .WithMany()
                         .HasForeignKey("PlatformId");
+                });
+
+            modelBuilder.Entity("AdvantagePlatform.Data.GradebookColumn", b =>
+                {
+                    b.HasOne("AdvantagePlatform.Data.Course")
+                        .WithMany("GradebookColumns")
+                        .HasForeignKey("CourseId");
+
+                    b.HasOne("AdvantagePlatform.Data.ResourceLink", "ResourceLink")
+                        .WithMany()
+                        .HasForeignKey("ResourceLinkId");
                 });
 
             modelBuilder.Entity("AdvantagePlatform.Data.Person", b =>

@@ -1,18 +1,12 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace AdvantagePlatform.Data
 {
     public class Person
     {
-        public Person()
-        {
-            Id = Guid.NewGuid().ToString("N");
-        }
-
         [Required]
         [Display(Name = "ID")]
-        public string Id { get; set; }
+        public int Id { get; set; }
 
         [Display(Name = "Email")]
         public string Email { get; set; }

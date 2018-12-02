@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
@@ -64,6 +65,7 @@ namespace AdvantagePlatform.Pages.CourseLinks
             var user = await _context.GetUserAsync(User);
             var tool = await _context.Tools.FindAsync(ResourceLink.ToolId);
             
+            // Add the resource link to the course
             var resourceLink = new ResourceLink
             {
                 CustomProperties = ResourceLink.CustomProperties,
@@ -72,6 +74,20 @@ namespace AdvantagePlatform.Pages.CourseLinks
             };
             _context.ResourceLinks.Add(resourceLink);
             user.Course.ResourceLinks.Add(resourceLink);
+
+            // And add a gradebook column to the course
+            var gradebookColumn = new GradebookColumn
+            {
+                EndDateTime = DateTime.UtcNow.AddMonths(3),
+                Label = ResourceLink.Title,
+                ResourceLink = resourceLink,
+                ScoreMaximum = 100,
+                StartDateTime = DateTime.UtcNow,
+                Tag = tool.Name
+            };
+            _context.GradebookColumns.Add(gradebookColumn);
+            user.Course.GradebookColumns.Add(gradebookColumn);
+
             await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");

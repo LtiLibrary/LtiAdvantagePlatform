@@ -6,6 +6,9 @@
     /// </summary>
     public class ResourceLink
     {
+        /// <summary>
+        /// Primary key.
+        /// </summary>
         public int Id { get; set; }
         
         /// <summary>

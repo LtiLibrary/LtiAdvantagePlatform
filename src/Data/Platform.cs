@@ -6,13 +6,8 @@ namespace AdvantagePlatform.Data
 {
     public class Platform
     {
-        public Platform()
-        {
-            Id = System.Guid.NewGuid().ToString("N");
-        }
-
         [Display(Name = "ID")]
-        public string Id { get; set; }
+        public int Id { get; set; }
 
         [EmailAddress]
         [Display(Name = "Contact Email")]

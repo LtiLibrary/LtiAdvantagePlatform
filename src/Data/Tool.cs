@@ -6,6 +6,9 @@
     /// </summary>
     public class Tool
     {
+        /// <summary>
+        /// Primary key.
+        /// </summary>
         public int Id { get; set; }
 
         /// <summary>

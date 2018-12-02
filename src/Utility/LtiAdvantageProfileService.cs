@@ -66,6 +66,9 @@ namespace AdvantagePlatform.Utility
                     return;
                 }
 
+                // It's OK to not have a gradebook column
+                var gradebookColumn = await _context.GetGradebookColumnByResourceLinkAsync(resourceLinkId);
+
                 var tool = resourceLink.Tool;
                 if (tool == null)
                 {
@@ -80,7 +83,7 @@ namespace AdvantagePlatform.Utility
                     return;
                 }
 
-                var course = await _context.GetCourseByResourceLink(resourceLink.Id);
+                var course = await _context.GetCourseByResourceLinkAsync(resourceLink.Id);
 
                 var user = await _context.GetUserByResourceLink(resourceLink.Id);
                 if (user == null)
@@ -89,7 +92,7 @@ namespace AdvantagePlatform.Utility
                     return;
                 }
 
-                context.IssuedClaims = GetLtiClaimsAsync(resourceLink, tool, person, course, user.Platform);
+                context.IssuedClaims = GetLtiClaimsAsync(resourceLink, gradebookColumn, tool, person, course, user.Platform);
             }
         }
 
@@ -108,6 +111,7 @@ namespace AdvantagePlatform.Utility
         /// Returns a list LTI Advantage claims.
         /// </summary>
         /// <param name="resourceLink">The resource link.</param>
+        /// <param name="gradebookColumn">The gradebool column for this resource link.</param>
         /// <param name="tool">The tool.</param>
         /// <param name="person">The person being authorized.</param>
         /// <param name="course">The course (can be null).</param>
@@ -115,6 +119,7 @@ namespace AdvantagePlatform.Utility
         /// <returns></returns>
         private List<Claim> GetLtiClaimsAsync(
             ResourceLink resourceLink,
+            GradebookColumn gradebookColumn,
             Tool tool,
             Person person,
             Course course,
@@ -138,12 +143,12 @@ namespace AdvantagePlatform.Utility
                     PersonSourcedId = person.SisId,
                     CourseSectionSourcedId = course?.SisId
                 },
-                Lti11LegacyUserId = person.Id,
+                Lti11LegacyUserId = person.Id.ToString(),
                 Platform = new PlatformClaimValueType
                 {
                     ContactEmail = platform.ContactEmail,
                     Description = platform.Description,
-                    Guid = platform.Id,
+                    Guid = platform.Id.ToString(),
                     Name = platform.Name,
                     ProductFamilyCode = platform.ProductFamilyCode,
                     Url = platform.Url,
@@ -164,7 +169,7 @@ namespace AdvantagePlatform.Utility
             {
                 request.Context = new ContextClaimValueType
                 {
-                    Id = course.Id,
+                    Id = course.Id.ToString(),
                     Title = course.Name,
                     Type = new[] { ContextType.CourseSection }
                 };
@@ -180,7 +185,7 @@ namespace AdvantagePlatform.Utility
                     {
                         LtiAdvantage.Constants.LtiScopes.AgsLineItem
                     },
-                    LineItem = $"{httpRequest.Scheme}://{httpRequest.Host}".EnsureTrailingSlash()+$"context/{course.Id}/lineitems/{resourceLink.Id}",
+                    LineItem = gradebookColumn == null ? null : $"{httpRequest.Scheme}://{httpRequest.Host}".EnsureTrailingSlash()+$"context/{course.Id}/lineitems/{gradebookColumn.Id}",
                     LineItems = $"{httpRequest.Scheme}://{httpRequest.Host}".EnsureTrailingSlash()+$"context/{course.Id}/lineitems"
                 };
 

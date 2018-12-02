@@ -17,31 +17,32 @@ namespace AdvantagePlatform.Controllers
     /// </summary>
     public class MembershipController : MembershipControllerBase
     {
-        private readonly ApplicationDbContext _appContext;
+        private readonly ApplicationDbContext _context;
 
-        public MembershipController(ILogger<MembershipControllerBase> logger, ApplicationDbContext appContext) : base(logger)
+        public MembershipController(ILogger<MembershipControllerBase> logger, ApplicationDbContext context) : base(logger)
         {
-            _appContext = appContext;
+            _context = context;
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Sample implementation of OnGetMembershipAsync returns both members of the
         /// sample course. This sample ignores limit, rlid, and role parameters.
         /// </summary>
-        /// <param name="request">The <see cref="GetMembershipRequest"/> including the course id.</param>
+        /// <param name="request">The <see cref="T:LtiAdvantage.NamesRoleProvisioningService.GetMembershipRequest" /> including the course id.</param>
         /// <returns>The members of the sample course.</returns>
         protected override async Task<MembershipContainerResult> OnGetMembershipAsync(GetMembershipRequest request)
         {
             var result = new MembershipContainerResult(StatusCodes.Status200OK);
 
-            var course = await _appContext.Courses.FindAsync(request.ContextId);
+            var course = await _context.GetCourseByContextIdAsync(request.ContextId);
             if (course == null)
             {
                 result.StatusCode = StatusCodes.Status404NotFound;
                 return result;
             }
 
-            var user = await _appContext.Users
+            var user = await _context.Users
                 .Include(u => u.People)
                 .SingleOrDefaultAsync(u => u.Course == course);
             if (user == null)
@@ -55,7 +56,7 @@ namespace AdvantagePlatform.Controllers
                 Id = Request.GetDisplayUrl(),
                 Context = new Context
                 {
-                    Id = course.Id,
+                    Id = course.Id.ToString(),
                     Title = course.Name
                 }
             };
@@ -70,7 +71,7 @@ namespace AdvantagePlatform.Controllers
                         Roles = PeopleModel.ParsePersonRoles(p.Roles),
                         Status = MemberStatus.Active,
                         LisPersonSourcedId = p.SisId,
-                        UserId = p.Id
+                        UserId = p.Id.ToString()
                     })
                     .ToList();
             }

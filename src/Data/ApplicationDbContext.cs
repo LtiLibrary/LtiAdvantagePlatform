@@ -16,6 +16,7 @@ namespace AdvantagePlatform.Data
         }
 
         public DbSet<Course> Courses { get; set; }
+        public DbSet<GradebookColumn> GradebookColumns { get; set; }
         public DbSet<Person> People { get; set; }
         public DbSet<Platform> Platforms { get; set; }
         public DbSet<ResourceLink> ResourceLinks { get; set; }
@@ -72,6 +73,9 @@ namespace AdvantagePlatform.Data
                 .Include(u => u.Course)
                     .ThenInclude(c => c.ResourceLinks)
                         .ThenInclude(l => l.Tool)
+                .Include(u => u.Course)
+                    .ThenInclude(c => c.GradebookColumns)
+                        .ThenInclude(c => c.ResourceLink)
                 .Include(u => u.People)
                 .Include(u => u.Platform)
                     .ThenInclude(p => p.ResourceLinks)
@@ -90,24 +94,61 @@ namespace AdvantagePlatform.Data
             return principal.FindFirstValue("sub");
         }
 
-        public async Task<Person> GetPersonAsync(string id)
+        public async Task<Person> GetPersonAsync(string personId)
         {
-            if (string.IsNullOrWhiteSpace(id))
+            if (!int.TryParse(personId, out var id))
             {
-                throw new ArgumentNullException(nameof(id));
+                throw new ArgumentException($"{nameof(personId)} is not an integer.");
             }
 
             return await People.FindAsync(id);
         }
 
-        public async Task<Course> GetCourseByResourceLink(int? id)
+        public async Task<Course> GetCourseAsync(int? id)
         {
             if (id == null)
             {
                 throw new ArgumentNullException(nameof(id));
             }
 
-            return await Courses.SingleOrDefaultAsync(c => c.ResourceLinks.Any(l => l.Id == id));
+            return await Courses
+                .Include(c => c.GradebookColumns)
+                    .ThenInclude(c => c.ResourceLink)
+                .Include(c => c.ResourceLinks)
+                    .ThenInclude(l => l.Tool)
+                .SingleOrDefaultAsync(c => c.Id == id);
+        }
+
+        public async Task<Course> GetCourseByContextIdAsync(string contextId)
+        {
+            if (!int.TryParse(contextId, out int id))
+            {
+                throw new ArgumentException($"{nameof(contextId)} is not an integer.");
+            }
+
+            return await GetCourseAsync(id);
+        }
+
+        public async Task<Course> GetCourseByResourceLinkAsync(int? resourceLinkId)
+        {
+            if (resourceLinkId == null)
+            {
+                throw new ArgumentNullException(nameof(resourceLinkId));
+            }
+
+            var course = await Courses.SingleOrDefaultAsync(c => c.ResourceLinks.Any(l => l.Id == resourceLinkId));
+
+            return course == null ? null  : await GetCourseAsync(course.Id);
+        }
+
+        public async Task<GradebookColumn> GetGradebookColumnByResourceLinkAsync(int? resourceLinkId)
+        {
+            if (resourceLinkId == null)
+            {
+                throw new ArgumentNullException(nameof(resourceLinkId));
+            }
+
+            return await GradebookColumns.SingleOrDefaultAsync(c => c.ResourceLink.Id == resourceLinkId);
         }
 
         public async Task<Platform> GetPlatformByResourceLink(int? id)
@@ -128,7 +169,7 @@ namespace AdvantagePlatform.Data
             }
 
             // Find the course or platform that includes the resource link
-            var course = await GetCourseByResourceLink(id);
+            var course = await GetCourseByResourceLinkAsync(id);
             if (course != null)
             {
                 return await GetUserByCourse(course.Id);
@@ -143,9 +184,9 @@ namespace AdvantagePlatform.Data
             return null;
         }
 
-        private async Task<AdvantagePlatformUser> GetUserByCourse(string id)
+        private async Task<AdvantagePlatformUser> GetUserByCourse(int? id)
         {
-            if (string.IsNullOrWhiteSpace(id))
+            if (id == null)
             {
                 throw new ArgumentNullException(nameof(id));
             }
@@ -162,9 +203,9 @@ namespace AdvantagePlatform.Data
             return null;
         }
 
-        private async Task<AdvantagePlatformUser> GetUserByPlatform(string id)
+        private async Task<AdvantagePlatformUser> GetUserByPlatform(int? id)
         {
-            if (string.IsNullOrWhiteSpace(id))
+            if (id == null)
             {
                 throw new ArgumentNullException(nameof(id));
             }
