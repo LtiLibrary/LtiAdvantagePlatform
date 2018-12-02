@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using AdvantagePlatform.Areas.Identity.Pages.Account.Manage;
 using AdvantagePlatform.Data;
 using AdvantagePlatform.Utility;
-using IdentityModel;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.EntityFramework.Mappers;
@@ -15,16 +14,15 @@ using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Validation;
 using LtiAdvantage.AssignmentGradeServices;
+using LtiAdvantage.IdentityServer4;
 using LtiAdvantage.IdentityServer4.Validation;
 using LtiAdvantage.Lti;
 using LtiAdvantage.NamesRoleProvisioningService;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
@@ -120,6 +118,8 @@ namespace AdvantagePlatform
 
                 // Configure IdentityServer to work with ASP.NET Core Identity
                 .AddAspNetIdentity<AdvantagePlatformUser>()
+
+                // Custom profile service to add LTI Advantage claims to id_token
                 .AddProfileService<LtiAdvantageProfileService>();
 
 
@@ -214,6 +214,13 @@ namespace AdvantagePlatform
         }
     }
 
+    /// <inheritdoc />
+    /// <summary>
+    /// Custom ProfileService to add LTI Advantage claims to id_token.
+    /// </summary>
+    /// <remarks>
+    /// See https://damienbod.com/2016/11/18/extending-identity-in-identityserver4-to-manage-users-in-asp-net-core/.
+    /// </remarks>
     public class LtiAdvantageProfileService : IProfileService
     {
         private readonly ApplicationDbContext _context;
@@ -233,6 +240,12 @@ namespace AdvantagePlatform
             _logger = logger;
         }
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Add LTI Advantage claims to id_token.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <returns></returns>
         public async Task GetProfileDataAsync(ProfileDataRequestContext context)
         {
             if (context.ValidatedRequest is ValidatedAuthorizeRequest request)
@@ -287,12 +300,28 @@ namespace AdvantagePlatform
             }
         }
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Returns true.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         public Task IsActiveAsync(IsActiveContext context)
         {
             context.IsActive = true;
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Returns a list LTI Advantage claims.
+        /// </summary>
+        /// <param name="resourceLink">The resource link.</param>
+        /// <param name="tool">The tool.</param>
+        /// <param name="client">The tool's client.</param>
+        /// <param name="person">The person being authorized.</param>
+        /// <param name="course">The course (can be null).</param>
+        /// <param name="platform">The platform.</param>
+        /// <returns></returns>
         private List<Claim> GetLtiClaimsAsync(
             ResourceLink resourceLink,
             Tool tool,
@@ -362,24 +391,14 @@ namespace AdvantagePlatform
                     {
                         LtiAdvantage.Constants.LtiScopes.AgsLineItem
                     },
-                    //LineItem = Url.RouteUrl(LtiAdvantage.Constants.ServiceEndpoints.AgsLineItemService,
-                    //    new { contextId = course.Id, id = resourceLink.Id.ToString() },
-                    //    "https",
-                    //    Request.Host.ToString()),
-                    //LineItems = Url.RouteUrl(LtiAdvantage.Constants.ServiceEndpoints.AgsLineItemService,
-                    //    new { contextId = course.Id },
-                    //    "https",
-                    //    Request.Host.ToString())
+                    LineItem = $"{httpRequest.Scheme}://{httpRequest.Host}".EnsureTrailingSlash()+$"context/{course.Id}/lineitems/{resourceLink.Id}",
+                    LineItems = $"{httpRequest.Scheme}://{httpRequest.Host}".EnsureTrailingSlash()+$"context/{course.Id}/lineitems"
                 };
 
                 // Only include Names and Role Provisioning Service claim if the launch includes a context.
                 request.NamesRoleService = new NamesRoleServiceClaimValueType
                 {
-                    //ContextMembershipUrl = 
-                    //    Url.RouteUrl(Constants.ServiceEndpoints.NrpsMembershipService, 
-                    //        new { contextId = course.Id },
-                    //        "https",
-                    //        Request.Host.ToString())
+                    ContextMembershipUrl = $"{httpRequest.Scheme}://{httpRequest.Host}".EnsureTrailingSlash()+$"context/{course.Id}/membership"
                 };
             }
             else
