@@ -74,7 +74,7 @@ namespace AdvantagePlatform.Utility
                 var tool = resourceLink.Tool;
                 if (tool == null)
                 {
-                    _logger.LogError($"Cannot find tool.");
+                    _logger.LogError("Cannot find tool.");
                     return;
                 }
 
@@ -97,7 +97,7 @@ namespace AdvantagePlatform.Utility
                 var user = await _context.GetUserByResourceLink(resourceLink.Id);
                 if (user == null)
                 {
-                    _logger.LogError($"Cannot find user.");
+                    _logger.LogError("Cannot find user.");
                     return;
                 }
 

@@ -6,7 +6,6 @@ using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace AdvantagePlatform.Pages.ResourceLinks
