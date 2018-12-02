@@ -80,6 +80,8 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             {
                 // The issuer identifier for the platform
                 iss = Request.HttpContext.GetIdentityServerIssuerUri(),
+                // The audience identifier for the client
+                aud = client.ClientId,
                 // The platform identifier for the user to login
                 login_hint = personId,
                 // The endpoint to be executed at the end of the OIDC authentication flow

@@ -72,9 +72,10 @@ namespace AdvantagePlatform.Pages.Tools
                 ClientId = Tool.ClientId,
                 ClientName = Tool.Name,
                 AllowOfflineAccess = true,
-                AllowedGrantTypes = GrantTypes.ClientCredentials,
+                AllowedGrantTypes = GrantTypes.ImplicitAndClientCredentials, 
                 AllowedScopes =
                 {
+                    OidcConstants.StandardScopes.OpenId,
                     Constants.LtiScopes.AgsLineItem,
                     Constants.LtiScopes.AgsResultReadonly,
                     Constants.LtiScopes.NrpsMembershipReadonly
@@ -86,7 +87,9 @@ namespace AdvantagePlatform.Pages.Tools
                         Type = LtiAdvantage.IdentityServer4.Validation.Constants.SecretTypes.PrivatePemKey,
                         Value = Tool.PrivateKey
                     }
-                }
+                },
+                RedirectUris = { Tool.LaunchUrl },
+                RequireConsent = false
             };
 
             var entity = client.ToEntity();

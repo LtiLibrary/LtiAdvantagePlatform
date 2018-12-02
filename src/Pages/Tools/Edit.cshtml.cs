@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using AdvantagePlatform.Utility;
@@ -88,9 +89,14 @@ namespace AdvantagePlatform.Pages.Tools
 
             var client = await _identityContext.Clients
                 .Include(c => c.ClientSecrets)
+                .Include(c => c.RedirectUris)
                 .SingleOrDefaultAsync(c => c.Id == tool.IdentityServerClientId);
 
             client.ClientId = Tool.ClientId;
+            client.RedirectUris = new List<ClientRedirectUri>
+            {
+                new ClientRedirectUri { RedirectUri = Tool.LaunchUrl }
+            };
 
             var privateKey = client.ClientSecrets
                 .SingleOrDefault(s => s.Type == Constants.SecretTypes.PrivatePemKey);
