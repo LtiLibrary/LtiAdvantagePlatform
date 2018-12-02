@@ -56,7 +56,7 @@ namespace AdvantagePlatform.Controllers
                 Context = new Context
                 {
                     Id = course.Id,
-                    Title = course.Name,
+                    Title = course.Name
                 }
             };
 

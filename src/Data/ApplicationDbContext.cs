@@ -86,6 +86,7 @@ namespace AdvantagePlatform.Data
             {
                 throw new ArgumentNullException(nameof(principal));
             }
+
             return principal.FindFirstValue("sub");
         }
 

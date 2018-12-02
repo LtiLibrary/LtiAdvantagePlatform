@@ -5,8 +5,6 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using AdvantagePlatform.Areas.Identity.Pages.Account.Manage;
 using AdvantagePlatform.Data;
-using IdentityModel;
-using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Validation;
@@ -16,7 +14,6 @@ using LtiAdvantage.Lti;
 using LtiAdvantage.NamesRoleProvisioningService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Client = IdentityServer4.EntityFramework.Entities.Client;
 
 namespace AdvantagePlatform.Utility
 {
@@ -30,18 +27,15 @@ namespace AdvantagePlatform.Utility
     public class LtiAdvantageProfileService : IProfileService
     {
         private readonly ApplicationDbContext _context;
-        private readonly IConfigurationDbContext _identityContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<LtiAdvantageProfileService> _logger;
 
         public LtiAdvantageProfileService(
             ApplicationDbContext context,
-            IConfigurationDbContext identityContext,
             IHttpContextAccessor httpContextAccessor,
             ILogger<LtiAdvantageProfileService> logger)
         {
             _context = context;
-            _identityContext = identityContext;
             _httpContextAccessor = httpContextAccessor;
             _logger = logger;
         }
@@ -86,13 +80,6 @@ namespace AdvantagePlatform.Utility
                     return;
                 }
 
-                var client = await _identityContext.Clients.FindAsync(tool.IdentityServerClientId);
-                if (client == null)
-                {
-                    _logger.LogError($"Cannot find client [{tool.IdentityServerClientId}].");
-                    return;
-                }
-
                 var course = await _context.GetCourseByResourceLink(resourceLink.Id);
 
                 var user = await _context.GetUserByResourceLink(resourceLink.Id);
@@ -102,7 +89,7 @@ namespace AdvantagePlatform.Utility
                     return;
                 }
 
-                context.IssuedClaims = GetLtiClaimsAsync(resourceLink, tool, client, person, course, user.Platform);
+                context.IssuedClaims = GetLtiClaimsAsync(resourceLink, tool, person, course, user.Platform);
             }
         }
 
@@ -122,7 +109,6 @@ namespace AdvantagePlatform.Utility
         /// </summary>
         /// <param name="resourceLink">The resource link.</param>
         /// <param name="tool">The tool.</param>
-        /// <param name="client">The tool's client.</param>
         /// <param name="person">The person being authorized.</param>
         /// <param name="course">The course (can be null).</param>
         /// <param name="platform">The platform.</param>
@@ -130,7 +116,6 @@ namespace AdvantagePlatform.Utility
         private List<Claim> GetLtiClaimsAsync(
             ResourceLink resourceLink,
             Tool tool,
-            Client client,
             Person person,
             Course course,
             Platform platform)

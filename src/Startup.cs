@@ -6,7 +6,6 @@ using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Services;
 using IdentityServer4.Validation;
-using LtiAdvantage.IdentityServer4.ResponseHandling;
 using LtiAdvantage.IdentityServer4.Validation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
