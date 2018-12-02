@@ -37,40 +37,34 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             if (id == null)
             {
                 _logger.LogError(new ArgumentNullException(nameof(id)), "Missing resource link id.");
-                return NotFound();
+                return BadRequest();
             }
 
             if (string.IsNullOrWhiteSpace(personId))
             {
                 _logger.LogError(new ArgumentNullException(nameof(personId)), "Missing user id.");
-            }
-            
-            var user = await _context.GetUserAsync(User);
-            if (user == null)
-            {
-                _logger.LogError("User not found.");
-                return NotFound();
+                return BadRequest();
             }
 
             var resourceLink = await _context.GetResourceLinkAsync(id);
             if (resourceLink == null)
             {
                 _logger.LogError("Resource link not found.");
-                return NotFound();
+                return BadRequest();
             }
 
             var tool = resourceLink.Tool;
             if (tool == null)
             {
-                _logger.LogError("Tool not found.");
-                return NotFound();
+                _logger.LogError("Resource link does not have a tool defined.");
+                return BadRequest();
             }
 
             var client = await _identityContext.Clients.FindAsync(tool.IdentityServerClientId);
             if (client == null)
             {
                 _logger.LogError("Client not found");
-                return NotFound();
+                return BadRequest();
             }
 
             // Send request to tool's endpoint to initiate login
