@@ -21,8 +21,10 @@ using LtiAdvantage.NamesRoleProvisioningService;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
@@ -216,15 +218,18 @@ namespace AdvantagePlatform
     {
         private readonly ApplicationDbContext _context;
         private readonly IConfigurationDbContext _identityContext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<LtiAdvantageProfileService> _logger;
 
         public LtiAdvantageProfileService(
             ApplicationDbContext context,
             IConfigurationDbContext identityContext,
+            IHttpContextAccessor httpContextAccessor,
             ILogger<LtiAdvantageProfileService> logger)
         {
             _context = context;
             _identityContext = identityContext;
+            _httpContextAccessor = httpContextAccessor;
             _logger = logger;
         }
 
@@ -278,7 +283,7 @@ namespace AdvantagePlatform
                     return;
                 }
 
-                context.IssuedClaims = GetLtiClaimsAsyncGet(resourceLink, tool, client, person, course, user.Platform);
+                context.IssuedClaims = GetLtiClaimsAsync(resourceLink, tool, client, person, course, user.Platform);
             }
         }
 
@@ -288,7 +293,7 @@ namespace AdvantagePlatform
             return Task.FromResult(0);
         }
 
-        private List<Claim> GetLtiClaimsAsyncGet(
+        private List<Claim> GetLtiClaimsAsync(
             ResourceLink resourceLink,
             Tool tool,
             Client client,
@@ -296,6 +301,8 @@ namespace AdvantagePlatform
             Course course,
             Platform platform)
         {
+            var httpRequest = _httpContextAccessor.HttpContext.Request;
+
             var request = new LtiResourceLinkRequest
             {
                 Audiences = new[] { client.ClientId },
@@ -306,7 +313,7 @@ namespace AdvantagePlatform
                 {
                     DocumentTarget = DocumentTarget.Iframe,
                     Locale = CultureInfo.CurrentUICulture.Name,
-                    //ReturnUrl = Request.GetDisplayUrl()
+                    ReturnUrl = $"{httpRequest.Scheme}://{httpRequest.Host}"
                 },
                 Lis = new LisClaimValueType
                 {
