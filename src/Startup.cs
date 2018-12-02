@@ -6,6 +6,7 @@ using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Services;
 using IdentityServer4.Validation;
+using LtiAdvantage.IdentityServer4.ResponseHandling;
 using LtiAdvantage.IdentityServer4.Validation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -107,7 +108,10 @@ namespace AdvantagePlatform
                 .AddAspNetIdentity<AdvantagePlatformUser>()
 
                 // Custom profile service to add LTI Advantage claims to id_token
-                .AddProfileService<LtiAdvantageProfileService>();
+                .AddProfileService<LtiAdvantageProfileService>()
+
+                // Allow ASP.NET user to impersonate a Platform user (e.g. a student in the course)
+                .AddImpersonationSupport();
 
             // Add AddAuthentication and set the default scheme to IdentityConstants.ApplicationScheme
             // so that IdentityServer can find the right ASP.NET Core Identity pages
