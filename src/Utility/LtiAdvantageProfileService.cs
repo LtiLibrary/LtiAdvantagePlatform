@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using AdvantagePlatform.Areas.Identity.Pages.Account.Manage;
 using AdvantagePlatform.Data;
+using IdentityModel;
 using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
@@ -107,13 +108,12 @@ namespace AdvantagePlatform.Utility
 
         /// <inheritdoc />
         /// <summary>
-        /// Returns true.
+        /// Do nothing.
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
         public Task IsActiveAsync(IsActiveContext context)
         {
-            context.IsActive = true;
             return Task.CompletedTask;
         }
 
@@ -139,7 +139,6 @@ namespace AdvantagePlatform.Utility
 
             var request = new LtiResourceLinkRequest
             {
-                Audiences = new[] { client.ClientId },
                 DeploymentId = tool.DeploymentId,
                 FamilyName = person.LastName,
                 GivenName = person.FirstName,
@@ -154,7 +153,7 @@ namespace AdvantagePlatform.Utility
                     PersonSourcedId = person.SisId,
                     CourseSectionSourcedId = course?.SisId
                 },
-                Nonce = LtiResourceLinkRequest.GenerateCryptographicNonce(),
+                Lti11LegacyUserId = person.Id,
                 Platform = new PlatformClaimValueType
                 {
                     ContactEmail = platform.ContactEmail,
@@ -170,7 +169,7 @@ namespace AdvantagePlatform.Utility
                     Id = resourceLink.Id.ToString(),
                     Title = resourceLink.Title
                 },
-                UserId = person.Id
+                TargetLinkUri = tool.LaunchUrl
             };
 
             // Add the context if the launch is from a course
