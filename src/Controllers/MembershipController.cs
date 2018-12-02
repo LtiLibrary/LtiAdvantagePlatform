@@ -52,7 +52,12 @@ namespace AdvantagePlatform.Controllers
 
             result.MembershipContainer = new MembershipContainer
             {
-                Id = Request.GetDisplayUrl()
+                Id = Request.GetDisplayUrl(),
+                Context = new Context
+                {
+                    Id = course.Id,
+                    Title = course.Name,
+                }
             };
 
             if (user.People.Any())
@@ -60,8 +65,6 @@ namespace AdvantagePlatform.Controllers
                 result.MembershipContainer.Members = user.People
                     .Select(p => new Member
                     {
-                        ContextId = course.Id,
-                        ContextTitle = course.Name,
                         FamilyName = p.LastName,
                         GivenName = p.FirstName,
                         Roles = PeopleModel.ParsePersonRoles(p.Roles),
