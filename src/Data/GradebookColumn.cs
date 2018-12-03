@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace AdvantagePlatform.Data
 {
@@ -38,6 +39,11 @@ namespace AdvantagePlatform.Data
         /// The maximum score allowed.
         /// </summary>
         public double? ScoreMaximum { get; set; }
+
+        /// <summary>
+        /// The scores recorded in this gradebook column.
+        /// </summary>
+        public ICollection<GradebookRow> Scores { get; set; }
 
         /// <summary>
         /// The start date and time.

@@ -3,9 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using LtiAdvantage.AssignmentGradeServices;
-using LtiAdvantage.IdentityServer4;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -36,8 +34,21 @@ namespace AdvantagePlatform.Controllers
                 return NotFound();
             }
 
+            var gradebookRow = new GradebookRow
+            {
+                ActivityProgress = request.Score.ActivityProgress,
+                Comment = request.Score.Comment,
+                GradingProgress = request.Score.GradingProgress,
+                PersonId = request.Score.UserId,
+                ScoreGiven = request.Score.ScoreGiven,
+                ScoreMaximum = request.Score.ScoreMaximum,
+                TimeStamp = request.Score.TimeStamp
+            };
+
+            gradebookColumn.Scores.Add(gradebookRow);
+            await _context.SaveChangesAsync();
+
             // Save the score
-            var scoreUrl = Request.GetDisplayUrl().EnsureTrailingSlash() + "1";
             return new ScoreResult(request.Score, StatusCodes.Status201Created);
         }
     }

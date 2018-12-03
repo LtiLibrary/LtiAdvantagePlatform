@@ -17,6 +17,7 @@ namespace AdvantagePlatform.Data
 
         public DbSet<Course> Courses { get; set; }
         public DbSet<GradebookColumn> GradebookColumns { get; set; }
+        public DbSet<GradebookRow> GradebookRows { get; set; }
         public DbSet<Person> People { get; set; }
         public DbSet<Platform> Platforms { get; set; }
         public DbSet<ResourceLink> ResourceLinks { get; set; }
@@ -114,6 +115,8 @@ namespace AdvantagePlatform.Data
             return await Courses
                 .Include(c => c.GradebookColumns)
                     .ThenInclude(c => c.ResourceLink)
+                .Include(c => c.GradebookColumns)
+                    .ThenInclude(c => c.Scores)
                 .Include(c => c.ResourceLinks)
                     .ThenInclude(l => l.Tool)
                 .SingleOrDefaultAsync(c => c.Id == id);

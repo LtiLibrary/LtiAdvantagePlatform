@@ -78,6 +78,7 @@ namespace AdvantagePlatform.Pages.Tools
                     OidcConstants.StandardScopes.OpenId,
                     Constants.LtiScopes.AgsLineItem,
                     Constants.LtiScopes.AgsResultReadonly,
+                    Constants.LtiScopes.AgsScoreWriteonly,
                     Constants.LtiScopes.NrpsMembershipReadonly
                 },
                 ClientSecrets = new List<Secret>
