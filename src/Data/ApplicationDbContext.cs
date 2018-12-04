@@ -124,7 +124,7 @@ namespace AdvantagePlatform.Data
 
         public async Task<Course> GetCourseByContextIdAsync(string contextId)
         {
-            if (!int.TryParse(contextId, out int id))
+            if (!int.TryParse(contextId, out var id))
             {
                 throw new ArgumentException($"{nameof(contextId)} is not an integer.");
             }
