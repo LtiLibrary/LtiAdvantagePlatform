@@ -5,12 +5,15 @@ using AdvantagePlatform.Data;
 using LtiAdvantage;
 using LtiAdvantage.AssignmentGradeServices;
 using LtiAdvantage.IdentityServer4;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace AdvantagePlatform.Controllers
 {
+    /// <inheritdoc />
+    /// <summary>
+    /// Sample results controller that returns highest score for each lineitem.
+    /// </summary>
     public class ResultsController : ResultsControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -33,13 +36,13 @@ namespace AdvantagePlatform.Controllers
             var course = await _context.GetCourseByContextIdAsync(request.ContextId);
             if (course == null)
             {
-                return new ResultContainerResult(StatusCodes.Status404NotFound);
+                return ResultsNotFound();
             }
 
             var gradebookColumn = course.GradebookColumns.SingleOrDefault(c => c.Id == Convert.ToInt32(request.Id));
             if (gradebookColumn == null)
             {
-                return new ResultContainerResult(StatusCodes.Status404NotFound);
+                return ResultsNotFound();
             }
 
             var results = gradebookColumn.Scores
@@ -54,13 +57,14 @@ namespace AdvantagePlatform.Controllers
                     ScoreOf = Url.Link(Constants.ServiceEndpoints.AgsLineItemService, new { request.ContextId, request.Id }),
                     UserId = g.Key
                 });
+
             var resultContainer = new ResultContainer();
             foreach (var result in results)
             {
                 resultContainer.Add(result);
             }
 
-            return new ResultContainerResult(resultContainer);
+            return ResultsOk(resultContainer);
         }
     }
 }
