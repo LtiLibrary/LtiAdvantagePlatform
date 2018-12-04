@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using AdvantagePlatform.Areas.Identity.Pages.Account.Manage;
 using AdvantagePlatform.Data;
 using LtiAdvantage.NamesRoleProvisioningService;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -19,27 +18,25 @@ namespace AdvantagePlatform.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        public MembershipController(ILogger<MembershipControllerBase> logger, ApplicationDbContext context) : base(logger)
+        public MembershipController(
+            ILogger<MembershipControllerBase> logger, 
+            ApplicationDbContext context) : base(logger)
         {
             _context = context;
         }
 
         /// <inheritdoc />
         /// <summary>
-        /// Sample implementation of OnGetMembershipAsync returns both members of the
-        /// sample course. This sample ignores limit, rlid, and role parameters.
+        /// Returns members of the course. Ignores filters.
         /// </summary>
-        /// <param name="request">The <see cref="T:LtiAdvantage.NamesRoleProvisioningService.GetMembershipRequest" /> including the course id.</param>
+        /// <param name="request">The request.</param>
         /// <returns>The members of the sample course.</returns>
         protected override async Task<MembershipContainerResult> OnGetMembershipAsync(GetMembershipRequest request)
         {
-            var result = new MembershipContainerResult(StatusCodes.Status200OK);
-
             var course = await _context.GetCourseByContextIdAsync(request.ContextId);
             if (course == null)
             {
-                result.StatusCode = StatusCodes.Status404NotFound;
-                return result;
+                return MembershipNotFound();
             }
 
             var user = await _context.Users
@@ -47,11 +44,10 @@ namespace AdvantagePlatform.Controllers
                 .SingleOrDefaultAsync(u => u.Course == course);
             if (user == null)
             {
-                result.StatusCode = StatusCodes.Status404NotFound;
-                return result;
+                return MembershipNotFound();
             }
 
-            result.MembershipContainer = new MembershipContainer
+            var membership = new MembershipContainer
             {
                 Id = Request.GetDisplayUrl(),
                 Context = new Context
@@ -63,7 +59,7 @@ namespace AdvantagePlatform.Controllers
 
             if (user.People.Any())
             {
-                result.MembershipContainer.Members = user.People
+                membership.Members = user.People
                     .Select(p => new Member
                     {
                         FamilyName = p.LastName,
@@ -76,7 +72,7 @@ namespace AdvantagePlatform.Controllers
                     .ToList();
             }
 
-            return result;
+            return MembershipOk(membership);
         }
     }
 }
