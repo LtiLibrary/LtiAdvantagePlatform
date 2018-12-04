@@ -36,8 +36,9 @@ namespace AdvantagePlatform.Pages.Tools
             TokenUrl = Issuer.EnsureTrailingSlash() + "connect/token";
         }
 
+        /// <inheritdoc />
         /// <summary>
-        /// Create an instance of <see cref="ToolModel"/> using tool and client entities.
+        /// Create an instance of <see cref="T:AdvantagePlatform.Pages.Tools.ToolModel" /> using tool and client entities.
         /// </summary>
         /// <param name="httpContext">The HttpContext.</param>
         /// <param name="tool">The tool entity.</param>
