@@ -23,7 +23,7 @@ namespace AdvantagePlatform.Controllers
             var course = await _context.GetCourseByContextIdAsync(request.ContextId);
             if (course == null)
             {
-                return NotFound(default(LineItemContainer));
+                return LineItemsNotFound();
             }
 
             var lineitems = new LineItemContainer();
@@ -42,7 +42,7 @@ namespace AdvantagePlatform.Controllers
                 });
             }
 
-            return Ok(lineitems);
+            return LineItemsOk(lineitems);
         }
     }
 }
