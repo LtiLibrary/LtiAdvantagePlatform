@@ -3,8 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using LtiAdvantage.AssignmentGradeServices;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace AdvantagePlatform.Controllers
@@ -20,18 +18,18 @@ namespace AdvantagePlatform.Controllers
             _context = context;
         }
 
-        protected override async Task<IActionResult> OnPostScoreAsync(PostScoreRequest request)
+        protected override async Task<ScoreResult> OnPostScoreAsync(PostScoreRequest request)
         {
             var course = await _context.GetCourseByContextIdAsync(request.ContextId);
             if (course == null)
             {
-                return NotFound();
+                return ScoreNotFound();
             }
 
             var gradebookColumn = course.GradebookColumns.SingleOrDefault(c => c.Id == Convert.ToInt32(request.Id));
             if (gradebookColumn == null)
             {
-                return NotFound();
+                return ScoreNotFound();
             }
 
             var gradebookRow = new GradebookRow
@@ -49,7 +47,7 @@ namespace AdvantagePlatform.Controllers
             await _context.SaveChangesAsync();
 
             // Save the score
-            return new ScoreResult(request.Score, StatusCodes.Status201Created);
+            return ScoreCreated(request.Score);
         }
     }
 }
