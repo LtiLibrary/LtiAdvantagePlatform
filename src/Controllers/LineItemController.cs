@@ -5,7 +5,6 @@ using AdvantagePlatform.Data;
 using LtiAdvantage.AssignmentGradeServices;
 using LtiAdvantage.IdentityServer4;
 using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace AdvantagePlatform.Controllers
@@ -25,12 +24,12 @@ namespace AdvantagePlatform.Controllers
         {
             var lineItem = request.LineItem;
             lineItem.Id = lineItem.GetHashCode().ToString();
-            return Task.FromResult(Created(lineItem));
+            return Task.FromResult(LineItemCreated(lineItem));
         }
 
-        protected override Task<IActionResult> OnDeleteLineItemAsync(DeleteLineItemRequest request)
+        protected override Task<LineItemResult> OnDeleteLineItemAsync(DeleteLineItemRequest request)
         {
-            return Task.FromResult(new OkResult() as IActionResult);
+            return Task.FromResult(LineItemOk());
         }
 
         protected override async Task<LineItemResult> OnGetLineItemAsync(GetLineItemRequest request)
@@ -38,16 +37,16 @@ namespace AdvantagePlatform.Controllers
             var course = await _context.GetCourseByContextIdAsync(request.ContextId);
             if (course == null)
             {
-                return NotFound(default(LineItem));
+                return LineItemNotFound();
             }
 
             var gradebookColumn = course.GradebookColumns.SingleOrDefault(c => c.Id == Convert.ToInt32(request.Id));
             if (gradebookColumn == null)
             {
-                return NotFound(default(LineItem));
+                return LineItemNotFound();
             }
 
-            return Ok(new LineItem
+            return LineItemOk(new LineItem
             {
                 Id = Request.GetDisplayUrl().EnsureTrailingSlash() + gradebookColumn.Id,
                 EndDateTime = gradebookColumn.EndDateTime,
@@ -60,9 +59,9 @@ namespace AdvantagePlatform.Controllers
             });
         }
 
-        protected override Task<IActionResult> OnUpdateLineItemAsync(PutLineItemRequest request)
+        protected override Task<LineItemResult> OnUpdateLineItemAsync(PutLineItemRequest request)
         {
-            return Task.FromResult(new OkResult() as IActionResult);
+            return Task.FromResult(LineItemOk());
         }
     }
 }
