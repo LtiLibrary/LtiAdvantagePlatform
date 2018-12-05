@@ -4,7 +4,6 @@ using AdvantagePlatform.Data;
 using AdvantagePlatform.Utility;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
-using IdentityServer4.Services;
 using IdentityServer4.Validation;
 using LtiAdvantage.IdentityServer4.Validation;
 using Microsoft.AspNetCore.Builder;
@@ -61,26 +60,19 @@ namespace AdvantagePlatform
                 .AddRazorPagesOptions(options => { options.Conventions.AuthorizeFolder("/Tools"); })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            // This app will host the LTI Platform and the Identity Server (Issuer). The Identity Server
-            // will 1) sign requests that originate from the Platform and a keyset endpoint so the Tool 
-            // (Client) can get the public key to validate the requests, and 2) issue access tokens to
-            // the Tool and validate requests that originate from the Tool.
+            services.AddHttpClient();
 
-            // This app uses ASP.NET Core Identity to manage local accounts (see AddDefaultIdentity above).
-            // I have added IdentityServer following the instructions here:
-            // https://identityserver4.readthedocs.io/en/release/quickstarts/6_aspnet_identity.html
-            // https://github.com/IdentityServer/IdentityServer4/issues/2373#issuecomment-398824428
-            services.AddTransient<IProfileService, LtiAdvantageProfileService>();
+            // Add Identity Server configured to support LTI Advantage needs
             services.AddIdentityServer(options =>
                 {
                     options.UserInteraction.LoginUrl = "/Identity/Account/Login";
                     options.UserInteraction.LogoutUrl = "/Identity/Account/Logout";
                 })
 
-                // For this test app, I use the DeveloperSigningCredential
+                // Not appropriate for production
                 .AddDeveloperSigningCredential()
 
-                // Add JWT client credentials validation
+                // Look for a JWT client credential for authorization and validate it using the private key
                 .AddSecretParser<JwtBearerClientAssertionSecretParser>()
                 .AddSecretValidator<PrivatePemKeyJwtSecretValidator>()
 
@@ -109,7 +101,7 @@ namespace AdvantagePlatform
                 // Custom profile service to add LTI Advantage claims to id_token
                 .AddProfileService<LtiAdvantageProfileService>()
 
-                // Allow ASP.NET user to impersonate a Platform user (e.g. a student in the course)
+                // Allow the ASP.NET user to impersonate a Platform user (e.g. a student in the course)
                 .AddImpersonationSupport();
 
             // Add AddAuthentication and set the default scheme to IdentityConstants.ApplicationScheme
@@ -135,10 +127,8 @@ namespace AdvantagePlatform
                     };
                 });
 
-            // Add LTI Advantage service authorization policies
+            // Add LTI Advantage service authorization policies that enforce API scopes
             services.AddLtiAdvantagePolicies();
-
-            services.AddHttpClient();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -175,12 +165,9 @@ namespace AdvantagePlatform
         {
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {
-                serviceScope.ServiceProvider.GetRequiredService<PersistedGrantDbContext>().Database.Migrate();
-
                 var context = serviceScope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
-                context.Database.Migrate();
 
-                // These are for login/logout of UI
+                // Define the identity resources that can be requested.
                 if (!EnumerableExtensions.Any(context.IdentityResources))
                 {
                     foreach (var resource in Config.GetIdentityResources())
@@ -190,15 +177,15 @@ namespace AdvantagePlatform
                     context.SaveChanges();
                 }
 
-                // These are for protecting APIs
-                foreach (var resource in Config.GetApiResources())
+                // Define the API's that will be protected.
+                if (!EnumerableExtensions.Any(context.ApiResources))
                 {
-                    if (!context.ApiResources.Any(r => r.Name == resource.Name))
+                    foreach (var resource in Config.GetApiResources())
                     {
                         context.ApiResources.Add(resource.ToEntity());
                     }
+                    context.SaveChanges();
                 }
-                context.SaveChanges();
             }
         }
     }

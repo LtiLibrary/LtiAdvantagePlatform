@@ -4,24 +4,27 @@ using LtiAdvantage;
 
 namespace AdvantagePlatform
 {
+    /// <summary>
+    /// Configuration data required at first startup of Identity Server.
+    /// </summary>
     public class Config
     {
-        // scopes define the resources in your system
+        /// <summary>
+        /// Identity resources that can be requested.
+        /// </summary>
+        /// <returns></returns>
         public static IEnumerable<IdentityResource> GetIdentityResources()
         {
-            var lti = new IdentityResource(
-                name: "lti",
-                displayName: "LTI Advantage",
-                claimTypes: new []{ "FullName" });
-
             return new List<IdentityResource>
             {
                 new IdentityResources.OpenId(),
-                new IdentityResources.Profile(),
-                lti
             };
         }
 
+        /// <summary>
+        /// List of API's that are protected.
+        /// </summary>
+        /// <returns></returns>
         public static IEnumerable<ApiResource> GetApiResources()
         {
             return new List<ApiResource>
