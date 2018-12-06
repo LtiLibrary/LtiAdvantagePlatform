@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
@@ -84,13 +83,13 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 lti_message_hint = resourceLink.Id.ToString()
             };
 
-            _logger.LogInformation($"Launching {resourceLink.Title} using {url}");
-            
             // Uncomment to use a GET to initiate login
             var url = new RequestUrl(tool.LoginUrl).Create(values);
+            _logger.LogInformation($"Launching {resourceLink.Title} using GET {url}");
             return Redirect(url);
             
             // Uncomment to use form POST to initiate login
+            // _logger.LogInformation($"Launching {resourceLink.Title} using POST {tool.LoginUrl}");
             // return Post(tool.LoginUrl, values);
         }
 
@@ -100,6 +99,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
         /// <param name="url">Where to post the values.</param>
         /// <param name="values">The values to post.</param>
         /// <returns></returns>
+        // ReSharper disable once UnusedMember.Local
         private ContentResult Post(string url, object values)
         {
             var response = HttpContext.Response;
