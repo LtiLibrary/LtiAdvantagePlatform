@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using IdentityModel.Client;
+using IdentityModel.Internal;
 using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.Extensions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
@@ -68,23 +72,56 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             }
 
             // Send request to tool's endpoint to initiate login
-            var ru = new RequestUrl(tool.LoginUrl);
-            var url = ru.Create(new
+            var values = new
             {
                 // The issuer identifier for the platform
                 iss = Request.HttpContext.GetIdentityServerIssuerUri(),
-                // The audience identifier for the client
-                aud = client.ClientId,
                 // The platform identifier for the user to login
                 login_hint = personId,
                 // The endpoint to be executed at the end of the OIDC authentication flow
                 target_link_uri = tool.LaunchUrl,
                 // The identifier of the LtiResourceLink message (or the deep link message, etc)
                 lti_message_hint = resourceLink.Id.ToString()
-            });
+            };
 
             _logger.LogInformation($"Launching {resourceLink.Title} using {url}");
+            
+            // Uncomment to use a GET to initiate login
+            var url = new RequestUrl(tool.LoginUrl).Create(values);
             return Redirect(url);
+            
+            // Uncomment to use form POST to initiate login
+            // return Post(tool.LoginUrl, values);
+        }
+
+        /// <summary>
+        /// Return a <see cref="ContentResult"/> that automatically POSTs the values.
+        /// </summary>
+        /// <param name="url">Where to post the values.</param>
+        /// <param name="values">The values to post.</param>
+        /// <returns></returns>
+        private ContentResult Post(string url, object values)
+        {
+            var response = HttpContext.Response;
+            response.Clear();
+
+            var p = ValuesHelper.ObjectToDictionary(values);
+
+            var s = new StringBuilder();
+            s.Append("<html><head><title></title></head>");
+            s.Append("<body onload='document.forms[\"form\"].submit()'>");
+            s.Append($"<form name='form' action='{url}' method='post'>");
+            foreach (var pair in p)
+            {
+                s.Append($"<input type='hidden' name='{pair.Key}' value='{pair.Value}' />");
+            }
+            s.Append("</form></body></html>");
+            return new ContentResult
+            {
+                Content = s.ToString(), 
+                ContentType = "text/html", 
+                StatusCode = StatusCodes.Status200OK
+            };
         }
     }
 }
