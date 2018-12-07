@@ -8,9 +8,9 @@ Sample LTI Advantage Platform using .NET Core 2.1. So that it has a purpose (oth
    - Register yourself on the Platform to access the Clients UI and create a Client ID for yourself (this is similar to Google's Developer Console).
    - The Platform supports [OpenId Connect Discovery](https://openid.net/specs/openid-connect-discovery-1_0.html) so Tools can discover the JWKS URL and Access Token URL by examining the response to [(Issuer)/.well-known/openid-configuration](https://advantageplatform.azurewebsites.net/.well-known/openid-configuration).
 - Assignment and Grade Services
-   - Tools can get all line items for a course, get a specific line item, get results, and post scores.
+   - Tools can get all line items for a course, get a specific line item, and get results from the platform; and post scores to the platform.
 - Names and Role Provisioning Services
-   - Tools can get course membership.
+   - Tools can get course membership from the platform.
 
 ## Dependencies
 
