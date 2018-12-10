@@ -13,7 +13,7 @@ Sample LTI Advantage Platform using .NET Core 2.1. So that it has a purpose (oth
 
 ## Dependencies
 
-This web application is based on the current .NET Core Web Application template for Razor Pages.
+This web application is based on the current ASP.NET Core Web Application template for Razor Pages.
 Most of the application is dedicated to managing Tools. Because LTI Advantage uses OpenID Connect
 and OAuth to handle authorization and authentication, and ASP.NET Core has great support for both,
 relatively little custom code is required launch, authorize, and service LTI 1.3 requests.
@@ -34,6 +34,8 @@ relatively little custom code is required launch, authorize, and service LTI 1.3
 </dl>
 
 ## Source Code Structure
+Most of the code in this application is from the ASP.NET Core Web Application template for Razor Pages. This
+is a map of where to find the LTI specific stuff.
 ```
 / (Visual Studio solution file)
 └── src/
@@ -42,7 +44,7 @@ relatively little custom code is required launch, authorize, and service LTI 1.3
     ├── Controllers/ (API controllers that implement Assignment and Grade Services and Names and Role Provisioning Services)
     ├── Data/ (database entities and Entity Framework Core migrations)
     ├── Pages/
-        └── OidcLaunch (starts the LTI 1.3 launch process)
+        └── OidcLaunch.cs (starts the LTI 1.3 launch process)
     ├── Utility/
         └── LtiAdvantageProfileService.cs (works with Identity Server 2 to add LTI claims to the id_token for launch)
     ├── wwwroot/ (static website files)        
