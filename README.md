@@ -28,7 +28,7 @@ I The packages and projects below take care of all the core OpenId Connect and O
   <dt>System.IdentityModel.Tokens.Jwt (https://www.nuget.org/packages/System.IdentityModel.Tokens.Jwt)</dt>
   <dd>This package provides some JSON Web Token functionality.</dd>
   <dt>LtiAdvantage (https://github.com/andyfmiller/LtiAdvantage/tree/master/src/LtiAdvantage)</dt>
-  <dd>This library makes implementing LTI Advantage easier with ASP.NET Core.</dd>
+  <dd>This library makes implementing LTI Advantage with ASP.NET Core easier.</dd>
   <dt>LtiAdvantage.IdentityServer4 (https://github.com/andyfmiller/LtiAdvantage/tree/master/src/LtiAdvantage.IdentityServer4)</dt>
   <dd>This library adds an Identity Server 4 secret validator that understands the IMS recommended format of client-credentials grant.</dd>
   <dt>LtiAdvantage.IdentityModel (https://github.com/andyfmiller/LtiAdvantage/tree/master/src/LtiAdvantage.IdentityModel)</dt>
