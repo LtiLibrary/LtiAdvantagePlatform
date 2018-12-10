@@ -20,7 +20,9 @@ has great support for both, relatively little custom code is required launch, au
 LTI 1.3 requests.
 
 <dl>
-  <dt>Microsoft.AspNetCore.App (https://www.nuget.org/packages/Microsoft.AspNetCore.App)</dt>
+  <dt>
+    [Microsoft.AspNetCore.App](https://www.nuget.org/packages/Microsoft.AspNetCore.App)
+  </dt>
   <dd>
      This package provides the framework for the web application, including user management. Each registered 
      user gets their own test platform, with a test course, and two test people (one student and one teacher).    
