@@ -16,9 +16,7 @@ Sample LTI Advantage Platform using .NET Core 2.1. So that it has a purpose (oth
 This web application is based on the current .NET Core Web Application template for Razor Pages.
 Most of the application is dedicated to managing Tools. Because LTI Advantage uses OpenID Connect
 and OAuth to handle authorization and authentication, and ASP.NET Core has great support for both,
-relatively little code is required launch, authorize, and service LTI requests.
-
-I The packages and projects below take care of all the core OpenId Connect and OAuth stuff:
+relatively little custom code is required launch, authorize, and service LTI 1.3 requests.
 
 <dl>
   <dt>Microsoft.AspNetCore.App (https://www.nuget.org/packages/Microsoft.AspNetCore.App)</dt>
