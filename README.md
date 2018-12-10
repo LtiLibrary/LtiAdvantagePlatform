@@ -5,7 +5,7 @@ Sample LTI Advantage Platform using .NET Core 2.1. So that it has a purpose (oth
 ## Supported Features
 
 - LTI 1.3 Core (launch)
-   - Register yourself on the Platform to access the Tools UI and create a Client ID for your Tool (this is similar to Google's Developer Console). Then create a Resource Link and launch it.
+   - Launch tools with or without a context (i.e. as an assignment or an admin tool), and as a teacher or a student.
 - Assignment and Grade Services v2
    - Tools can get all line items for a course, get a specific line item, and get results from the platform; and they can post scores to the platform.
 - Names and Role Provisioning Services v2
@@ -32,3 +32,18 @@ relatively little custom code is required launch, authorize, and service LTI 1.3
   <dt>LtiAdvantage.IdentityModel (https://github.com/andyfmiller/LtiAdvantage/tree/master/src/LtiAdvantage.IdentityModel)</dt>
   <dd>This library adds an HttpClient extension method to request a token using using the IMS recommended format of client-credentials grant.</dd>
 </dl>
+
+## Source Code Structure
+```
+/ (Visual Studio solution file)
+└── src/
+    ├── Startup.cs (configure ASP.NET Core Identity and Identity Server 4)
+    ├── Areas/Identity/ (ASP.NET Core Identity user management, platform, course, and people editors)
+    ├── Controllers/ (API controllers that implement Assignment and Grade Services and Names and Role Provisioning Services)
+    ├── Data/ (database entities and Entity Framework Core migrations)
+    ├── Pages/
+        └── OidcLaunch (starts the LTI 1.3 launch process)
+    ├── Utility/
+        └── LtiAdvantageProfileService.cs (works with Identity Server 2 to add LTI claims to the id_token for launch)
+    ├── wwwroot/ (static website files)        
+```
