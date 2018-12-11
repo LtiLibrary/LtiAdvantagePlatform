@@ -51,9 +51,9 @@ namespace AdvantagePlatform.Controllers
                 .Select(g => new Result
                 {
                     Id = Request.GetDisplayUrl().EnsureTrailingSlash() + g.Key,
-                    Comment = $"Highest score of {g.Count()} attempt/s.",
+                    Comment = $"Last score of {g.Count()} attempt/s.<p><div>First Score: {g.First().ScoreGiven:N1}</div><div>Highest Score: {g.Max(x => x.ScoreGiven):N1}</div><div>Lowest Score: {g.Min(x => x.ScoreGiven):N1}</div></p>",
                     ResultMaximum = g.Max(x => x.ScoreMaximum),
-                    ResultScore = g.Max(x => x.ScoreGiven),
+                    ResultScore = g.Last().ScoreGiven,
                     ScoreOf = Url.Link(Constants.ServiceEndpoints.AgsLineItemService, new { request.ContextId, request.Id }),
                     UserId = g.Key
                 });
