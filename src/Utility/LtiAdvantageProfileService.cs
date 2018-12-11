@@ -185,8 +185,8 @@ namespace AdvantagePlatform.Utility
                     {
                         LtiAdvantage.Constants.LtiScopes.AgsLineItem
                     },
-                    LineItem = gradebookColumn == null ? null : $"{httpRequest.Scheme}://{httpRequest.Host}".EnsureTrailingSlash()+$"context/{course.Id}/lineitems/{gradebookColumn.Id}",
-                    LineItems = $"{httpRequest.Scheme}://{httpRequest.Host}".EnsureTrailingSlash()+$"context/{course.Id}/lineitems"
+                    LineItemUrl = gradebookColumn == null ? null : $"{httpRequest.Scheme}://{httpRequest.Host}".EnsureTrailingSlash()+$"context/{course.Id}/lineitems/{gradebookColumn.Id}",
+                    LineItemsUrl = $"{httpRequest.Scheme}://{httpRequest.Host}".EnsureTrailingSlash()+$"context/{course.Id}/lineitems"
                 };
 
                 // Only include Names and Role Provisioning Service claim if the launch includes a context.
