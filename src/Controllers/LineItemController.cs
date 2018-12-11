@@ -48,7 +48,7 @@ namespace AdvantagePlatform.Controllers
 
             return LineItemOk(new LineItem
             {
-                Id = Request.GetDisplayUrl().EnsureTrailingSlash() + gradebookColumn.Id,
+                Id = Request.GetDisplayUrl(),
                 EndDateTime = gradebookColumn.EndDateTime,
                 Label = gradebookColumn.Label,
                 ResourceId = gradebookColumn.ResourceId,
