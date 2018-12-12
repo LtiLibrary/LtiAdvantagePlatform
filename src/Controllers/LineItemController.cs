@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using LtiAdvantage.AssignmentGradeServices;
-using LtiAdvantage.IdentityServer4;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Logging;
 

@@ -17,7 +17,7 @@ namespace AdvantagePlatform
         {
             return new List<IdentityResource>
             {
-                new IdentityResources.OpenId(),
+                new IdentityResources.OpenId()
             };
         }
 
