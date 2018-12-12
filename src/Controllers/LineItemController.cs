@@ -19,13 +19,6 @@ namespace AdvantagePlatform.Controllers
             _context = context;
         }
 
-        protected override Task<LineItemResult> OnCreateLineItemAsync(PostLineItemRequest request)
-        {
-            var lineItem = request.LineItem;
-            lineItem.Id = lineItem.GetHashCode().ToString();
-            return Task.FromResult(LineItemCreated(lineItem));
-        }
-
         protected override Task<LineItemResult> OnDeleteLineItemAsync(DeleteLineItemRequest request)
         {
             return Task.FromResult(LineItemOk());
