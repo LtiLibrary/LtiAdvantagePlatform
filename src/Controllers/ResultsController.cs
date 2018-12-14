@@ -6,6 +6,7 @@ using LtiAdvantage;
 using LtiAdvantage.AssignmentGradeServices;
 using LtiAdvantage.IdentityServer4;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace AdvantagePlatform.Controllers
@@ -31,18 +32,18 @@ namespace AdvantagePlatform.Controllers
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        protected override async Task<ResultContainerResult> OnGetResultsAsync(GetResultsRequest request)
+        protected override async Task<ActionResult<ResultContainer>> OnGetResultsAsync(GetResultsRequest request)
         {
             var course = await _context.GetCourseByContextIdAsync(request.ContextId);
             if (course == null)
             {
-                return ResultsNotFound();
+                return NotFound();
             }
 
             var gradebookColumn = course.GradebookColumns.SingleOrDefault(c => c.Id == Convert.ToInt32(request.Id));
             if (gradebookColumn == null)
             {
-                return ResultsNotFound();
+                return NotFound();
             }
 
             var results = gradebookColumn.Scores
@@ -67,7 +68,7 @@ namespace AdvantagePlatform.Controllers
                 resultContainer.Add(result);
             }
 
-            return ResultsOk(resultContainer);
+            return resultContainer;
         }
     }
 }

@@ -49,7 +49,7 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 return BadRequest();
             }
 
-            var resourceLink = await _context.GetResourceLinkAsync(id);
+            var resourceLink = await _context.GetResourceLinkAsync(id.Value);
             if (resourceLink == null)
             {
                 _logger.LogError("Resource link not found.");

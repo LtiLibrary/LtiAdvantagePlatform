@@ -4,6 +4,7 @@ using AdvantagePlatform.Areas.Identity.Pages.Account.Manage;
 using AdvantagePlatform.Data;
 using LtiAdvantage.NamesRoleProvisioningService;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -31,12 +32,12 @@ namespace AdvantagePlatform.Controllers
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>The members of the sample course.</returns>
-        protected override async Task<MembershipContainerResult> OnGetMembershipAsync(GetMembershipRequest request)
+        protected override async Task<ActionResult<MembershipContainer>> OnGetMembershipAsync(GetMembershipRequest request)
         {
             var course = await _context.GetCourseByContextIdAsync(request.ContextId);
             if (course == null)
             {
-                return MembershipNotFound();
+                return NotFound();
             }
 
             var user = await _context.Users
@@ -44,7 +45,7 @@ namespace AdvantagePlatform.Controllers
                 .SingleOrDefaultAsync(u => u.Course == course);
             if (user == null)
             {
-                return MembershipNotFound();
+                return NotFound();
             }
 
             var membership = new MembershipContainer
@@ -72,7 +73,7 @@ namespace AdvantagePlatform.Controllers
                     .ToList();
             }
 
-            return MembershipOk(membership);
+            return membership;
         }
     }
 }

@@ -66,7 +66,7 @@ namespace AdvantagePlatform.Utility
                     return;
                 }
 
-                // It's OK to not have a gradebook column
+                // Null unless there is exactly one gradebook column for the resource link.
                 var gradebookColumn = await _context.GetGradebookColumnByResourceLinkAsync(resourceLinkId);
 
                 var tool = resourceLink.Tool;
@@ -85,7 +85,7 @@ namespace AdvantagePlatform.Utility
 
                 var course = await _context.GetCourseByResourceLinkAsync(resourceLink.Id);
 
-                var user = await _context.GetUserByResourceLink(resourceLink.Id);
+                var user = await _context.GetUserByResourceLinkAsync(resourceLink.Id);
                 if (user == null)
                 {
                     _logger.LogError("Cannot find user.");

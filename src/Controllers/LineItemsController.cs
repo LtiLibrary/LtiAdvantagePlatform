@@ -1,9 +1,9 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using LtiAdvantage.AssignmentGradeServices;
 using LtiAdvantage.IdentityServer4;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace AdvantagePlatform.Controllers
@@ -13,16 +13,16 @@ namespace AdvantagePlatform.Controllers
         private readonly ApplicationDbContext _context;
 
         public LineItemsController(
-            ILogger<LineItemsControllerBase> logger, 
+            ILogger<LineItemsControllerBase> logger,
             ApplicationDbContext context) : base(logger)
         {
             _context = context;
         }
-        
-        protected override async Task<LineItemResult> OnCreateLineItemAsync(PostLineItemRequest request)
+
+        protected override async Task<ActionResult<LineItem>> OnCreateLineItemAsync(CreateLineItemRequest request)
         {
             var course = await _context.GetCourseByContextIdAsync(request.ContextId);
-            var resourceLink = await _context.GetResourceLinkAsync(Convert.ToInt32(request.LineItem.ResourceLinkId));
+            var resourceLink = await _context.GetResourceLinkAsync(request.LineItem.ResourceLinkId);
 
             // And add a gradebook column to the course
             var gradebookColumn = new GradebookColumn
@@ -38,15 +38,18 @@ namespace AdvantagePlatform.Controllers
 
             await _context.SaveChangesAsync();
 
-            return LineItemCreated(request.LineItem);
+            request.LineItem.Id = Url.Link(LtiAdvantage.Constants.ServiceEndpoints.AgsLineItemService,
+                new {request.ContextId, gradebookColumn.Id});
+
+            return Created(request.LineItem.Id, request.LineItem);
         }
 
-        protected override async Task<LineItemContainerResult> OnGetLineItemsAsync(GetLineItemsRequest request)
+        protected override async Task<ActionResult<LineItemContainer>> OnGetLineItemsAsync(GetLineItemsRequest request)
         {
             var course = await _context.GetCourseByContextIdAsync(request.ContextId);
             if (course == null)
             {
-                return LineItemsNotFound();
+                return NotFound();
             }
 
             var lineitems = new LineItemContainer();
@@ -65,7 +68,7 @@ namespace AdvantagePlatform.Controllers
                 });
             }
 
-            return LineItemsOk(lineitems);
+            return lineitems;
         }
     }
 }
