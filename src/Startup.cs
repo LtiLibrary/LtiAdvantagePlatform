@@ -58,7 +58,7 @@ namespace AdvantagePlatform
                 .AddRazorPagesOptions(options => { options.Conventions.AuthorizeFolder("/CourseLinks"); })
                 .AddRazorPagesOptions(options => { options.Conventions.AuthorizeFolder("/PlatformLinks"); })
                 .AddRazorPagesOptions(options => { options.Conventions.AuthorizeFolder("/Tools"); })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services.AddHttpClient();
 

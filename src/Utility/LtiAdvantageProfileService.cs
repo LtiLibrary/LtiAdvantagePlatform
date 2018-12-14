@@ -8,11 +8,12 @@ using AdvantagePlatform.Data;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Validation;
+using LtiAdvantage;
 using LtiAdvantage.AssignmentGradeServices;
-using LtiAdvantage.IdentityServer4;
 using LtiAdvantage.Lti;
 using LtiAdvantage.NamesRoleProvisioningService;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 
 namespace AdvantagePlatform.Utility
@@ -28,15 +29,18 @@ namespace AdvantagePlatform.Utility
     {
         private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly LinkGenerator _linkGenerator; 
         private readonly ILogger<LtiAdvantageProfileService> _logger;
 
         public LtiAdvantageProfileService(
             ApplicationDbContext context,
             IHttpContextAccessor httpContextAccessor,
+            LinkGenerator linkGenerator,
             ILogger<LtiAdvantageProfileService> logger)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
+            _linkGenerator = linkGenerator;
             _logger = logger;
         }
 
@@ -183,16 +187,19 @@ namespace AdvantagePlatform.Utility
                 {
                     Scope = new List<string>
                     {
-                        LtiAdvantage.Constants.LtiScopes.AgsLineItem
+                        Constants.LtiScopes.AgsLineItem
                     },
-                    LineItemUrl = gradebookColumn == null ? null : $"{httpRequest.Scheme}://{httpRequest.Host}".EnsureTrailingSlash()+$"context/{course.Id}/lineitems/{gradebookColumn.Id}",
-                    LineItemsUrl = $"{httpRequest.Scheme}://{httpRequest.Host}".EnsureTrailingSlash()+$"context/{course.Id}/lineitems"
+                    LineItemUrl = gradebookColumn == null ? null : _linkGenerator.GetUriByRouteValues(Constants.ServiceEndpoints.AgsLineItemService,
+                        new {contextId = course.Id, gradebookColumn.Id}, httpRequest.Scheme, httpRequest.Host),
+                    LineItemsUrl = _linkGenerator.GetUriByRouteValues(Constants.ServiceEndpoints.AgsLineItemsService,
+                        new {contextId = course.Id}, httpRequest.Scheme, httpRequest.Host)
                 };
 
                 // Only include Names and Role Provisioning Service claim if the launch includes a context.
                 request.NamesRoleService = new NamesRoleServiceClaimValueType
                 {
-                    ContextMembershipUrl = $"{httpRequest.Scheme}://{httpRequest.Host}".EnsureTrailingSlash()+$"context/{course.Id}/membership"
+                    ContextMembershipUrl =_linkGenerator.GetUriByRouteValues(Constants.ServiceEndpoints.NrpsMembershipService,
+                        new {contextId = course.Id}, httpRequest.Scheme, httpRequest.Host)
                 };
             }
             else
