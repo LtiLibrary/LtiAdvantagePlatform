@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using LtiAdvantage.IdentityServer4;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -166,7 +167,7 @@ namespace AdvantagePlatform.Data
         /// </summary>
         /// <param name="resourceLinkId">The resource link id.</param>
         /// <returns>The course.</returns>
-        public async Task<Course> GetCourseByResourceLinkAsync(int resourceLinkId)
+        public async Task<Course> GetCourseByResourceLinkIdAsync(int resourceLinkId)
         {
             var course = await Courses.SingleOrDefaultAsync(c => c.ResourceLinks.Any(l => l.Id == resourceLinkId));
 
@@ -228,19 +229,34 @@ namespace AdvantagePlatform.Data
         public async Task<AdvantagePlatformUser> GetUserByResourceLinkAsync(int id)
         {
             // Find the course or platform that includes the resource link
-            var course = await GetCourseByResourceLinkAsync(id);
+            var course = await GetCourseByResourceLinkIdAsync(id);
             if (course != null)
             {
-                return await GetUserByCourseAsync(course.Id);
+                return await GetUserByCourseIdAsync(course.Id);
             }
 
             var platform = await GetPlatformByResourceLinkAsync(id);
             if (platform != null)
             {
-                return await GetUserByPlatformAsync(platform.Id);
+                return await GetUserByPlatformIdAsync(platform.Id);
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Returns a user given the user's course id is string format such as JSON.
+        /// </summary>
+        /// <param name="contextId">The context id.</param>
+        /// <returns>The user.</returns>
+        public async Task<AdvantagePlatformUser> GetUserByContextIdAsync(string contextId)
+        {
+            if (!int.TryParse(contextId, out var id))
+            {
+                throw new ArgumentException($"{nameof(contextId)} is not an integer.");
+            }
+
+            return await GetUserByCourseIdAsync(id);
         }
 
         /// <summary>
@@ -248,7 +264,7 @@ namespace AdvantagePlatform.Data
         /// </summary>
         /// <param name="id">The course id.</param>
         /// <returns>The user.</returns>
-        private async Task<AdvantagePlatformUser> GetUserByCourseAsync(int id)
+        public async Task<AdvantagePlatformUser> GetUserByCourseIdAsync(int id)
         {
             var user = await Users
                 .Include(u => u.Course)
@@ -267,7 +283,7 @@ namespace AdvantagePlatform.Data
         /// </summary>
         /// <param name="id">The platform id.</param>
         /// <returns>The user.</returns>
-        private async Task<AdvantagePlatformUser> GetUserByPlatformAsync(int id)
+        public async Task<AdvantagePlatformUser> GetUserByPlatformIdAsync(int id)
         {
             var user = await Users
                 .Include(u => u.Course)

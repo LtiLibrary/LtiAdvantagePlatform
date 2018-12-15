@@ -96,7 +96,7 @@ namespace AdvantagePlatform.Utility
                         return;
                     }
 
-                    var course = await _context.GetCourseByResourceLinkAsync(resourceLink.Id);
+                    var course = await _context.GetCourseByResourceLinkIdAsync(resourceLink.Id);
 
                     var user = await _context.GetUserByResourceLinkAsync(resourceLink.Id);
                     if (user == null)
