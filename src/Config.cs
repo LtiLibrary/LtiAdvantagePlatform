@@ -64,8 +64,10 @@ namespace AdvantagePlatform
             {
                 new ApiResource(Constants.LtiScopes.NrpsMembershipReadonly, "Membership.Readonly"),
                 new ApiResource(Constants.LtiScopes.AgsLineItem, "LineItem"),
+                new ApiResource(Constants.LtiScopes.AgsLineItemReadonly, "LineItem.Readonly"),
                 new ApiResource(Constants.LtiScopes.AgsResultReadonly, "Result.Readonly"),
-                new ApiResource(Constants.LtiScopes.AgsScore, "Score.Writeonly")
+                new ApiResource(Constants.LtiScopes.AgsScore, "Score"),
+                new ApiResource(Constants.LtiScopes.AgsScoreReadonly, "Score.Readonly")
             };
         }
     }
