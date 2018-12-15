@@ -66,7 +66,13 @@ namespace AdvantagePlatform
 
             services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("v1", new Info {Title= "AdvantagePlatform", Version = "1.0"});
+                options.SwaggerDoc("v1", new Info
+                {
+                    Title= "Advantage Platform", 
+                    Version = Assembly.GetEntryAssembly().GetName().Version.ToString(),
+                    Description = "These are the LTI Advantage service endpoints implemented by this sample platform. " 
+                                  + "Click on Authorize and login with the username and password you registered to try the various services."
+                });
                 options.IncludeXmlComments(Path.Combine(System.AppContext.BaseDirectory, "LtiAdvantage.xml"));
                 options.SwaggerGeneratorOptions.DocumentFilters = new List<IDocumentFilter>
                     {new HideRubyRoutesInSwaggerFilter()};
@@ -181,6 +187,7 @@ namespace AdvantagePlatform
             app.UseSwaggerUI(options =>
             {
                 options.SwaggerEndpoint("/swagger/v1/swagger.json", "LTI Advantage 1.3");
+                options.DocumentTitle = "Advantage Platform - Swagger UI";
                 options.OAuthClientId("swagger");
                 options.OAuthClientSecret("secret");
             });
