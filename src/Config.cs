@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using IdentityModel;
 using IdentityServer4.Models;
 using LtiAdvantage;
 
@@ -14,10 +15,12 @@ namespace AdvantagePlatform
         /// </summary>
         public static ICollection<string> LtiScopes => new[]
         {
+            OidcConstants.StandardScopes.OpenId,
             Constants.LtiScopes.AgsLineItem,
             Constants.LtiScopes.AgsLineItemReadonly,
             Constants.LtiScopes.AgsResultReadonly,
-            Constants.LtiScopes.AgsScoreWriteonly,
+            Constants.LtiScopes.AgsScore,
+            Constants.LtiScopes.AgsScoreReadonly,
             Constants.LtiScopes.NrpsMembershipReadonly
         };
 
@@ -62,7 +65,7 @@ namespace AdvantagePlatform
                 new ApiResource(Constants.LtiScopes.NrpsMembershipReadonly, "Membership.Readonly"),
                 new ApiResource(Constants.LtiScopes.AgsLineItem, "LineItem"),
                 new ApiResource(Constants.LtiScopes.AgsResultReadonly, "Result.Readonly"),
-                new ApiResource(Constants.LtiScopes.AgsScoreWriteonly, "Score.Writeonly")
+                new ApiResource(Constants.LtiScopes.AgsScore, "Score.Writeonly")
             };
         }
     }

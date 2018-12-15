@@ -73,14 +73,7 @@ namespace AdvantagePlatform.Pages.Tools
                 ClientName = Tool.Name,
                 AllowOfflineAccess = true,
                 AllowedGrantTypes = GrantTypes.ImplicitAndClientCredentials, 
-                AllowedScopes =
-                {
-                    OidcConstants.StandardScopes.OpenId,
-                    Constants.LtiScopes.AgsLineItem,
-                    Constants.LtiScopes.AgsResultReadonly,
-                    Constants.LtiScopes.AgsScoreWriteonly,
-                    Constants.LtiScopes.NrpsMembershipReadonly
-                },
+                AllowedScopes = Config.LtiScopes,
                 ClientSecrets = new List<Secret>
                 {
                     new Secret
