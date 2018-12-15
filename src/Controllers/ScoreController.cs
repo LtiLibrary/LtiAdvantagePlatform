@@ -28,7 +28,7 @@ namespace AdvantagePlatform.Controllers
             
             if (!int.TryParse(request.LineItemId, out var lineItemId))
             {
-                return BadRequest($"{nameof(request.LineItemId)} is not an integer.");
+                return BadRequest($"{nameof(request.LineItemId)} is not a valid line item id.");
             }
 
             var gradebookColumn = course.GradebookColumns.SingleOrDefault(c => c.Id == lineItemId);
@@ -37,15 +37,15 @@ namespace AdvantagePlatform.Controllers
                 return NotFound(new ProblemDetails {Title = $"{nameof(request.LineItemId)} not found."});
             }
             
-            if (!int.TryParse(request.Id, out var scoreId))
+            if (!int.TryParse(request.ScoreId, out var scoreId))
             {
-                return BadRequest($"{nameof(request.Id)} is not an integer.");
+                return BadRequest($"{nameof(request.ScoreId)} is not a valid score id.");
             }
 
             var gradebookRow = gradebookColumn.Scores.SingleOrDefault(c => c.Id == scoreId);
             if (gradebookRow == null)
             {
-                return NotFound(new ProblemDetails {Title = $"{nameof(request.Id)} not found."});
+                return NotFound(new ProblemDetails {Title = $"{nameof(request.ScoreId)} not found."});
             }
 
             return new Score

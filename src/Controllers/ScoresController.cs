@@ -26,20 +26,20 @@ namespace AdvantagePlatform.Controllers
                 return NotFound(new ProblemDetails {Title = $"{nameof(request.ContextId)} not found."});
             }
 
-            if (!int.TryParse(request.Id, out var id))
+            if (!int.TryParse(request.LineItemId, out var id))
             {
-                return BadRequest($"{nameof(request.Id)} is not an integer.");
+                return BadRequest($"{nameof(request.LineItemId)} is not a valid line item id.");
             }
 
             var gradebookColumn = course.GradebookColumns.SingleOrDefault(c => c.Id == id);
             if (gradebookColumn == null)
             {
-                return NotFound(new ProblemDetails {Title = $"{nameof(request.Id)} not found."});
+                return NotFound(new ProblemDetails {Title = $"{nameof(request.LineItemId)} not found."});
             }
 
             if (!int.TryParse(request.Score.UserId, out var personId))
             {
-                return BadRequest($"{nameof(request.Score.UserId)} is not an integer.");
+                return BadRequest($"{nameof(request.Score.UserId)} is not a valid user id.");
             }
 
             var person = await _context.People.FindAsync(personId);
@@ -63,7 +63,7 @@ namespace AdvantagePlatform.Controllers
             await _context.SaveChangesAsync();
 
             var url = Url.Link(LtiAdvantage.Constants.ServiceEndpoints.AgsScoreService,
-                new {request.ContextId, lineItemId = request.Id, gradebookRow.Id});
+                new {request.ContextId, lineItemId = request.LineItemId, gradebookRow.Id});
 
             // Save the score
             return Created(url, request.Score);
