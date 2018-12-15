@@ -10,6 +10,7 @@ using IdentityServer4.Services;
 using IdentityServer4.Validation;
 using LtiAdvantage;
 using LtiAdvantage.AssignmentGradeServices;
+using LtiAdvantage.IdentityServer4;
 using LtiAdvantage.Lti;
 using LtiAdvantage.NamesRoleProvisioningService;
 using Microsoft.AspNetCore.Http;
@@ -18,7 +19,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AdvantagePlatform.Utility
 {
-/// <inheritdoc />
+    /// <inheritdoc />
     /// <summary>
     /// Custom ProfileService to add LTI Advantage claims to id_token.
     /// </summary>
@@ -29,7 +30,7 @@ namespace AdvantagePlatform.Utility
     {
         private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly LinkGenerator _linkGenerator; 
+        private readonly LinkGenerator _linkGenerator;
         private readonly ILogger<LtiAdvantageProfileService> _logger;
 
         public LtiAdvantageProfileService(
@@ -52,51 +53,64 @@ namespace AdvantagePlatform.Utility
         /// <returns></returns>
         public async Task GetProfileDataAsync(ProfileDataRequestContext context)
         {
-            if (context.ValidatedRequest is ValidatedAuthorizeRequest request)
+            try
             {
                 _logger.LogInformation($"Starting {nameof(GetProfileDataAsync)}.");
 
-                var ltiMessageHint = request.Raw["lti_message_hint"];
-                if (!int.TryParse(ltiMessageHint, out var resourceLinkId))
+                if (context.ValidatedRequest is ValidatedAuthorizeRequest request)
                 {
-                    _logger.LogError("lti_message_hint is not an int.");
-                    return;
+                    var ltiMessageHint = request.Raw["lti_message_hint"];
+                    if (ltiMessageHint.IsMissing())
+                    {
+                        _logger.LogInformation("Not an LTI request.");
+                        return;
+                    }
+
+                    if (!int.TryParse(ltiMessageHint, out var resourceLinkId))
+                    {
+                        _logger.LogError("lti_message_hint is not an int.");
+                        return;
+                    }
+
+                    var resourceLink = await _context.GetResourceLinkAsync(resourceLinkId);
+                    if (resourceLink == null)
+                    {
+                        _logger.LogError($"Cannot find resource link [{resourceLinkId}].");
+                        return;
+                    }
+
+                    // Null unless there is exactly one gradebook column for the resource link.
+                    var gradebookColumn = await _context.GetGradebookColumnByResourceLinkAsync(resourceLinkId);
+
+                    var tool = resourceLink.Tool;
+                    if (tool == null)
+                    {
+                        _logger.LogError("Cannot find tool.");
+                        return;
+                    }
+
+                    var person = await _context.GetPersonAsync(request.LoginHint);
+                    if (person == null)
+                    {
+                        _logger.LogError($"Cannot find person [{request.LoginHint}].");
+                        return;
+                    }
+
+                    var course = await _context.GetCourseByResourceLinkAsync(resourceLink.Id);
+
+                    var user = await _context.GetUserByResourceLinkAsync(resourceLink.Id);
+                    if (user == null)
+                    {
+                        _logger.LogError("Cannot find user.");
+                        return;
+                    }
+
+                    context.IssuedClaims = GetLtiClaimsAsync(resourceLink, gradebookColumn, tool, person, course, user.Platform);
                 }
-
-                var resourceLink = await _context.GetResourceLinkAsync(resourceLinkId);
-                if (resourceLink == null)
-                {
-                    _logger.LogError($"Cannot find resource link [{resourceLinkId}].");
-                    return;
-                }
-
-                // Null unless there is exactly one gradebook column for the resource link.
-                var gradebookColumn = await _context.GetGradebookColumnByResourceLinkAsync(resourceLinkId);
-
-                var tool = resourceLink.Tool;
-                if (tool == null)
-                {
-                    _logger.LogError("Cannot find tool.");
-                    return;
-                }
-
-                var person = await _context.GetPersonAsync(request.LoginHint);
-                if (person == null)
-                {
-                    _logger.LogError($"Cannot find person [{request.LoginHint}].");
-                    return;
-                }
-
-                var course = await _context.GetCourseByResourceLinkAsync(resourceLink.Id);
-
-                var user = await _context.GetUserByResourceLinkAsync(resourceLink.Id);
-                if (user == null)
-                {
-                    _logger.LogError("Cannot find user.");
-                    return;
-                }
-
-                context.IssuedClaims = GetLtiClaimsAsync(resourceLink, gradebookColumn, tool, person, course, user.Platform);
+            }
+            finally
+            {
+                _logger.LogInformation($"Exiting {nameof(GetProfileDataAsync)}.");
             }
         }
 
@@ -190,16 +204,16 @@ namespace AdvantagePlatform.Utility
                         Constants.LtiScopes.AgsLineItem
                     },
                     LineItemUrl = gradebookColumn == null ? null : _linkGenerator.GetUriByRouteValues(Constants.ServiceEndpoints.AgsLineItemService,
-                        new {contextId = course.Id, gradebookColumn.Id}, httpRequest.Scheme, httpRequest.Host),
+                        new { contextId = course.Id, gradebookColumn.Id }, httpRequest.Scheme, httpRequest.Host),
                     LineItemsUrl = _linkGenerator.GetUriByRouteValues(Constants.ServiceEndpoints.AgsLineItemsService,
-                        new {contextId = course.Id}, httpRequest.Scheme, httpRequest.Host)
+                        new { contextId = course.Id }, httpRequest.Scheme, httpRequest.Host)
                 };
 
                 // Only include Names and Role Provisioning Service claim if the launch includes a context.
                 request.NamesRoleService = new NamesRoleServiceClaimValueType
                 {
-                    ContextMembershipUrl =_linkGenerator.GetUriByRouteValues(Constants.ServiceEndpoints.NrpsMembershipService,
-                        new {contextId = course.Id}, httpRequest.Scheme, httpRequest.Host)
+                    ContextMembershipUrl = _linkGenerator.GetUriByRouteValues(Constants.ServiceEndpoints.NrpsMembershipService,
+                        new { contextId = course.Id }, httpRequest.Scheme, httpRequest.Host)
                 };
             }
             else

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using AdvantagePlatform.Data;
@@ -16,6 +18,8 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Swashbuckle.AspNetCore.Swagger;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace AdvantagePlatform
 {
@@ -59,6 +63,25 @@ namespace AdvantagePlatform
                 .AddRazorPagesOptions(options => { options.Conventions.AuthorizeFolder("/PlatformLinks"); })
                 .AddRazorPagesOptions(options => { options.Conventions.AuthorizeFolder("/Tools"); })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new Info {Title= "AdvantagePlatform", Version = "1.0"});
+                options.IncludeXmlComments(Path.Combine(System.AppContext.BaseDirectory, "LtiAdvantage.xml"));
+                options.SwaggerGeneratorOptions.DocumentFilters = new List<IDocumentFilter>
+                    {new HideRubyRoutesInSwaggerFilter()};
+                options.AddSecurityDefinition("oauth2", new OAuth2Scheme
+                {
+                    TokenUrl = "/connect/token",
+                    Type = "oauth2",
+                    Flow = "password",
+                    Scopes = Config.LtiScopes.ToDictionary(s => s, s => "")
+                });
+                options.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
+                {
+                    { "oauth2", Config.LtiScopes }
+                });
+            });
 
             services.AddHttpClient();
 
@@ -154,6 +177,14 @@ namespace AdvantagePlatform
 
             app.UseIdentityServer();
 
+            app.UseSwagger();
+            app.UseSwaggerUI(options =>
+            {
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "LTI Advantage 1.3");
+                options.OAuthClientId("swagger");
+                options.OAuthClientSecret("secret");
+            });
+
             app.UseMvc();
         }
 
@@ -167,6 +198,16 @@ namespace AdvantagePlatform
             {
                 var context = serviceScope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
 
+                if (!EnumerableExtensions.Any(context.Clients))
+                {
+                    foreach (var client in Config.GetClients())
+                    {
+                        context.Clients.Add(client.ToEntity());
+                    }
+
+                    context.SaveChanges();
+                }
+
                 // Define the identity resources that can be requested.
                 if (!EnumerableExtensions.Any(context.IdentityResources))
                 {
@@ -174,6 +215,7 @@ namespace AdvantagePlatform
                     {
                         context.IdentityResources.Add(resource.ToEntity());
                     }
+
                     context.SaveChanges();
                 }
 
@@ -184,6 +226,7 @@ namespace AdvantagePlatform
                     {
                         context.ApiResources.Add(resource.ToEntity());
                     }
+
                     context.SaveChanges();
                 }
             }

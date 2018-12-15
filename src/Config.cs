@@ -10,6 +10,36 @@ namespace AdvantagePlatform
     public class Config
     {
         /// <summary>
+        /// LTI scopes.
+        /// </summary>
+        public static ICollection<string> LtiScopes => new[]
+        {
+            Constants.LtiScopes.AgsLineItem,
+            Constants.LtiScopes.AgsLineItemReadonly,
+            Constants.LtiScopes.AgsResultReadonly,
+            Constants.LtiScopes.AgsScoreWriteonly,
+            Constants.LtiScopes.NrpsMembershipReadonly
+        };
+
+        /// <summary>
+        /// Built-in clients.
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<Client> GetClients()
+        {
+            return new List<Client>
+            {
+                new Client
+                {
+                    ClientId = "swagger",
+                    AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
+                    AllowedScopes = LtiScopes,
+                    RedirectUris = new [] { "/swagger/oauth2-redirect.html" }
+                }
+            };
+        }
+
+        /// <summary>
         /// Identity resources that can be requested.
         /// </summary>
         /// <returns></returns>
@@ -32,7 +62,7 @@ namespace AdvantagePlatform
                 new ApiResource(Constants.LtiScopes.NrpsMembershipReadonly, "Membership.Readonly"),
                 new ApiResource(Constants.LtiScopes.AgsLineItem, "LineItem"),
                 new ApiResource(Constants.LtiScopes.AgsResultReadonly, "Result.Readonly"),
-                new ApiResource(Constants.LtiScopes.AgsScoreWriteonly, "Score")
+                new ApiResource(Constants.LtiScopes.AgsScoreWriteonly, "Score.Writeonly")
             };
         }
     }

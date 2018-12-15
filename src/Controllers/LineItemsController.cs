@@ -22,18 +22,31 @@ namespace AdvantagePlatform.Controllers
         protected override async Task<ActionResult<LineItem>> OnCreateLineItemAsync(CreateLineItemRequest request)
         {
             var course = await _context.GetCourseByContextIdAsync(request.ContextId);
-            var resourceLink = await _context.GetResourceLinkAsync(request.LineItem.ResourceLinkId);
+            if (course == null)
+            {
+                return NotFound(new ProblemDetails { Detail = "Course not found." });
+            }
 
             // And add a gradebook column to the course
             var gradebookColumn = new GradebookColumn
             {
                 EndDateTime = request.LineItem.EndDateTime,
                 Label = request.LineItem.Label,
-                ResourceLink = resourceLink,
                 ScoreMaximum = request.LineItem.ScoreMaximum,
                 StartDateTime = request.LineItem.StartDateTime,
                 Tag = request.LineItem.Tag
             };
+            if (request.LineItem.ResourceLinkId.IsPresent())
+            {
+                var resourceLink = await _context.GetResourceLinkAsync(request.LineItem.ResourceLinkId);
+                if (resourceLink == null)
+                {
+                    return NotFound(new ProblemDetails { Detail = "Resource link not found." });
+                }
+
+                gradebookColumn.ResourceLink = resourceLink;
+            }
+
             course.GradebookColumns.Add(gradebookColumn);
 
             await _context.SaveChangesAsync();
@@ -49,7 +62,7 @@ namespace AdvantagePlatform.Controllers
             var course = await _context.GetCourseByContextIdAsync(request.ContextId);
             if (course == null)
             {
-                return NotFound();
+                return NotFound(new ProblemDetails { Detail = "Course not found." });
             }
 
             var lineitems = new LineItemContainer();
