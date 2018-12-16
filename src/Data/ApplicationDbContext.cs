@@ -56,7 +56,7 @@ namespace AdvantagePlatform.Data
         }
 
         /// <summary>
-        /// Returns a resource linke given the id in string format such as from json.
+        /// Returns a resource link given the id in string format such as from json.
         /// </summary>
         /// <param name="resourceLinkId">The resource link id.</param>
         /// <returns>The resource link.</returns>
@@ -64,7 +64,7 @@ namespace AdvantagePlatform.Data
         {
             if (!int.TryParse(resourceLinkId, out var id))
             {
-                throw new ArgumentException($"{nameof(resourceLinkId)} is not an integer.");
+                throw new ArgumentException($"{nameof(resourceLinkId)} is not a valid resource link id.");
             }
 
             return await GetResourceLinkAsync(id);

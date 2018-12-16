@@ -1,33 +1,54 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using LtiAdvantage.AssignmentGradeServices;
 using LtiAdvantage.IdentityServer4;
-using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 
 namespace AdvantagePlatform.Controllers
 {
+    /// <inheritdoc />
+    /// <summary>
+    /// Sample implementation of a line items controller.
+    /// </summary>
     public class LineItemsController : LineItemsControllerBase
     {
         private readonly ApplicationDbContext _context;
 
+        /// <inheritdoc />
+        /// <summary>
+        /// </summary>
         public LineItemsController(
-            ILogger<LineItemsControllerBase> logger,
-            ApplicationDbContext context) : base(logger)
+            IHostingEnvironment env,
+            ILogger<ILineItemsController> logger,
+            ApplicationDbContext context) : base(env, logger)
         {
             _context = context;
         }
 
-        protected override async Task<ActionResult<LineItem>> OnCreateLineItemAsync(CreateLineItemRequest request)
+        /// <inheritdoc />
+        /// <summary>
+        /// Adds a gradebook column to a course.
+        /// </summary>
+        /// <returns>The line item corresponding to the new gradebook column.</returns>
+        protected override async Task<ActionResult<LineItem>> OnAddLineItemAsync(AddLineItemRequest request)
         {
             var course = await _context.GetCourseByContextIdAsync(request.ContextId);
             if (course == null)
             {
-                return NotFound(new ProblemDetails { Detail = "Course not found." });
+                return NotFound(new ProblemDetails
+                {
+                    Title= ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound), 
+                    Detail = "Course not found"
+                });
             }
 
-            // And add a gradebook column to the course
+            // Add a gradebook column to the course
             var gradebookColumn = new GradebookColumn
             {
                 EndDateTime = request.LineItem.EndDateTime,
@@ -41,7 +62,11 @@ namespace AdvantagePlatform.Controllers
                 var resourceLink = await _context.GetResourceLinkAsync(request.LineItem.ResourceLinkId);
                 if (resourceLink == null)
                 {
-                    return NotFound(new ProblemDetails { Detail = "Resource link not found." });
+                    return BadRequest(new ProblemDetails
+                    {
+                        Title = ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest),
+                        Detail = "Resource link not found"
+                    });
                 }
 
                 gradebookColumn.ResourceLink = resourceLink;
@@ -57,20 +82,30 @@ namespace AdvantagePlatform.Controllers
             return Created(request.LineItem.Id, request.LineItem);
         }
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Returns the gradebook columns in a course.
+        /// </summary>
+        /// <returns>Line items corresponding to the gradebook columns.</returns>
         protected override async Task<ActionResult<LineItemContainer>> OnGetLineItemsAsync(GetLineItemsRequest request)
         {
             var course = await _context.GetCourseByContextIdAsync(request.ContextId);
             if (course == null)
             {
-                return NotFound(new ProblemDetails { Detail = "Course not found." });
+                return NotFound(new ProblemDetails
+                {
+                    Title= ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound), 
+                    Detail = "Course not found"
+                });
             }
 
-            var lineitems = new LineItemContainer();
+            var lineitems = new List<LineItem>();
             foreach (var gradebookColumn in course.GradebookColumns)
             {
                 lineitems.Add(new LineItem
                 {
-                    Id = Request.GetDisplayUrl().EnsureTrailingSlash() + gradebookColumn.Id,
+                    Id = Url.Link(LtiAdvantage.Constants.ServiceEndpoints.AgsLineItemService,
+                        new {request.ContextId, gradebookColumn.Id}),
                     EndDateTime = gradebookColumn.EndDateTime,
                     Label = gradebookColumn.Label,
                     ResourceId = gradebookColumn.ResourceId,
@@ -81,7 +116,22 @@ namespace AdvantagePlatform.Controllers
                 });
             }
 
-            return lineitems;
+            if (request.ResourceId.IsPresent())
+            {
+                lineitems = lineitems.Where(l => l.ResourceId == request.ResourceId).ToList();
+            }
+
+            if (request.ResourceLinkId.IsPresent())
+            {
+                lineitems = lineitems.Where(l => l.ResourceLinkId == request.ResourceLinkId).ToList();
+            }
+
+            if (request.Tag.IsPresent())
+            {
+                lineitems = lineitems.Where(l => l.Tag == request.Tag).ToList();
+            }
+
+            return new LineItemContainer(lineitems);
         }
     }
 }
