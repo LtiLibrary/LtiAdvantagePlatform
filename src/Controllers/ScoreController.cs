@@ -7,10 +7,17 @@ using Microsoft.Extensions.Logging;
 
 namespace AdvantagePlatform.Controllers
 {
+    /// <inheritdoc />
+    /// <summary>
+    /// Sample score controller.
+    /// </summary>
     public class ScoreController : ScoreControllerBase
     {
         private readonly ApplicationDbContext _context;
 
+        /// <inheritdoc />
+        /// <summary>
+        /// </summary>
         public ScoreController(
             ApplicationDbContext context,
             ILogger<ScoreControllerBase> logger) : base(logger)
@@ -18,6 +25,12 @@ namespace AdvantagePlatform.Controllers
             _context = context;
         }
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Returns a score.
+        /// </summary>
+        /// <param name="request">The request parameters.</param>
+        /// <returns>The score.</returns>
         protected override async Task<ActionResult<Score>> OnGetScoreAsync(GetScoreRequest request)
         {
             var course = await _context.GetCourseByContextIdAsync(request.ContextId);

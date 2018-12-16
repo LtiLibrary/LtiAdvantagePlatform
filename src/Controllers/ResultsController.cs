@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using LtiAdvantage;
@@ -28,7 +27,7 @@ namespace AdvantagePlatform.Controllers
 
         /// <inheritdoc />
         /// <summary>
-        /// Returns the maximum score for each person with scores.
+        /// Returns the most recent score for each person with scores.
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
@@ -37,13 +36,18 @@ namespace AdvantagePlatform.Controllers
             var course = await _context.GetCourseByContextIdAsync(request.ContextId);
             if (course == null)
             {
-                return NotFound();
+                return NotFound(new ProblemDetails {Title = $"{nameof(request.ContextId)} not found."});
+            }
+                        
+            if (!int.TryParse(request.LineItemId, out var lineItemId))
+            {
+                return BadRequest($"{nameof(request.LineItemId)} is not a valid line item id.");
             }
 
-            var gradebookColumn = course.GradebookColumns.SingleOrDefault(c => c.Id == Convert.ToInt32(request.Id));
+            var gradebookColumn = course.GradebookColumns.SingleOrDefault(c => c.Id == lineItemId);
             if (gradebookColumn == null)
             {
-                return NotFound();
+                return NotFound(new ProblemDetails {Title = $"{nameof(request.LineItemId)} not found."});
             }
 
             var results = gradebookColumn.Scores
@@ -58,9 +62,14 @@ namespace AdvantagePlatform.Controllers
                               + $"<div>Lowest Score: {g.Min(x => x.ScoreGiven):N1}</div></p>",
                     ResultMaximum = g.Max(x => x.ScoreMaximum),
                     ResultScore = g.Last().ScoreGiven,
-                    ScoreOf = Url.Link(Constants.ServiceEndpoints.AgsLineItemService, new { request.ContextId, request.Id }),
+                    ScoreOf = Url.Link(Constants.ServiceEndpoints.AgsLineItemService, new { request.ContextId, Id = request.LineItemId }),
                     UserId = g.Key
                 });
+
+            if (request.UserId.IsPresent())
+            {
+                results = results.Where(r => r.UserId == request.UserId);
+            }
 
             var resultContainer = new ResultContainer();
             foreach (var result in results)
