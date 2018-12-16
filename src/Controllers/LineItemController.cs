@@ -41,33 +41,6 @@ namespace AdvantagePlatform.Controllers
             return Ok();
         }
 
-        protected override async Task<ActionResult<LineItem>> OnGetLineItemAsync(GetLineItemRequest request)
-        {
-            var course = await _context.GetCourseByContextIdAsync(request.ContextId);
-            if (course == null)
-            {
-                return NotFound();
-            }
-
-            var gradebookColumn = course.GradebookColumns.SingleOrDefault(c => c.Id == Convert.ToInt32(request.Id));
-            if (gradebookColumn == null)
-            {
-                return NotFound();
-            }
-
-            return new LineItem
-            {
-                Id = Request.GetDisplayUrl(),
-                EndDateTime = gradebookColumn.EndDateTime,
-                Label = gradebookColumn.Label,
-                ResourceId = gradebookColumn.ResourceId,
-                ResourceLinkId = gradebookColumn.ResourceLink.Id.ToString(),
-                ScoreMaximum = gradebookColumn.ScoreMaximum,
-                StartDateTime = gradebookColumn.StartDateTime,
-                Tag = gradebookColumn.Tag
-            };
-        }
-
         protected override async Task<ActionResult> OnUpdateLineItemAsync(UpdateLineItemRequest request)
         {
             if (!Uri.TryCreate(request.LineItem.Id, UriKind.Absolute, out var lineItemId))

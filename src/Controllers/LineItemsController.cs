@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
@@ -6,6 +7,7 @@ using LtiAdvantage.AssignmentGradeServices;
 using LtiAdvantage.IdentityServer4;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
@@ -80,6 +82,38 @@ namespace AdvantagePlatform.Controllers
                 new {request.ContextId, gradebookColumn.Id});
 
             return Created(request.LineItem.Id, request.LineItem);
+        }
+        
+        /// <inheritdoc />
+        /// <summary>
+        /// Returns a gradebook column from a course.
+        /// </summary>
+        /// <returns>The line item corresponding to the gradebook column.</returns>
+        protected override async Task<ActionResult<LineItem>> OnGetLineItemAsync(GetLineItemRequest request)
+        {
+            var course = await _context.GetCourseByContextIdAsync(request.ContextId);
+            if (course == null)
+            {
+                return NotFound();
+            }
+
+            var gradebookColumn = course.GradebookColumns.SingleOrDefault(c => c.Id == Convert.ToInt32(request.LineItemId));
+            if (gradebookColumn == null)
+            {
+                return NotFound();
+            }
+
+            return new LineItem
+            {
+                Id = Request.GetDisplayUrl(),
+                EndDateTime = gradebookColumn.EndDateTime,
+                Label = gradebookColumn.Label,
+                ResourceId = gradebookColumn.ResourceId,
+                ResourceLinkId = gradebookColumn.ResourceLink.Id.ToString(),
+                ScoreMaximum = gradebookColumn.ScoreMaximum,
+                StartDateTime = gradebookColumn.StartDateTime,
+                Tag = gradebookColumn.Tag
+            };
         }
 
         /// <inheritdoc />

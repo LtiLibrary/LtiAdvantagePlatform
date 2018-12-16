@@ -11,7 +11,7 @@ namespace AdvantagePlatform.Utility
         {
             foreach (var key in swaggerDoc.Paths.Keys.ToArray())
             {
-                if (key.EndsWith(".{format}"))
+                if (key.Contains(".{format"))
                 {
                     swaggerDoc.Paths.Remove(key);
                 }
