@@ -256,8 +256,9 @@ paket-files/
 # CodeRush
 .cr/
 
-# Identity Server 4 Developer Signing Key
-tempkey.rsa
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+
+# Identity Server 4 Developer Signing Key
+tempkey.rsa
