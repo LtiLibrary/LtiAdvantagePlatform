@@ -45,6 +45,7 @@ namespace AdvantagePlatform
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
+			// This is a sample app. Use simple passwords.
             services.AddDefaultIdentity<AdvantagePlatformUser>(options =>
                 {
                     options.Password.RequireDigit = false;
@@ -55,15 +56,17 @@ namespace AdvantagePlatform
                 })
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-            // Use app specific cookie name so both AdvantagePlatform and AdvantageTool can run at the same time
+            // Use app specific cookie name so both AdvantagePlatform and AdvantageTool can run at the same time.
             services.ConfigureApplicationCookie(options => { options.Cookie.Name = "AdvantagePlatform"; });
 
+			// Some pages require authorization.
             services.AddMvc()
                 .AddRazorPagesOptions(options => { options.Conventions.AuthorizeFolder("/CourseLinks"); })
                 .AddRazorPagesOptions(options => { options.Conventions.AuthorizeFolder("/PlatformLinks"); })
                 .AddRazorPagesOptions(options => { options.Conventions.AuthorizeFolder("/Tools"); })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
+			// Add Swagger
             services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new Info
@@ -89,6 +92,7 @@ namespace AdvantagePlatform
                 });
             });
 
+			// Add an HttpClientFactory
             services.AddHttpClient();
 
             // Add Identity Server configured to support LTI Advantage needs
@@ -98,10 +102,10 @@ namespace AdvantagePlatform
                     options.UserInteraction.LogoutUrl = "/Identity/Account/Logout";
                 })
 
-                // Not appropriate for production
+                // This is not appropriate for production
                 .AddDeveloperSigningCredential()
 
-                // Look for a JWT client credential for authorization and validate it using the private key
+                // In LTI Advantage world, client credentials are signed JWTs
                 .AddSecretParser<JwtBearerClientAssertionSecretParser>()
                 .AddSecretValidator<PrivatePemKeyJwtSecretValidator>()
 
@@ -133,7 +137,7 @@ namespace AdvantagePlatform
                 // Allow the ASP.NET user to impersonate a Platform user (e.g. a student in the course)
                 .AddImpersonationSupport();
 
-            // Add AddAuthentication and set the default scheme to IdentityConstants.ApplicationScheme
+            // Add authentication and set the default scheme to IdentityConstants.ApplicationScheme
             // so that IdentityServer can find the right ASP.NET Core Identity pages
             // https://github.com/IdentityServer/IdentityServer4/issues/2510#issuecomment-411871543
             services.AddAuthentication(IdentityConstants.ApplicationScheme)
@@ -163,6 +167,7 @@ namespace AdvantagePlatform
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+			// Configure Identity Server
             InitializeDatabase(app);
 
             if (env.IsDevelopment())
@@ -176,13 +181,14 @@ namespace AdvantagePlatform
                 app.UseHsts();
             }
 
-            //app.UseStatusCodePagesWithRedirects("/Error?httpStatusCode={0}");
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
+			// Fire up Identity Server (replaces app.UseAuthentication())
             app.UseIdentityServer();
 
+			// Fire up Swagger and Swagger UI
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
@@ -196,9 +202,8 @@ namespace AdvantagePlatform
         }
 
         /// <summary>
-        /// Configure the Identity Server.
+        /// Configure Identity Server.
         /// </summary>
-        /// <param name="app"></param>
         private static void InitializeDatabase(IApplicationBuilder app)
         {
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
