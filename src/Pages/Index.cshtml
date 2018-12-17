@@ -83,7 +83,7 @@
                                 </h6>
                                 @if (Model.PlatformResourceLinks.Any())
                                 {
-                                    foreach (var link in Model.PlatformResourceLinks)
+                                    foreach (var link in Model.PlatformResourceLinks.OrderBy(l => l.Title))
                                     {
                                         <div class="row">
                                             <div class="col-sm-auto">
@@ -180,7 +180,7 @@
                                         @if (Model.CourseResourceLinks.Any())
                                         {
                                             <div class="row">
-                                                @foreach (var link in Model.CourseResourceLinks)
+                                                @foreach (var link in Model.CourseResourceLinks.OrderBy(l => l.Title))
                                                 {
                                                     <div class="col-sm-auto">
                                                         <div class="card bg-warning mb-3 text-dark">
