@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
@@ -79,11 +78,9 @@ namespace AdvantagePlatform.Controllers
                 var resourceLink = await _context.GetResourceLinkAsync(resourceLinkId);
                 if (resourceLink == null)
                 {
-                    return BadRequest(new ProblemDetails
-                    {
-                        Title = ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest),
-                        Detail = "Resource link not found"
-                    });
+                    var name = $"{nameof(request)}.{nameof(request.LineItem)}.{request.LineItem.ResourceLinkId}";
+                    ModelState.AddModelError(name, $"The {name} field is not a valid resource link id.");
+                    return BadRequest(new ValidationProblemDetails(ModelState));
                 }
 
                 gradebookColumn.ResourceLink = resourceLink;
@@ -276,19 +273,10 @@ namespace AdvantagePlatform.Controllers
                 ModelState.AddModelError(name, $"The {name} field cannot be converted into a course id.");
             }
 
-            if (!Uri.TryCreate(request.LineItem.Id, UriKind.Absolute, out var lineItemUrl))
+            if (!int.TryParse(request.LineItemId, out var lineItemId))
             {
-                var name = $"{nameof(request)}.{nameof(request.LineItem)}.{request.LineItem.Id}";
-                ModelState.AddModelError(name, $"The {name} field cannot be converted into a uri.");
-            }
-
-            // Extract the line item id
-            var pathStrings = lineItemUrl.AbsolutePath.Split("/");
-            var id = pathStrings[pathStrings.Length-1];
-            if (!int.TryParse(id, out var lineItemId))
-            {
-                var name = $"{nameof(request)}.{nameof(request.LineItem)}.{request.LineItem.Id}";
-                ModelState.AddModelError(name, $"The {name} field cannot be converted into a valid line item id.");
+                var name = $"{nameof(request)}.{nameof(request.LineItemId)}";
+                ModelState.AddModelError(name, $"The {name} field cannot be converted into a gradebook column id.");
             }
 
             if (!ModelState.IsValid)
@@ -347,6 +335,7 @@ namespace AdvantagePlatform.Controllers
             }
 
             _context.GradebookColumns.Update(gradebookColumn);
+
             await _context.SaveChangesAsync();
 
             return NoContent();
