@@ -13,6 +13,7 @@ namespace AdvantagePlatform
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .UseApplicationInsights()
                 .ConfigureLogging((builder, logging) => { logging.AddDebug(); })
                 .UseStartup<Startup>();
     }
