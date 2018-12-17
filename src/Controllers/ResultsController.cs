@@ -89,7 +89,7 @@ namespace AdvantagePlatform.Controllers
                     ResultScore = g.Last().ScoreGiven,
                     ScoreOf = Url.Link(Constants.ServiceEndpoints.AgsLineItemService, 
                         new { contextId = request.ContextId, lineItemId = request.LineItemId }),
-                    UserId = g.Key
+                    UserId = g.Key.ToString()
                 })
                 .ToList();
 

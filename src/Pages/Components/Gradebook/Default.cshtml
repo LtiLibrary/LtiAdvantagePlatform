@@ -1,0 +1,42 @@
+﻿@model GradebookModel
+
+<h6 class="font-weight-bold">Gradebook</h6>
+<div class="row">
+    <div class="col">
+        <table class="table table-bordered table-sm border-0">
+            <thead>
+                <tr>
+                    <th scope="col" class="border-left-0 border-top-0"></th>
+                    @foreach (var column in Model.Columns.OrderBy(c => c.Header))
+                    {
+                        <th scope="col" class="text-center">@column.Header</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var personId in Model.Members.Keys)
+                {
+                    <tr>
+                        <th scope="row">@Model.Members[personId]</th>
+                        @foreach (var column in Model.Columns.OrderBy(c => c.Header))
+                        {
+                            <td class="text-center">
+                                @{ var lastScore = column.Column.Scores.LastOrDefault(s => s.PersonId == personId); }
+                                @if (lastScore == null)
+                                {
+                                    <span data-toggle="tooltip" title="No scores submitted">--</span>
+                                }
+                                else
+                                {
+                                    <span data-toggle="tooltip" title="@lastScore.Comment">
+                                        @lastScore.ScoreGiven.ToString("N1")
+                                    </span>
+                                }
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -192,20 +192,21 @@
                                                                 @if (Model.People != null)
                                                                 {
                                                                     foreach (var person in Model.People)
-                                                                     {
-                                                                         <a class="btn btn-sm btn-secondary mt-2 mb-2" target="_blank"
-                                                                            data-toggle="tooltip" title="@($"OIDC Launch this tool as {person.FirstName} {person.LastName}")"
-                                                                            asp-page="ResourceLinks/OidcLaunch"
-                                                                            asp-route-id="@link.Id"
-                                                                            asp-route-personId="@person.Id"><i class="fas fa-external-link-alt"></i> @person.FirstName
-                                                                         </a>
-                                                                     }
+                                                                    {
+                                                                        <a class="btn btn-sm btn-secondary mt-2 mb-2" target="_blank"
+                                                                           data-toggle="tooltip" title="@($"OIDC Launch this tool as {person.FirstName} {person.LastName}")"
+                                                                           asp-page="ResourceLinks/OidcLaunch"
+                                                                           asp-route-id="@link.Id"
+                                                                           asp-route-personId="@person.Id"><i class="fas fa-external-link-alt"></i> @person.FirstName
+                                                                        </a>
+                                                                    }
                                                                 }
                                                             </div>
                                                         </div>
                                                     </div>
                                                 }
                                             </div>
+                                            @await Component.InvokeAsync("Gradebook", Model.Course.Id)
                                         }
                                         else
                                         {

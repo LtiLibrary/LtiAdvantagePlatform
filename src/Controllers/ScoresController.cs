@@ -96,7 +96,7 @@ namespace AdvantagePlatform.Controllers
                 ActivityProgress = request.Score.ActivityProgress,
                 Comment = request.Score.Comment,
                 GradingProgress = request.Score.GradingProgress,
-                PersonId = request.Score.UserId,
+                PersonId = personId,
                 ScoreGiven = request.Score.ScoreGiven,
                 ScoreMaximum = request.Score.ScoreMaximum,
                 TimeStamp = request.Score.TimeStamp
@@ -186,7 +186,7 @@ namespace AdvantagePlatform.Controllers
                 ScoreGiven = gradebookRow.ScoreGiven,
                 ScoreMaximum = gradebookRow.ScoreMaximum,
                 TimeStamp = gradebookRow.TimeStamp,
-                UserId = gradebookRow.PersonId
+                UserId = gradebookRow.PersonId.ToString()
             };
         }
     }

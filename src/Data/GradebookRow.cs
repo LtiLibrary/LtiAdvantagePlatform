@@ -30,6 +30,11 @@ namespace AdvantagePlatform.Data
         public GradingProgess GradingProgress { get; set; }
 
         /// <summary>
+        /// The person id.
+        /// </summary>
+        public int PersonId { get; set; }
+
+        /// <summary>
         /// The score.
         /// </summary>
         public double ScoreGiven { get; set; }
@@ -43,10 +48,5 @@ namespace AdvantagePlatform.Data
         /// The UTC time the score was set. ISO 8601 format.
         /// </summary>
         public DateTime TimeStamp { get; set; }
-
-        /// <summary>
-        /// The person id.
-        /// </summary>
-        public string PersonId { get; set; }
     }
 }
