@@ -24,7 +24,7 @@ namespace AdvantagePlatform.Controllers
 
         public MembershipController(
             IHostingEnvironment env,
-            ILogger<IMembershipController> logger,
+            ILogger<MembershipController> logger,
             ApplicationDbContext context) : base(env, logger)
         {
             _context = context;

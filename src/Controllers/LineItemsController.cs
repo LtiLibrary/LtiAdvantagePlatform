@@ -26,7 +26,7 @@ namespace AdvantagePlatform.Controllers
         /// </summary>
         public LineItemsController(
             IHostingEnvironment env,
-            ILogger<ILineItemsController> logger,
+            ILogger<LineItemsController> logger,
             ApplicationDbContext context) : base(env, logger)
         {
             _context = context;
@@ -135,7 +135,7 @@ namespace AdvantagePlatform.Controllers
                 _context.GradebookColumns.Remove(gradebookColumn);
                 await _context.SaveChangesAsync();
 
-                return Ok();
+                return NoContent();
             }
 
             return NotFound(new ProblemDetails

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using LtiAdvantage.AssignmentGradeServices;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
@@ -21,8 +22,9 @@ namespace AdvantagePlatform.Controllers
         /// <summary>
         /// </summary>
         public ScoresController(
-            ApplicationDbContext context,
-            ILogger<ScoresControllerBase> logger) : base(logger)
+            IHostingEnvironment env,
+            ILogger<ScoresController> logger,
+            ApplicationDbContext context) : base(env, logger)
         {
             _context = context;
         }
@@ -104,10 +106,88 @@ namespace AdvantagePlatform.Controllers
             await _context.SaveChangesAsync();
 
             var url = Url.Link(LtiAdvantage.Constants.ServiceEndpoints.AgsScoreService,
-                new {request.ContextId, lineItemId = request.LineItemId, gradebookRow.Id});
+                new {request.ContextId, lineItemId = request.LineItemId, scoreId = gradebookRow.Id});
 
             // Save the score
             return Created(url, request.Score);
+        }
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Returns a score.
+        /// </summary>
+        /// <remarks>
+        /// This is not part of the Assignment and Grade Services spec.
+        /// </remarks>
+        /// <param name="request">The request parameters.</param>
+        /// <returns>The score.</returns>
+        protected override async Task<ActionResult<Score>> OnGetScoreAsync(GetScoreRequest request)
+        {
+            if (!int.TryParse(request.ContextId, out var contextId))
+            {
+                var name = $"{nameof(request)}.{nameof(request.ContextId)}";
+                ModelState.AddModelError(name, $"The {name} field cannot be converted into a course id.");
+            }
+
+            if (!int.TryParse(request.LineItemId, out var lineItemId))
+            {
+                var name = $"{nameof(request)}.{nameof(request.LineItemId)}";
+                ModelState.AddModelError(name, $"The {name} field cannot be converted into a gradebook column id.");
+            }
+
+            if (!int.TryParse(request.ScoreId, out var scoreId))
+            {
+                var name = $"{nameof(request)}.{nameof(request.ScoreId)}";
+                ModelState.AddModelError(name, $"The {name} field cannot be converted into a score id.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+
+            var course = await _context.GetCourseAsync(contextId);
+            if (course == null)
+            {
+                return NotFound(new ProblemDetails
+                {
+                    Title = ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound), 
+                    Detail = "Course not found"
+                });
+            }
+
+            if (course.GradebookColumns.All(c => c.Id != lineItemId))
+            {
+                return NotFound(new ProblemDetails
+                {
+                    Title = ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound), 
+                    Detail = "Gradebook column not found"
+                });
+            }
+
+            var gradebookColumn = await _context.GetGradebookColumnAsync(lineItemId);
+
+            if (gradebookColumn.Scores.All(s => s.Id != scoreId))
+            {
+                return NotFound(new ProblemDetails
+                {
+                    Title = ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound), 
+                    Detail = "Score not found"
+                });
+            }
+
+            var gradebookRow = await _context.GetGradebookRowAsync(scoreId);
+
+            return new Score
+            {
+                ActivityProgress = gradebookRow.ActivityProgress,
+                Comment = gradebookRow.Comment,
+                GradingProgress = gradebookRow.GradingProgress,
+                ScoreGiven = gradebookRow.ScoreGiven,
+                ScoreMaximum = gradebookRow.ScoreMaximum,
+                TimeStamp = gradebookRow.TimeStamp,
+                UserId = gradebookRow.PersonId
+            };
         }
     }
 }

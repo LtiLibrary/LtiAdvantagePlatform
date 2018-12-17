@@ -23,7 +23,7 @@ namespace AdvantagePlatform.Controllers
 
         public ResultsController(
             IHostingEnvironment env,
-            ILogger<ResultsControllerBase> logger,
+            ILogger<ResultsController> logger,
             ApplicationDbContext context) : base(env, logger)
         {
             _context = context;
