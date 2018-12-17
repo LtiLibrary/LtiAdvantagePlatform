@@ -4,6 +4,7 @@ using AdvantagePlatform.Areas.Identity.Pages.Account.Manage;
 using AdvantagePlatform.Data;
 using LtiAdvantage.IdentityServer4;
 using LtiAdvantage.NamesRoleProvisioningService;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -22,8 +23,9 @@ namespace AdvantagePlatform.Controllers
         private readonly ApplicationDbContext _context;
 
         public MembershipController(
-            ILogger<MembershipControllerBase> logger,
-            ApplicationDbContext context) : base(logger)
+            IHostingEnvironment env,
+            ILogger<IMembershipController> logger,
+            ApplicationDbContext context) : base(env, logger)
         {
             _context = context;
         }

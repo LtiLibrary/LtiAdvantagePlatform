@@ -4,6 +4,7 @@ using AdvantagePlatform.Data;
 using LtiAdvantage;
 using LtiAdvantage.AssignmentGradeServices;
 using LtiAdvantage.IdentityServer4;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -21,8 +22,9 @@ namespace AdvantagePlatform.Controllers
         private readonly ApplicationDbContext _context;
 
         public ResultsController(
-            ApplicationDbContext context,
-            ILogger<ResultsControllerBase> logger) : base(logger)
+            IHostingEnvironment env,
+            ILogger<ResultsControllerBase> logger,
+            ApplicationDbContext context) : base(env, logger)
         {
             _context = context;
         }
