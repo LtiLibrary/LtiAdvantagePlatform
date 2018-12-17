@@ -68,7 +68,7 @@ namespace AdvantagePlatform.Pages.CourseLinks
             {
                 _context.ResourceLinks.Remove(resourceLink);
 
-                var gradebookColumn = await _context.GetGradebookColumnByResourceLinkAsync(id.Value);
+                var gradebookColumn = await _context.GetGradebookColumnByResourceLinkIdAsync(id.Value);
                 if (gradebookColumn != null)
                 {
                     _context.GradebookColumns.Remove(gradebookColumn);

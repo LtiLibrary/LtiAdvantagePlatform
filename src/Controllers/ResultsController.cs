@@ -4,8 +4,10 @@ using AdvantagePlatform.Data;
 using LtiAdvantage;
 using LtiAdvantage.AssignmentGradeServices;
 using LtiAdvantage.IdentityServer4;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 
 namespace AdvantagePlatform.Controllers
@@ -33,22 +35,43 @@ namespace AdvantagePlatform.Controllers
         /// <returns></returns>
         protected override async Task<ActionResult<ResultContainer>> OnGetResultsAsync(GetResultsRequest request)
         {
-            var course = await _context.GetCourseByContextIdAsync(request.ContextId);
-            if (course == null)
+            if (!int.TryParse(request.ContextId, out var contextId))
             {
-                return NotFound(new ProblemDetails {Title = $"{nameof(request.ContextId)} not found."});
-            }
-                        
-            if (!int.TryParse(request.LineItemId, out var lineItemId))
-            {
-                return BadRequest($"{nameof(request.LineItemId)} is not a valid line item id.");
+                var name = $"{nameof(request)}.{nameof(request.ContextId)}";
+                ModelState.AddModelError(name, $"The {name} field cannot be converted into a course id.");
             }
 
-            var gradebookColumn = course.GradebookColumns.SingleOrDefault(c => c.Id == lineItemId);
-            if (gradebookColumn == null)
+            if (!int.TryParse(request.LineItemId, out var lineItemId))
             {
-                return NotFound(new ProblemDetails {Title = $"{nameof(request.LineItemId)} not found."});
+                var name = $"{nameof(request)}.{nameof(request.LineItemId)}";
+                ModelState.AddModelError(name, $"The {name} field cannot be converted into a gradebook column id.");
             }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+
+            var course = await _context.GetCourseAsync(contextId);
+            if (course == null)
+            {
+                return NotFound(new ProblemDetails
+                {
+                    Title = ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound), 
+                    Detail = "Course not found"
+                });
+            }
+
+            if (course.GradebookColumns.All(c => c.Id != lineItemId))
+            {
+                return NotFound(new ProblemDetails
+                {
+                    Title = ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound), 
+                    Detail = "Gradebook column not found"
+                });
+            }
+
+            var gradebookColumn = await _context.GetGradebookColumnAsync(lineItemId);
 
             var results = gradebookColumn.Scores
                 .OrderBy(s => s.TimeStamp)
@@ -62,22 +85,18 @@ namespace AdvantagePlatform.Controllers
                               + $"<div>Lowest Score: {g.Min(x => x.ScoreGiven):N1}</div></p>",
                     ResultMaximum = g.Max(x => x.ScoreMaximum),
                     ResultScore = g.Last().ScoreGiven,
-                    ScoreOf = Url.Link(Constants.ServiceEndpoints.AgsLineItemService, new { request.ContextId, Id = request.LineItemId }),
+                    ScoreOf = Url.Link(Constants.ServiceEndpoints.AgsLineItemService, 
+                        new { contextId = request.ContextId, lineItemId = request.LineItemId }),
                     UserId = g.Key
-                });
+                })
+                .ToList();
 
             if (request.UserId.IsPresent())
             {
-                results = results.Where(r => r.UserId == request.UserId);
+                results = results.Where(r => r.UserId == request.UserId).ToList();
             }
 
-            var resultContainer = new ResultContainer();
-            foreach (var result in results)
-            {
-                resultContainer.Add(result);
-            }
-
-            return resultContainer;
+            return new ResultContainer(results);
         }
     }
 }

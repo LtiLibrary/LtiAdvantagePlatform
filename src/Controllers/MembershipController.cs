@@ -4,8 +4,10 @@ using AdvantagePlatform.Areas.Identity.Pages.Account.Manage;
 using AdvantagePlatform.Data;
 using LtiAdvantage.IdentityServer4;
 using LtiAdvantage.NamesRoleProvisioningService;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 
 namespace AdvantagePlatform.Controllers
@@ -36,10 +38,32 @@ namespace AdvantagePlatform.Controllers
         {
             // In this sample app, each registered app user has an associated platform,
             // course, and membership. So look up the user that owns the requested course.
-            var user = await _context.GetUserByContextIdAsync(request.ContextId);
+
+            if (!int.TryParse(request.ContextId, out var contextId))
+            {
+                var name = $"{nameof(request)}.{nameof(request.ContextId)}";
+                ModelState.AddModelError(name, $"The {name} field cannot be converted into a course id.");
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+
+            var course = await _context.GetCourseAsync(contextId);
+            if (course == null)
+            {
+                return NotFound(new ProblemDetails
+                {
+                    Title= ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound), 
+                    Detail = "Course not found"
+                });
+            }
+
+            var user = await _context.GetUserByCourseIdAsync(course.Id);
             if (user == null)
             {
-                return NotFound(new ProblemDetails {Title = $"{nameof(request.ContextId)} not found."});
+                return NotFound(new ProblemDetails
+                {
+                    Title= ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound), 
+                    Detail = "User not found"
+                });
             }
 
             var membership = new MembershipContainer
@@ -67,12 +91,14 @@ namespace AdvantagePlatform.Controllers
 
                 if (request.Rlid.IsPresent())
                 {
-                    if (!int.TryParse(request.Rlid, out var id))
+                    if (!int.TryParse(request.Rlid, out var resourceLinkId))
                     {
-                        return NotFound(new ProblemDetails {Title = $"{nameof(request.Rlid)} not found."});
+                        var name = $"{nameof(request)}.{nameof(request.ContextId)}";
+                        ModelState.AddModelError(name, $"The {name} field cannot be converted into a resource linkid id.");
+                        return BadRequest(new ValidationProblemDetails(ModelState));
                     }
 
-                    people = people.Where(p => user.Course.ResourceLinks.Any(l => l.Id == id));
+                    people = people.Where(p => user.Course.ResourceLinks.Any(l => l.Id == resourceLinkId));
                 }
 
                 if (request.Role.HasValue)

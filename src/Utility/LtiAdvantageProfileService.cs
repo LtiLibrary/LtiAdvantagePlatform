@@ -80,7 +80,7 @@ namespace AdvantagePlatform.Utility
                     }
 
                     // Null unless there is exactly one gradebook column for the resource link.
-                    var gradebookColumn = await _context.GetGradebookColumnByResourceLinkAsync(resourceLinkId);
+                    var gradebookColumn = await _context.GetGradebookColumnByResourceLinkIdAsync(resourceLinkId);
 
                     var tool = resourceLink.Tool;
                     if (tool == null)
@@ -89,7 +89,12 @@ namespace AdvantagePlatform.Utility
                         return;
                     }
 
-                    var person = await _context.GetPersonAsync(request.LoginHint);
+                    if (!int.TryParse(request.LoginHint, out var personId))
+                    {
+                        _logger.LogError("Cannot convert login hint to person id.");
+                    }
+
+                    var person = await _context.GetPersonAsync(personId);
                     if (person == null)
                     {
                         _logger.LogError($"Cannot find person [{request.LoginHint}].");
@@ -98,7 +103,7 @@ namespace AdvantagePlatform.Utility
 
                     var course = await _context.GetCourseByResourceLinkIdAsync(resourceLink.Id);
 
-                    var user = await _context.GetUserByResourceLinkAsync(resourceLink.Id);
+                    var user = await _context.GetUserByResourceLinkIdAsync(resourceLink.Id);
                     if (user == null)
                     {
                         _logger.LogError("Cannot find user.");
@@ -204,7 +209,7 @@ namespace AdvantagePlatform.Utility
                         Constants.LtiScopes.AgsLineItem
                     },
                     LineItemUrl = gradebookColumn == null ? null : _linkGenerator.GetUriByRouteValues(Constants.ServiceEndpoints.AgsLineItemService,
-                        new { contextId = course.Id, gradebookColumn.Id }, httpRequest.Scheme, httpRequest.Host),
+                        new { contextId = course.Id, lineItemId = gradebookColumn.Id }, httpRequest.Scheme, httpRequest.Host),
                     LineItemsUrl = _linkGenerator.GetUriByRouteValues(Constants.ServiceEndpoints.AgsLineItemsService,
                         new { contextId = course.Id }, httpRequest.Scheme, httpRequest.Host)
                 };

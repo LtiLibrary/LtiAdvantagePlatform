@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using LtiAdvantage.IdentityServer4;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,7 +23,110 @@ namespace AdvantagePlatform.Data
         public DbSet<ResourceLink> ResourceLinks { get; set; }
         public DbSet<Tool> Tools { get; set; }
 
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            builder.Entity<GradebookColumn>().HasMany(c => c.Scores).WithOne()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            base.OnModelCreating(builder);
+        }
+
         #region Convenience methods
+
+        /// <summary>
+        /// Return a fully populated <see cref="Course"/>.
+        /// </summary>
+        /// <param name="id">The course id.</param>
+        /// <returns>The course.</returns>
+        public async Task<Course> GetCourseAsync(int id)
+        {
+            return await Courses
+                .Include(c => c.GradebookColumns)
+                .ThenInclude(c => c.ResourceLink)
+                .Include(c => c.GradebookColumns)
+                .ThenInclude(c => c.Scores)
+                .Include(c => c.ResourceLinks)
+                .ThenInclude(l => l.Tool)
+                .SingleOrDefaultAsync(c => c.Id == id);
+        }
+
+        /// <summary>
+        /// Return a course given the id of a resource link within the course.
+        /// </summary>
+        /// <param name="resourceLinkId">The resource link id.</param>
+        /// <returns>The course.</returns>
+        public async Task<Course> GetCourseByResourceLinkIdAsync(int resourceLinkId)
+        {
+            var course = await Courses.SingleOrDefaultAsync(c => c.ResourceLinks.Any(l => l.Id == resourceLinkId));
+
+            return course == null ? null  : await GetCourseAsync(course.Id);
+        }
+                
+        /// <summary>
+        /// Returns a gradebook column with scores.
+        /// </summary>
+        /// <param name="id">The gradebook column id.</param>
+        /// <returns>The gradebook column.</returns>
+        public async Task<GradebookColumn> GetGradebookColumnAsync(int id)
+        {
+            return await GradebookColumns
+                .Include(c => c.Scores)
+                .SingleOrDefaultAsync(c => c.Id == id);
+        }
+
+        /// <summary>
+        /// Returns the gradebook column for a resource link if there is exactly one. Otherwise
+        /// returns null.
+        /// </summary>
+        /// <param name="id">The resource link id.</param>
+        /// <returns>The gradebook column.</returns>
+        public async Task<GradebookColumn> GetGradebookColumnByResourceLinkIdAsync(int id)
+        {
+            var gradebooksColumns = await GradebookColumns.Where(c => c.ResourceLink.Id == id).ToListAsync();
+            return gradebooksColumns.Count() == 1 ? gradebooksColumns[0] : null;
+        }
+                
+        /// <summary>
+        /// Returns a gradebook row.
+        /// </summary>
+        /// <param name="id">The gradebook row id.</param>
+        /// <returns>The gradebook row.</returns>
+        public async Task<GradebookRow> GetGradebookRowAsync(int id)
+        {
+            return await GradebookRows.FindAsync(id);
+        }
+
+        /// <summary>
+        /// Returns a person.
+        /// </summary>
+        /// <param name="id">The person id.</param>
+        /// <returns>The person.</returns>
+        public async Task<Person> GetPersonAsync(int id)
+        {
+            return await People.FindAsync(id);
+        }
+        
+        /// <summary>
+        /// Returns a platform given the id of a resource link within the platform.
+        /// </summary>
+        /// <param name="id">The resource link id.</param>
+        /// <returns>The platform.</returns>
+        public async Task<Platform> GetPlatformByResourceLinkIdAsync(int id)
+        {
+            return await Platforms.SingleOrDefaultAsync(p => p.ResourceLinks.Any(l => l.Id == id));
+        }
+        
+        /// <summary>
+        /// Returns a fully populated <see cref="ResourceLink"/>.
+        /// </summary>
+        /// <param name="id">The resource link id.</param>
+        /// <returns>The resource link.</returns>
+        public async Task<ResourceLink> GetResourceLinkAsync(int id)
+        {
+            return await ResourceLinks
+                .Include(l => l.Tool)
+                .SingleOrDefaultAsync(l => l.Id == id);
+        }
 
         /// <summary>
         /// Returns the fully populated <see cref="AdvantagePlatformUser"/> corresponding to the
@@ -41,33 +143,6 @@ namespace AdvantagePlatform.Data
             }
             var id = GetUserId(principal);
             return await GetUserAsync(id);
-        }
-
-        /// <summary>
-        /// Returns a fully populated <see cref="ResourceLink"/>.
-        /// </summary>
-        /// <param name="id">The resource link id.</param>
-        /// <returns>The resource link.</returns>
-        public async Task<ResourceLink> GetResourceLinkAsync(int id)
-        {
-            return await ResourceLinks
-                .Include(l => l.Tool)
-                .SingleOrDefaultAsync(l => l.Id == id);
-        }
-
-        /// <summary>
-        /// Returns a resource link given the id in string format such as from json.
-        /// </summary>
-        /// <param name="resourceLinkId">The resource link id.</param>
-        /// <returns>The resource link.</returns>
-        public async Task<ResourceLink> GetResourceLinkAsync(string resourceLinkId)
-        {
-            if (!int.TryParse(resourceLinkId, out var id))
-            {
-                throw new ArgumentException($"{nameof(resourceLinkId)} is not a valid resource link id.");
-            }
-
-            return await GetResourceLinkAsync(id);
         }
 
         /// <summary>
@@ -96,167 +171,6 @@ namespace AdvantagePlatform.Data
                         .ThenInclude(l => l.Tool)
                 .Include(u => u.Tools)
                 .SingleOrDefaultAsync(u => u.Id == id);
-        }
-
-        /// <summary>
-        /// Return the user id from the <see cref="ClaimsPrincipal"/>.
-        /// </summary>
-        /// <param name="principal">The principal.</param>
-        /// <returns>The user id.</returns>
-        private string GetUserId(ClaimsPrincipal principal)
-        {
-            if (principal == null)
-            {
-                throw new ArgumentNullException(nameof(principal));
-            }
-
-            // Because this app is using Identity Server, the user id
-            // is in the sub claim.
-            return principal.FindFirstValue("sub");
-        }
-
-        /// <summary>
-        /// Return a person given the person id in string format, such as from json.
-        /// </summary>
-        /// <param name="personId">The person id.</param>
-        /// <returns>The person.</returns>
-        public async Task<Person> GetPersonAsync(string personId)
-        {
-            if (!int.TryParse(personId, out var id))
-            {
-                throw new ArgumentException($"{nameof(personId)} is not an integer.");
-            }
-
-            return await People.FindAsync(id);
-        }
-
-        /// <summary>
-        /// Return a fully populated <see cref="Course"/>.
-        /// </summary>
-        /// <param name="id">The course id.</param>
-        /// <returns>The course.</returns>
-        public async Task<Course> GetCourseAsync(int id)
-        {
-            return await Courses
-                .Include(c => c.GradebookColumns)
-                    .ThenInclude(c => c.ResourceLink)
-                .Include(c => c.GradebookColumns)
-                    .ThenInclude(c => c.Scores)
-                .Include(c => c.ResourceLinks)
-                    .ThenInclude(l => l.Tool)
-                .SingleOrDefaultAsync(c => c.Id == id);
-        }
-
-        /// <summary>
-        /// Return a course given the course id in string format such as from Json.
-        /// </summary>
-        /// <param name="contextId">The course id.</param>
-        /// <returns>The course.</returns>
-        public async Task<Course> GetCourseByContextIdAsync(string contextId)
-        {
-            if (!int.TryParse(contextId, out var id))
-            {
-                throw new ArgumentException($"{nameof(contextId)} is not an integer.");
-            }
-
-            return await GetCourseAsync(id);
-        }
-
-        /// <summary>
-        /// Return a course given the id of a resource link within the course.
-        /// </summary>
-        /// <param name="resourceLinkId">The resource link id.</param>
-        /// <returns>The course.</returns>
-        public async Task<Course> GetCourseByResourceLinkIdAsync(int resourceLinkId)
-        {
-            var course = await Courses.SingleOrDefaultAsync(c => c.ResourceLinks.Any(l => l.Id == resourceLinkId));
-
-            return course == null ? null  : await GetCourseAsync(course.Id);
-        }
-
-        /// <summary>
-        /// Returns a gradebook column.
-        /// </summary>
-        /// <param name="id">The gradebook column id.</param>
-        /// <returns>The gradebook column.</returns>
-        public async Task<GradebookColumn> GetGradebookColumnAsync(int id)
-        {
-            return await GradebookColumns.FindAsync(id);
-        }
-
-        /// <summary>
-        /// Returns a gradebook column given the column id in string format, such as from json.
-        /// </summary>
-        /// <param name="columnId">The gradebook column id.</param>
-        /// <returns>The gradebook column.</returns>
-        public async Task<GradebookColumn> GetGradebookColumnAsync(string columnId)
-        {
-            if (!int.TryParse(columnId, out var id))
-            {
-                throw new ArgumentException($"{nameof(columnId)} is not an integer.");
-            }
-
-            return await GetGradebookColumnAsync(id);
-        }
-
-        /// <summary>
-        /// Returns the gradebook column for a resource link if there is exactly one. Otherwise
-        /// returns null.
-        /// </summary>
-        /// <param name="id">The resource link id.</param>
-        /// <returns>The gradebook column.</returns>
-        public async Task<GradebookColumn> GetGradebookColumnByResourceLinkAsync(int id)
-        {
-            var gradebooksColumns = await GradebookColumns.Where(c => c.ResourceLink.Id == id).ToListAsync();
-            return gradebooksColumns.Count() == 1 ? gradebooksColumns[0] : null;
-        }
-
-        /// <summary>
-        /// Returns a platform given the id of a resource link within the platform.
-        /// </summary>
-        /// <param name="id">The resource link id.</param>
-        /// <returns>The platform.</returns>
-        public async Task<Platform> GetPlatformByResourceLinkAsync(int id)
-        {
-            return await Platforms.SingleOrDefaultAsync(p => p.ResourceLinks.Any(l => l.Id == id));
-        }
-
-        /// <summary>
-        /// Returns a user given the id of a resource link within the user's platform or course.
-        /// </summary>
-        /// <param name="id">The resource link id.</param>
-        /// <returns>The user.</returns>
-        public async Task<AdvantagePlatformUser> GetUserByResourceLinkAsync(int id)
-        {
-            // Find the course or platform that includes the resource link
-            var course = await GetCourseByResourceLinkIdAsync(id);
-            if (course != null)
-            {
-                return await GetUserByCourseIdAsync(course.Id);
-            }
-
-            var platform = await GetPlatformByResourceLinkAsync(id);
-            if (platform != null)
-            {
-                return await GetUserByPlatformIdAsync(platform.Id);
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Returns a user given the user's course id is string format such as JSON.
-        /// </summary>
-        /// <param name="contextId">The context id.</param>
-        /// <returns>The user.</returns>
-        public async Task<AdvantagePlatformUser> GetUserByContextIdAsync(string contextId)
-        {
-            if (!int.TryParse(contextId, out var id))
-            {
-                throw new ArgumentException($"{nameof(contextId)} is not an integer.");
-            }
-
-            return await GetUserByCourseIdAsync(id);
         }
 
         /// <summary>
@@ -295,6 +209,46 @@ namespace AdvantagePlatform.Data
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Returns a user given the id of a resource link within the user's platform or course.
+        /// </summary>
+        /// <param name="id">The resource link id.</param>
+        /// <returns>The user.</returns>
+        public async Task<AdvantagePlatformUser> GetUserByResourceLinkIdAsync(int id)
+        {
+            // Find the course or platform that includes the resource link
+            var course = await GetCourseByResourceLinkIdAsync(id);
+            if (course != null)
+            {
+                return await GetUserByCourseIdAsync(course.Id);
+            }
+
+            var platform = await GetPlatformByResourceLinkIdAsync(id);
+            if (platform != null)
+            {
+                return await GetUserByPlatformIdAsync(platform.Id);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Return the user id from the <see cref="ClaimsPrincipal"/>.
+        /// </summary>
+        /// <param name="principal">The principal.</param>
+        /// <returns>The user id.</returns>
+        private string GetUserId(ClaimsPrincipal principal)
+        {
+            if (principal == null)
+            {
+                throw new ArgumentNullException(nameof(principal));
+            }
+
+            // Because this app is using Identity Server, the user id
+            // is in the sub claim.
+            return principal.FindFirstValue("sub");
         }
 
         #endregion

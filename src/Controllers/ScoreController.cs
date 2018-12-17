@@ -2,7 +2,9 @@
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using LtiAdvantage.AssignmentGradeServices;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 
 namespace AdvantagePlatform.Controllers
@@ -33,33 +35,60 @@ namespace AdvantagePlatform.Controllers
         /// <returns>The score.</returns>
         protected override async Task<ActionResult<Score>> OnGetScoreAsync(GetScoreRequest request)
         {
-            var course = await _context.GetCourseByContextIdAsync(request.ContextId);
-            if (course == null)
+            if (!int.TryParse(request.ContextId, out var contextId))
             {
-                return NotFound(new ProblemDetails {Title = $"{nameof(request.ContextId)} not found."});
+                var name = $"{nameof(request)}.{nameof(request.ContextId)}";
+                ModelState.AddModelError(name, $"The {name} field cannot be converted into a course id.");
             }
-            
+
             if (!int.TryParse(request.LineItemId, out var lineItemId))
             {
-                return BadRequest($"{nameof(request.LineItemId)} is not a valid line item id.");
+                var name = $"{nameof(request)}.{nameof(request.LineItemId)}";
+                ModelState.AddModelError(name, $"The {name} field cannot be converted into a gradebook column id.");
             }
 
-            var gradebookColumn = course.GradebookColumns.SingleOrDefault(c => c.Id == lineItemId);
-            if (gradebookColumn == null)
-            {
-                return NotFound(new ProblemDetails {Title = $"{nameof(request.LineItemId)} not found."});
-            }
-            
             if (!int.TryParse(request.ScoreId, out var scoreId))
             {
-                return BadRequest($"{nameof(request.ScoreId)} is not a valid score id.");
+                var name = $"{nameof(request)}.{nameof(request.ScoreId)}";
+                ModelState.AddModelError(name, $"The {name} field cannot be converted into a score id.");
             }
 
-            var gradebookRow = gradebookColumn.Scores.SingleOrDefault(c => c.Id == scoreId);
-            if (gradebookRow == null)
+            if (!ModelState.IsValid)
             {
-                return NotFound(new ProblemDetails {Title = $"{nameof(request.ScoreId)} not found."});
+                return BadRequest(new ValidationProblemDetails(ModelState));
             }
+
+            var course = await _context.GetCourseAsync(contextId);
+            if (course == null)
+            {
+                return NotFound(new ProblemDetails
+                {
+                    Title = ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound), 
+                    Detail = "Course not found"
+                });
+            }
+
+            if (course.GradebookColumns.All(c => c.Id != lineItemId))
+            {
+                return NotFound(new ProblemDetails
+                {
+                    Title = ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound), 
+                    Detail = "Gradebook column not found"
+                });
+            }
+
+            var gradebookColumn = await _context.GetGradebookColumnAsync(lineItemId);
+
+            if (gradebookColumn.Scores.All(s => s.Id != scoreId))
+            {
+                return NotFound(new ProblemDetails
+                {
+                    Title = ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound), 
+                    Detail = "Score not found"
+                });
+            }
+
+            var gradebookRow = await _context.GetGradebookRowAsync(scoreId);
 
             return new Score
             {

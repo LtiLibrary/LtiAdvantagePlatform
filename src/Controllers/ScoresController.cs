@@ -2,7 +2,9 @@
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using LtiAdvantage.AssignmentGradeServices;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 
 namespace AdvantagePlatform.Controllers
@@ -33,32 +35,58 @@ namespace AdvantagePlatform.Controllers
         /// <returns>The score that was added.</returns>
         protected override async Task<ActionResult<Score>> OnAddScoreAsync(AddScoreRequest request)
         {
-            var course = await _context.GetCourseByContextIdAsync(request.ContextId);
-            if (course == null)
+            if (!int.TryParse(request.ContextId, out var contextId))
             {
-                return NotFound(new ProblemDetails {Title = $"{nameof(request.ContextId)} not found."});
+                var name = $"{nameof(request)}.{nameof(request.ContextId)}";
+                ModelState.AddModelError(name, $"The {name} field cannot be converted into a course id.");
             }
 
-            if (!int.TryParse(request.LineItemId, out var id))
+            if (!int.TryParse(request.LineItemId, out var lineItemId))
             {
-                return BadRequest($"{nameof(request.LineItemId)} is not a valid line item id.");
-            }
-
-            var gradebookColumn = course.GradebookColumns.SingleOrDefault(c => c.Id == id);
-            if (gradebookColumn == null)
-            {
-                return NotFound(new ProblemDetails {Title = $"{nameof(request.LineItemId)} not found."});
+                var name = $"{nameof(request)}.{nameof(request.LineItemId)}";
+                ModelState.AddModelError(name, $"The {name} field cannot be converted into a gradebook column id.");
             }
 
             if (!int.TryParse(request.Score.UserId, out var personId))
             {
-                return BadRequest($"{nameof(request.Score.UserId)} is not a valid user id.");
+                var name = $"{nameof(request)}.{nameof(request.Score)}.{nameof(request.Score.UserId)}";
+                ModelState.AddModelError(name, $"The {name} field cannot be converted into a user id.");
             }
 
-            var person = await _context.People.FindAsync(personId);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+
+            var course = await _context.GetCourseAsync(contextId);
+            if (course == null)
+            {
+                return NotFound(new ProblemDetails
+                {
+                    Title = ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound), 
+                    Detail = "Course not found"
+                });
+            }
+
+            if (course.GradebookColumns.All(c => c.Id != lineItemId))
+            {
+                return NotFound(new ProblemDetails
+                {
+                    Title = ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound), 
+                    Detail = "Gradebook column not found"
+                });
+            }
+
+            var gradebookColumn = await _context.GetGradebookColumnAsync(lineItemId);
+
+            var person = await _context.GetPersonAsync(personId);
             if (person == null)
             {
-                return NotFound(new ProblemDetails {Title = $"{nameof(request.Score.UserId)} not found."});
+                return NotFound(new ProblemDetails
+                {
+                    Title = ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound), 
+                    Detail = "Person not found"
+                });
             }
 
             var gradebookRow = new GradebookRow
