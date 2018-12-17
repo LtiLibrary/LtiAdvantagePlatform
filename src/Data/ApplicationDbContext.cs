@@ -83,7 +83,7 @@ namespace AdvantagePlatform.Data
         public async Task<GradebookColumn> GetGradebookColumnByResourceLinkIdAsync(int id)
         {
             var gradebooksColumns = await GradebookColumns.Where(c => c.ResourceLink.Id == id).ToListAsync();
-            return gradebooksColumns.Count() == 1 ? gradebooksColumns[0] : null;
+            return gradebooksColumns.Count == 1 ? gradebooksColumns[0] : null;
         }
                 
         /// <summary>

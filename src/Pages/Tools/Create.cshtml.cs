@@ -7,7 +7,6 @@ using IdentityModel;
 using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Models;
-using LtiAdvantage;
 using LtiAdvantage.IdentityServer4;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
