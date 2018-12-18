@@ -11,14 +11,14 @@ namespace AdvantagePlatform.Pages
 {
     public class IndexModel : PageModel
     {
-        private readonly ApplicationDbContext _appContext;
+        private readonly ApplicationDbContext _context;
         private readonly IConfigurationDbContext _identityConfig;
 
         public IndexModel(
-            ApplicationDbContext appContext,
+            ApplicationDbContext context,
             IConfigurationDbContext identityConfig)
         {
-            _appContext = appContext;
+            _context = context;
             _identityConfig = identityConfig;
         }
 
@@ -31,7 +31,7 @@ namespace AdvantagePlatform.Pages
 
         public async Task OnGetAsync()
         {
-            var user = await _appContext.GetUserAsync(User);
+            var user = await _context.GetUserAsync(User);
             if (user != null)
             {
                 Platform = user.Platform;
@@ -50,13 +50,7 @@ namespace AdvantagePlatform.Pages
             {
                 var client = await _identityConfig.Clients.FindAsync(tool.IdentityServerClientId);
 
-                list.Add(new ToolModel(Request.HttpContext)
-                {
-                    ClientId = client.ClientId,
-                    DeploymentId = tool.DeploymentId,
-                    Name = tool.Name,
-                    LaunchUrl = tool.LaunchUrl
-                });
+                list.Add(new ToolModel(Request.HttpContext, tool, client));
             }
 
             return list;
