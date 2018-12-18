@@ -80,6 +80,7 @@ namespace AdvantagePlatform.Pages.Tools
 
             var tool = await _context.Tools.FindAsync(Tool.Id);
             tool.CustomProperties = Tool.CustomProperties;
+            tool.DeepLinkingLaunchUrl = Tool.DeepLinkingLaunchUrl;
             tool.LaunchUrl = Tool.LaunchUrl;
             tool.LoginUrl = Tool.LoginUrl;
             tool.Name = Tool.Name;

@@ -50,11 +50,12 @@ namespace AdvantagePlatform.Pages.Tools
 
             // These are the tool's LTI properties
             Id = tool.Id;
-            Name = tool.Name;
+            CustomProperties = tool.CustomProperties;
+            DeepLinkingLaunchUrl = tool.DeepLinkingLaunchUrl;
+            DeploymentId = tool.DeploymentId;
             LaunchUrl = tool.LaunchUrl;
             LoginUrl = tool.LoginUrl;
-            CustomProperties = tool.CustomProperties;
-            DeploymentId = tool.DeploymentId;
+            Name = tool.Name;
 
             // These are the tool's Identity Server properties (client)
             IdentityServerClientId = client.Id;
@@ -101,9 +102,16 @@ namespace AdvantagePlatform.Pages.Tools
         public string CustomProperties { get; set; }
         
         /// <summary>
+        /// Deep linking launch url.
+        /// </summary>
+        [LocalhostUrl]
+        [Display(Name = "Deep Linking Launch URL", Description = "The URL to launch the tool's deep linking experience.")]
+        public string DeepLinkingLaunchUrl { get; set; }
+
+        /// <summary>
         /// Generated and immutable deployment id.
         /// </summary>
-        [Display(Name = "Deployment ID", Description = "Unique ID assigned to this tool deployment.")]
+        [Display(Name = "Deployment ID", Description = "Unique id assigned to this tool deployment.")]
         public string DeploymentId { get; set; }
 
         /// <summary>
@@ -111,7 +119,7 @@ namespace AdvantagePlatform.Pages.Tools
         /// </summary>
         [Required]
         [LocalhostUrl]
-        [Display(Name = "Launch URL")]
+        [Display(Name = "Launch URL", Description = "The URL to launch the tool.")]
         public string LaunchUrl { get; set; }
 
         /// <summary>
@@ -119,7 +127,7 @@ namespace AdvantagePlatform.Pages.Tools
         /// </summary>
         [Required]
         [LocalhostUrl]
-        [Display(Name = "Login URL", Description = "The endpoint URL to initiate OpenID Connect authorization.")]
+        [Display(Name = "Login URL", Description = "The URL to initiate OpenID Connect authorization.")]
         public string LoginUrl { get; set; }
 
         /// <summary>

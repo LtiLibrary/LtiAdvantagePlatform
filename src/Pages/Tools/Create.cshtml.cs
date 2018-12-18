@@ -85,15 +85,15 @@ namespace AdvantagePlatform.Pages.Tools
                 RequireConsent = false
             };
 
+            // Create the IdentityServer Client first to get its primary key
             var entity = client.ToEntity();
-
-            // Create the IdentityServer Client first to get its ID
             await _identityContext.Clients.AddAsync(entity);
             await _identityContext.SaveChangesAsync();
 
             var tool = new Tool
             {
                 CustomProperties = Tool.CustomProperties,
+                DeepLinkingLaunchUrl = Tool.DeepLinkingLaunchUrl,
                 DeploymentId = Tool.DeploymentId,
                 IdentityServerClientId = entity.Id,
                 Name = Tool.Name,

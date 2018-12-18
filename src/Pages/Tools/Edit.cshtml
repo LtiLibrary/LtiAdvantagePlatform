@@ -24,15 +24,22 @@
                             <span asp-validation-for="Tool.Name" class="text-danger"></span>
                         </div>
                         <div class="form-group">
-                            <label asp-for="Tool.LaunchUrl"></label>
-                            <input asp-for="Tool.LaunchUrl" class="form-control" />
-                            <span asp-validation-for="Tool.LaunchUrl" class="text-danger"></span>
-                        </div>
-                        <div class="form-group">
                             <label asp-for="Tool.LoginUrl"></label>
                             <tooltip asp-for="Tool.LoginUrl"></tooltip>
                             <input asp-for="Tool.LoginUrl" class="form-control" />
                             <span asp-validation-for="Tool.LoginUrl" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Tool.LaunchUrl"></label>
+                            <tooltip asp-for="Tool.LoginUrl"></tooltip>
+                            <input asp-for="Tool.LaunchUrl" class="form-control" />
+                            <span asp-validation-for="Tool.LaunchUrl" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Tool.DeepLinkingLaunchUrl"></label>
+                            <tooltip asp-for="Tool.DeepLinkingLaunchUrl"></tooltip>
+                            <input asp-for="Tool.DeepLinkingLaunchUrl" class="form-control" />
+                            <span asp-validation-for="Tool.DeepLinkingLaunchUrl" class="text-danger"></span>
                         </div>
                         <div class="form-group">
                             <label asp-for="Tool.CustomProperties"></label>

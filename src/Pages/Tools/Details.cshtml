@@ -17,10 +17,21 @@
                     <dl>
                         <dt>@Html.DisplayNameFor(m => m.Tool.Name)</dt>
                         <dd>@Model.Tool.Name</dd>
-                        <dt>@Html.DisplayNameFor(m => m.Tool.LaunchUrl)</dt>
-                        <dd>@Model.Tool.LaunchUrl</dd>
-                        <dt>@Html.DisplayNameFor(m => m.Tool.LoginUrl)</dt>
+                        <dt>
+                            @Html.DisplayNameFor(m => m.Tool.LoginUrl)
+                            <tooltip asp-for="Tool.LoginUrl"></tooltip>
+                        </dt>
                         <dd>@Model.Tool.LoginUrl</dd>
+                        <dt>
+                            @Html.DisplayNameFor(m => m.Tool.LaunchUrl)
+                            <tooltip asp-for="Tool.LaunchUrl"></tooltip>
+                        </dt>
+                        <dd>@Model.Tool.LaunchUrl</dd>
+                        <dt>
+                            @Html.DisplayNameFor(m => m.Tool.DeepLinkingLaunchUrl)
+                            <tooltip asp-for="Tool.DeepLinkingLaunchUrl"></tooltip>
+                        </dt>
+                        <dd>@Model.Tool.DeepLinkingLaunchUrl</dd>
                         <dt>
                             @Html.DisplayNameFor(m => m.Tool.CustomProperties)
                             <tooltip asp-for="Tool.CustomProperties"></tooltip>
