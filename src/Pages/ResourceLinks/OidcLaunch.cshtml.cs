@@ -1,15 +1,16 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using IdentityModel.Client;
 using IdentityModel.Internal;
 using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.Extensions;
+using LtiAdvantage;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace AdvantagePlatform.Pages.ResourceLinks
 {
@@ -30,36 +31,36 @@ namespace AdvantagePlatform.Pages.ResourceLinks
         }
 
         /// <summary>
-        /// Initiate from tool to platform.
+        /// Initiate login to tool from platform.
         /// </summary>
-        /// <param name="id">The <see cref="ResourceLink"/>The resource link id.</param>
-        /// <param name="personId">The user id to login.</param>
+        /// <param name="id">The resource link or tool id.</param>
+        /// <param name="messageType">The lti message type.</param>
+        /// <param name="courseId">The course id (or null if not launched from a course).</param>
+        /// <param name="personId">The person id to impersonate.</param>
         /// <returns></returns>
-        public async Task<IActionResult> OnGetAsync(int? id, string personId)
+        public async Task<IActionResult> OnGetAsync(int id, string messageType, string courseId, string personId)
         {
-            if (id == null)
+            Tool tool;
+
+            if (messageType == Constants.Lti.LtiResourceLinkRequestMessageType)
             {
-                _logger.LogError(new ArgumentNullException(nameof(id)), "Missing resource link id.");
-                return BadRequest();
+                var resourceLink = await _context.GetResourceLinkAsync(id);
+                if (resourceLink == null)
+                {
+                    _logger.LogError("Resource link not found.");
+                    return BadRequest();
+                }
+
+                tool = resourceLink.Tool;
+            }
+            else
+            {
+                tool = await _context.GetToolAsync(id);
             }
 
-            if (string.IsNullOrWhiteSpace(personId))
-            {
-                _logger.LogError(new ArgumentNullException(nameof(personId)), "Missing user id.");
-                return BadRequest();
-            }
-
-            var resourceLink = await _context.GetResourceLinkAsync(id.Value);
-            if (resourceLink == null)
-            {
-                _logger.LogError("Resource link not found.");
-                return BadRequest();
-            }
-
-            var tool = resourceLink.Tool;
             if (tool == null)
             {
-                _logger.LogError("Resource link does not have a tool defined.");
+                _logger.LogError("Tool not found.");
                 return BadRequest();
             }
 
@@ -80,12 +81,12 @@ namespace AdvantagePlatform.Pages.ResourceLinks
                 // The endpoint to be executed at the end of the OIDC authentication flow
                 target_link_uri = tool.LaunchUrl,
                 // The identifier of the LtiResourceLink message (or the deep link message, etc)
-                lti_message_hint = resourceLink.Id.ToString()
+                lti_message_hint = JsonConvert.SerializeObject(new {id, messageType, courseId })
             };
 
             // Uncomment to use a GET to initiate login
             var url = new RequestUrl(tool.LoginUrl).Create(values);
-            _logger.LogInformation($"Launching {resourceLink.Title} using GET {url}");
+            _logger.LogInformation($"Launching {tool.Name} using GET {url}");
             return Redirect(url);
             
             // Uncomment to use form POST to initiate login

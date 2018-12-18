@@ -10,12 +10,14 @@ using IdentityServer4.Services;
 using IdentityServer4.Validation;
 using LtiAdvantage;
 using LtiAdvantage.AssignmentGradeServices;
+using LtiAdvantage.DeepLinking;
 using LtiAdvantage.IdentityServer4;
 using LtiAdvantage.Lti;
 using LtiAdvantage.NamesRoleProvisioningService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 
 namespace AdvantagePlatform.Utility
 {
@@ -66,51 +68,46 @@ namespace AdvantagePlatform.Utility
                         return;
                     }
 
-                    if (!int.TryParse(ltiMessageHint, out var resourceLinkId))
-                    {
-                        _logger.LogError("lti_message_hint is not an int.");
-                        return;
-                    }
-
-                    var resourceLink = await _context.GetResourceLinkAsync(resourceLinkId);
-                    if (resourceLink == null)
-                    {
-                        _logger.LogError($"Cannot find resource link [{resourceLinkId}].");
-                        return;
-                    }
-
-                    // Null unless there is exactly one gradebook column for the resource link.
-                    var gradebookColumn = await _context.GetGradebookColumnByResourceLinkIdAsync(resourceLinkId);
-
-                    var tool = resourceLink.Tool;
-                    if (tool == null)
-                    {
-                        _logger.LogError("Cannot find tool.");
-                        return;
-                    }
-
                     if (!int.TryParse(request.LoginHint, out var personId))
                     {
                         _logger.LogError("Cannot convert login hint to person id.");
                     }
 
+                    var message = JToken.Parse(ltiMessageHint);
+                    var id = message.Value<int>("id");
+                    var user = await _context.GetUserAsync(_httpContextAccessor.HttpContext.User);
+                    var course = message.Value<string>("courseId") == null ? null : user.Course;
                     var person = await _context.GetPersonAsync(personId);
-                    if (person == null)
+                    var messageType = message.Value<string>("messageType");
+
+                    switch (messageType)
                     {
-                        _logger.LogError($"Cannot find person [{request.LoginHint}].");
-                        return;
+                        case Constants.Lti.LtiResourceLinkRequestMessageType:
+                        {
+                            var resourceLink = await _context.GetResourceLinkAsync(id);
+
+                            // Null unless there is exactly one gradebook column for the resource link.
+                            var gradebookColumn = await _context.GetGradebookColumnByResourceLinkIdAsync(id);
+
+                            context.IssuedClaims = GetResourceLinkRequestClaims(
+                                resourceLink, gradebookColumn, person, course, user.Platform);
+
+                            break;
+                        }
+                        case Constants.Lti.LtiDeepLinkingRequestMessageType:
+                        {
+                            var tool = await _context.GetToolAsync(id);
+
+                            context.IssuedClaims = GetDeepLinkingRequestClaims(
+                                tool, person, course, user.Platform);
+
+                            break;
+                        }
+                        default:
+                            _logger.LogError($"{nameof(messageType)}=\"{messageType}\" not supported.");
+
+                            break;
                     }
-
-                    var course = await _context.GetCourseByResourceLinkIdAsync(resourceLink.Id);
-
-                    var user = await _context.GetUserByResourceLinkIdAsync(resourceLink.Id);
-                    if (user == null)
-                    {
-                        _logger.LogError("Cannot find user.");
-                        return;
-                    }
-
-                    context.IssuedClaims = GetLtiClaimsAsync(resourceLink, gradebookColumn, tool, person, course, user.Platform);
                 }
             }
             finally
@@ -131,19 +128,108 @@ namespace AdvantagePlatform.Utility
         }
 
         /// <summary>
-        /// Returns a list LTI Advantage claims.
+        /// Returns the LTI claims for an LtiDeepLinkingRequest.
         /// </summary>
-        /// <param name="resourceLink">The resource link.</param>
-        /// <param name="gradebookColumn">The gradebool column for this resource link.</param>
-        /// <param name="tool">The tool.</param>
+        /// <param name="tool">The deep linking tool.</param>
         /// <param name="person">The person being authorized.</param>
         /// <param name="course">The course (can be null).</param>
         /// <param name="platform">The platform.</param>
         /// <returns></returns>
-        private List<Claim> GetLtiClaimsAsync(
+        private List<Claim> GetDeepLinkingRequestClaims(
+            Tool tool,
+            Person person,
+            Course course,
+            Platform platform)
+        {
+            var httpRequest = _httpContextAccessor.HttpContext.Request;
+
+            var request = new LtiDeepLinkingRequest
+            {
+                DeploymentId = tool.DeploymentId,
+                FamilyName = person.LastName,
+                GivenName = person.FirstName,
+                LaunchPresentation = new LaunchPresentationClaimValueType
+                {
+                    DocumentTarget = DocumentTarget.Window,
+                    Locale = CultureInfo.CurrentUICulture.Name,
+                    ReturnUrl = $"{httpRequest.Scheme}://{httpRequest.Host}"
+                },
+                Lis = new LisClaimValueType
+                {
+                    PersonSourcedId = person.SisId,
+                    CourseSectionSourcedId = course?.SisId
+                },
+                Lti11LegacyUserId = person.Id.ToString(),
+                Platform = new PlatformClaimValueType
+                {
+                    ContactEmail = platform.ContactEmail,
+                    Description = platform.Description,
+                    Guid = platform.Id.ToString(),
+                    Name = platform.Name,
+                    ProductFamilyCode = platform.ProductFamilyCode,
+                    Url = platform.Url,
+                    Version = platform.Version
+                },
+                Roles = PeopleModel.ParsePersonRoles(person.Roles),
+                TargetLinkUri = tool.DeepLinkingLaunchUrl
+            };
+
+            // Add the context if the launch is from a course.
+            if (course == null)
+            {
+                // Remove context roles
+                request.Roles = request.Roles.Where(r => !r.ToString().StartsWith("Context")).ToArray();
+            }
+            else
+            {
+                request.Context = new ContextClaimValueType
+                {
+                    Id = course.Id.ToString(),
+                    Title = course.Name,
+                    Type = new[] { ContextType.CourseSection }
+                };
+            }
+
+            // Add the deep linking settings
+            request.DeepLinkingSettings = new DeepLinkingSettingsClaimValueType
+            {
+                AcceptPresentationDocumentTargets = new List<DocumentTarget> { DocumentTarget.Window },
+                AcceptMultiple = true,
+                AcceptTypes = new List<ContentType> { ContentType.LtiLink },
+                AutoCreate = true,
+                DeepLinkReturnUrl = $"{httpRequest.Scheme}://{httpRequest.Host}"
+            };
+
+            // Collect custom properties
+            if (tool.CustomProperties.TryConvertToDictionary(out var custom))
+            {
+                // Prepare for custom property substitutions
+                var substitutions = new CustomPropertySubstitutions
+                {
+                    LtiUser = new LtiUser
+                    {
+                        Username = person.Username
+                    }
+                };
+
+                request.Custom = substitutions.ReplaceCustomPropertyValues(custom);
+            }
+
+            return new List<Claim>(request.Claims);
+        }
+
+        /// <summary>
+        /// Returns the LTI claims for an LtiResourceLinkRequest.
+        /// </summary>
+        /// <param name="resourceLink">The resource link.</param>
+        /// <param name="gradebookColumn">The gradebool column for this resource link.</param>
+        /// <param name="person">The person being authorized.</param>
+        /// <param name="course">The course (can be null).</param>
+        /// <param name="platform">The platform.</param>
+        /// <returns></returns>
+        private List<Claim> GetResourceLinkRequestClaims(
             ResourceLink resourceLink,
             GradebookColumn gradebookColumn,
-            Tool tool,
             Person person,
             Course course,
             Platform platform)
@@ -152,12 +238,12 @@ namespace AdvantagePlatform.Utility
 
             var request = new LtiResourceLinkRequest
             {
-                DeploymentId = tool.DeploymentId,
+                DeploymentId = resourceLink.Tool.DeploymentId,
                 FamilyName = person.LastName,
                 GivenName = person.FirstName,
                 LaunchPresentation = new LaunchPresentationClaimValueType
                 {
-                    DocumentTarget = DocumentTarget.Iframe,
+                    DocumentTarget = DocumentTarget.Window,
                     Locale = CultureInfo.CurrentUICulture.Name,
                     ReturnUrl = $"{httpRequest.Scheme}://{httpRequest.Host}"
                 },
@@ -182,13 +268,17 @@ namespace AdvantagePlatform.Utility
                     Id = resourceLink.Id.ToString(),
                     Title = resourceLink.Title
                 },
-                TargetLinkUri = tool.LaunchUrl
+                Roles = PeopleModel.ParsePersonRoles(person.Roles),
+                TargetLinkUri = resourceLink.Tool.LaunchUrl
             };
 
-            // Add the context if the launch is from a course
-            // (e.g. an assignment). Leave it blank if the launch
-            // is from outside of a course (e.g. a system menu).
-            if (course != null)
+            // Add the context if the launch is from a course.
+            if (course == null)
+            {
+                // Remove context roles
+                request.Roles = request.Roles.Where(r => !r.ToString().StartsWith("Context")).ToArray();
+            }
+            else
             {
                 request.Context = new ContextClaimValueType
                 {
@@ -197,11 +287,6 @@ namespace AdvantagePlatform.Utility
                     Type = new[] { ContextType.CourseSection }
                 };
 
-                // Only include context roles if the launch includes
-                // a context.
-                request.Roles = PeopleModel.ParsePersonRoles(person.Roles);
-
-                // Only include the Assignment and Grade Services claim if the launch includes a context.
                 request.AssignmentGradeServices = new AssignmentGradeServicesClaimValueType
                 {
                     Scope = new List<string>
@@ -214,21 +299,18 @@ namespace AdvantagePlatform.Utility
                         new { contextId = course.Id }, httpRequest.Scheme, httpRequest.Host)
                 };
 
-                // Only include Names and Role Provisioning Service claim if the launch includes a context.
                 request.NamesRoleService = new NamesRoleServiceClaimValueType
                 {
                     ContextMembershipUrl = _linkGenerator.GetUriByRouteValues(Constants.ServiceEndpoints.NrpsMembershipService,
                         new { contextId = course.Id }, httpRequest.Scheme, httpRequest.Host)
                 };
             }
-            else
-            {
-                var roles = PeopleModel.ParsePersonRoles(person.Roles);
-                request.Roles = roles.Where(r => !r.ToString().StartsWith("Context")).ToArray();
-            }
 
             // Collect custom properties
-            tool.CustomProperties.TryConvertToDictionary(out var custom);
+            if (!resourceLink.Tool.CustomProperties.TryConvertToDictionary(out var custom))
+            {
+                custom = new Dictionary<string, string>();
+            }
             if (resourceLink.CustomProperties.TryConvertToDictionary(out var linkDictionary))
             {
                 foreach (var property in linkDictionary)
