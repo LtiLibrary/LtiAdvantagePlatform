@@ -127,6 +127,16 @@ namespace AdvantagePlatform.Data
                 .Include(l => l.Tool)
                 .SingleOrDefaultAsync(l => l.Id == id);
         }
+                
+        /// <summary>
+        /// Returns a fully populated <see cref="Tool"/>.
+        /// </summary>
+        /// <param name="id">The tool id.</param>
+        /// <returns>The tool.</returns>
+        public async Task<Tool> GetToolAsync(int id)
+        {
+            return await Tools.FindAsync(id);
+        }
 
         /// <summary>
         /// Returns the fully populated <see cref="AdvantagePlatformUser"/> corresponding to the

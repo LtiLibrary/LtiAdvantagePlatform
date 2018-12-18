@@ -17,27 +17,33 @@
         public string CustomProperties { get; set; }
 
         /// <summary>
-        /// The Deployment ID for this Tool/Client combination
+        /// The URL used to launch the deep linking flow.
+        /// </summary>
+        public string DeepLinkingLaunchUrl { get; set; }
+
+        /// <summary>
+        /// The Deployment ID for this Tool/Client combination.
         /// </summary>
         public string DeploymentId { get; set; }
 
         /// <summary>
-        /// The ID of the IdentityServer Client associated with this Tool.
+        /// The primary key of the Identity Server client associated with this tool.
+        /// Not the OIDC client id.
         /// </summary>
         public int IdentityServerClientId { get; set; }
 
         /// <summary>
-        /// The endpoint URL used to launch the Tool.
+        /// The URL used to launch the tool.
         /// </summary>
         public string LaunchUrl { get; set; }
 
         /// <summary>
-        /// The endpoint URL used to initiate OIDC authorization..
+        /// The URL used to initiate OIDC authorization..
         /// </summary>
         public string LoginUrl { get; set; }
 
         /// <summary>
-        /// The Tool name.
+        /// The tool name.
         /// </summary>
         public string Name { get; set; }
     }
