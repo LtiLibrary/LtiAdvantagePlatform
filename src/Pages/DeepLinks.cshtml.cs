@@ -63,11 +63,19 @@ namespace AdvantagePlatform.Pages
             {
                 foreach (var contentItem in contentItems)
                 {
+                    // Can only handle LTI Links
+                    if (contentItem.Type != Constants.ContentItemTypes.LtiLink)
+                    {
+                        continue;
+                    }
+
+                    var ltiLink = (ILtiLinkItem) contentItem;
+
                     var resourceLink = new ResourceLink
                     {
-                        CustomProperties = contentItem.Custom.ToDatabaseString(),
-                        Description = contentItem.Text,
-                        Title = contentItem.Title,
+                        CustomProperties = ltiLink.Custom.ToDatabaseString(),
+                        Description = ltiLink.Text,
+                        Title = ltiLink.Title,
                         Tool = tool
                     };
 
@@ -80,10 +88,11 @@ namespace AdvantagePlatform.Pages
                         course.ResourceLinks.Add(resourceLink);
                         course.GradebookColumns.Add(new GradebookColumn
                         {
-                            Label = resourceLink.Title,
+                            Label = ltiLink.LineItem?.Label ?? resourceLink.Title,
+                            ResourceId = ltiLink.LineItem?.ResourceId,
                             ResourceLink = resourceLink,
-                            ScoreMaximum = 100,
-                            Tag = "Deep Link"
+                            ScoreMaximum = ltiLink.LineItem?.ScoreMaximum ?? 100,
+                            Tag = ltiLink.LineItem?.Tag ?? "Deep link"
                         });
                     }
                 }
