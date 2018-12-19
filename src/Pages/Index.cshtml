@@ -61,15 +61,20 @@
                             @* Platform Details Column *@
 
                             <div class="col-auto mb-3">
-                                <div>
-                                    @(Model.Platform.Name ?? "(no name)")
-                                </div>
-                                <div>
-                                    @(Model.Platform.Description ?? "(no description)")
-                                </div>
-                                <div>
-                                    @(Model.Platform.ProductFamilyCode ?? "(no family code)")
-                                    @(Model.Platform.Version ?? "(no version)")
+                                <div class="card bg-transparent">
+                                    <h5 class="card-header">Details</h5>
+                                    <div class="card-body">
+                                        <div>
+                                            @(Model.Platform.Name ?? "(no name)")
+                                        </div>
+                                        <div>
+                                            @(Model.Platform.Description ?? "(no description)")
+                                        </div>
+                                        <div>
+                                            @(Model.Platform.ProductFamilyCode ?? "(no family code)")
+                                            @(Model.Platform.Version ?? "(no version)")
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -160,11 +165,16 @@
                                             @* Course Details Column *@
 
                                             <div class="col-auto">
-                                                <div>
-                                                    @(Model.Course.Name ?? "(no name)")
-                                                </div>
-                                                <div>
-                                                    @(Model.Course.SisId ?? "(no sis id)")
+                                                <div class="card bg-transparent">
+                                                    <h5 class="card-header">Details</h5>
+                                                    <div class="card-body">
+                                                        <div>
+                                                            @(Model.Course.Name ?? "(no name)")
+                                                        </div>
+                                                        <div>
+                                                            @(Model.Course.SisId ?? "(no sis id)")
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
 
@@ -283,7 +293,7 @@
 
                         @* Tools Row *@
 
-                        <div class="row mb-3">
+                        <div class="row">
                             <div class="col">
                                 <div class="card bg-success">
                                     <h5 class="card-header">
@@ -309,10 +319,12 @@
                                                             <h5 class="card-header">@tool.Name</h5>
                                                             <div class="card-body">
                                                                 <dl>
+                                                                    <dt>@Html.DisplayNameFor(m => m.Tools[0].LoginUrl)</dt>
+                                                                    <dd>@tool.LoginUrl</dd>
                                                                     <dt>@Html.DisplayNameFor(m => m.Tools[0].LaunchUrl)</dt>
-                                                                    <dd class="text-truncate"><span title="@tool.LaunchUrl">@tool.LaunchUrl</span></dd>
+                                                                    <dd>@tool.LaunchUrl</dd>
                                                                     <dt>@Html.DisplayNameFor(m => m.Tools[0].DeepLinkingLaunchUrl)</dt>
-                                                                    <dd class="text-truncate"><span title="@tool.DeepLinkingLaunchUrl">@tool.DeepLinkingLaunchUrl</span></dd>
+                                                                    <dd>@tool.DeepLinkingLaunchUrl</dd>
                                                                     <dt>@Html.DisplayNameFor(m => m.Tools[0].ClientId)</dt>
                                                                     <dd>@tool.ClientId</dd>
                                                                     <dt>@Html.DisplayNameFor(m => m.Tools[0].DeploymentId)</dt>
