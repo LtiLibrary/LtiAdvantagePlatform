@@ -1,15 +1,26 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using AdvantagePlatform.Utility;
+using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Interfaces;
+using IdentityServer4.Extensions;
+using IdentityServer4.Models;
 using LtiAdvantage;
 using LtiAdvantage.DeepLinking;
 using LtiAdvantage.IdentityServer4;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.OpenSsl;
 
 namespace AdvantagePlatform.Pages
 {
@@ -18,11 +29,16 @@ namespace AdvantagePlatform.Pages
     {
         private readonly ApplicationDbContext _context;
         private readonly IConfigurationDbContext _identityContext;
+        private readonly ILogger<DeepLinksModel> _logger;
 
-        public DeepLinksModel(ApplicationDbContext context, IConfigurationDbContext identityContext)
+        public DeepLinksModel(
+            ApplicationDbContext context, 
+            IConfigurationDbContext identityContext,
+            ILogger<DeepLinksModel> logger)
         {
             _context = context;
             _identityContext = identityContext;
+            _logger = logger;
         }
 
         [BindProperty(Name = "id_token")]
@@ -37,6 +53,11 @@ namespace AdvantagePlatform.Pages
                     Title = "Missing data",
                     Detail = $"{nameof(IdToken)} is missing."
                 });
+            }
+
+            if (!await ValidateToken(IdToken))
+            {
+                return Unauthorized();
             }
 
             var handler = new JwtSecurityTokenHandler();
@@ -101,6 +122,96 @@ namespace AdvantagePlatform.Pages
             }
 
             return Redirect("/");
+        }
+
+        private async Task<bool> ValidateToken(string idToken)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            if (!handler.CanReadToken(idToken))
+            {
+                _logger.LogError($"Cannot read {nameof(idToken)}");
+                return false;
+            }
+
+            var token = handler.ReadJwtToken(idToken);
+            var client = await _identityContext.Clients
+                .Include(c => c.ClientSecrets)
+                .SingleOrDefaultAsync(c => c.ClientId == token.Issuer);
+            var tool = await _context.Tools.SingleOrDefaultAsync(t => t.IdentityServerClientId == client.Id);
+            if (client == null || tool == null)
+            {
+                _logger.LogError($"Cannot find {token.Issuer}.");
+                return false;
+            }
+
+            var pemKeys = GetPemKeys(client.ClientSecrets);
+
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                // The token must be signed to prove the client credentials.
+                RequireSignedTokens = true,
+                RequireExpirationTime = true,
+
+                IssuerSigningKeys = GetPemKeys(client.ClientSecrets),
+                ValidateIssuerSigningKey = true,
+
+                // Already checked issuer above
+                ValidateIssuer = false,
+
+                ValidAudience = HttpContext.GetIdentityServerIssuerUri(),
+                ValidateAudience = true
+            };
+
+            try
+            {
+                handler.ValidateToken(idToken, tokenValidationParameters, out _);
+
+                return true;
+            }
+            catch (System.Exception e)
+            {
+                _logger.LogError(e, "JWT token validation error");
+                return false;
+            }
+
+        }
+        
+        /// <summary>
+        /// Get the PEM format secrets.
+        /// </summary>
+        /// <param name="secrets">The secrets to examine.</param>
+        /// <returns>The PEM secrets converted into <see cref="RsaSecurityKey"/>'s.</returns>
+        private static List<RsaSecurityKey> GetPemKeys(IEnumerable<ClientSecret> secrets)
+        {
+            var pemKeys = secrets
+                .Where(s => s.Type == LtiAdvantage.IdentityServer4.Validation.Constants.SecretTypes.PrivatePemKey)
+                .Select(s => s.Value)
+                .ToList();
+
+            var rsaSecurityKeys = new List<RsaSecurityKey>();
+
+            foreach (var pemKey in pemKeys)
+            {
+                using (var keyTextReader = new StringReader(pemKey))
+                {
+                    // PemReader can read any PEM file. Only interested in RsaKeyParameters.
+                    if (new PemReader(keyTextReader).ReadObject() is AsymmetricCipherKeyPair bouncyKeyPair)
+                    {
+                        var bouncyKeyParameters = (RsaKeyParameters) bouncyKeyPair.Public;
+                        var rsaParameters = new RSAParameters
+                        {
+                            Modulus = bouncyKeyParameters.Modulus.ToByteArrayUnsigned(),
+                            Exponent = bouncyKeyParameters.Exponent.ToByteArrayUnsigned()
+                        };
+
+                        var rsaSecurityKey = new RsaSecurityKey(rsaParameters);
+
+                        rsaSecurityKeys.Add(rsaSecurityKey);
+                    }
+                }
+            }
+
+            return rsaSecurityKeys;
         }
     }
 }
