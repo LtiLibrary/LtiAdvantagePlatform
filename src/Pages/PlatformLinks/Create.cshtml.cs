@@ -63,15 +63,12 @@ namespace AdvantagePlatform.Pages.PlatformLinks
 
             var user = await _context.GetUserAsync(User);
             var tool = await _context.Tools.FindAsync(ResourceLink.ToolId);
-            
-            var resourceLink = new ResourceLink
-            {
-                CustomProperties = ResourceLink.CustomProperties,
-                Title = ResourceLink.Title,
-                Tool = tool
-            };
+
+            var resourceLink = ResourceLink.ToResourceLink(tool);
+
             _context.ResourceLinks.Add(resourceLink);
             user.Platform.ResourceLinks.Add(resourceLink);
+
             await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");

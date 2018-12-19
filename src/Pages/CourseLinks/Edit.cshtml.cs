@@ -25,13 +25,8 @@ namespace AdvantagePlatform.Pages.CourseLinks
         public ResourceLinkModel ResourceLink { get; set; }
         public IList<SelectListItem> Tools { get; private set; }
 
-        public async Task<IActionResult> OnGetAsync(int? id)
+        public async Task<IActionResult> OnGetAsync(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var user = await _context.GetUserAsync(User);
             if (user == null)
             {
@@ -44,13 +39,7 @@ namespace AdvantagePlatform.Pages.CourseLinks
                 return NotFound();
             }
 
-            ResourceLink = new ResourceLinkModel
-            {
-                Id = resourceLink.Id,
-                CustomProperties = resourceLink.CustomProperties,
-                Title = resourceLink.Title,
-                ToolId = resourceLink.Tool.Id
-            };
+            ResourceLink = new ResourceLinkModel(resourceLink);
 
             Tools = user.Tools
                 .OrderBy(tool => tool.Name)
@@ -83,9 +72,8 @@ namespace AdvantagePlatform.Pages.CourseLinks
 
             var resourceLink = await _context.ResourceLinks.FindAsync(ResourceLink.Id);
             var tool = await _context.Tools.FindAsync(ResourceLink.ToolId);
-            resourceLink.CustomProperties = ResourceLink.CustomProperties;
-            resourceLink.Title = ResourceLink.Title;
-            resourceLink.Tool = tool;
+
+            ResourceLink.UpdateResourceLink(resourceLink, tool);
 
             _context.Attach(resourceLink).State = EntityState.Modified;
 

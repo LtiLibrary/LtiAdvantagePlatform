@@ -66,13 +66,7 @@ namespace AdvantagePlatform.Pages.CourseLinks
             var tool = await _context.Tools.FindAsync(ResourceLink.ToolId);
             
             // Add the resource link to the course
-            var resourceLink = new ResourceLink
-            {
-                CustomProperties = ResourceLink.CustomProperties,
-                Title = ResourceLink.Title,
-                Tool = tool
-            };
-            _context.ResourceLinks.Add(resourceLink);
+            var resourceLink = ResourceLink.ToResourceLink(tool);
             user.Course.ResourceLinks.Add(resourceLink);
 
             // And add a gradebook column to the course
@@ -85,7 +79,6 @@ namespace AdvantagePlatform.Pages.CourseLinks
                 StartDateTime = DateTime.UtcNow,
                 Tag = tool.Name
             };
-            _context.GradebookColumns.Add(gradebookColumn);
             user.Course.GradebookColumns.Add(gradebookColumn);
 
             await _context.SaveChangesAsync();

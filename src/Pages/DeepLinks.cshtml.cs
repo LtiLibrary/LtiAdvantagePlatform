@@ -1,8 +1,8 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
+using AdvantagePlatform.Utility;
 using IdentityServer4.EntityFramework.Interfaces;
 using LtiAdvantage;
 using LtiAdvantage.DeepLinking;
@@ -66,7 +66,8 @@ namespace AdvantagePlatform.Pages
                     var resourceLink = new ResourceLink
                     {
                         Title = contentItem.Title,
-                        Tool = tool
+                        Tool = tool,
+                        CustomProperties = contentItem.Custom.ToDatabaseString()
                     };
 
                     if (course == null)

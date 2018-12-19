@@ -192,9 +192,9 @@ namespace AdvantagePlatform.Utility
             // Add the deep linking settings
             request.DeepLinkingSettings = new DeepLinkingSettingsClaimValueType
             {
-                AcceptPresentationDocumentTargets = new List<DocumentTarget> { DocumentTarget.Window },
+                AcceptPresentationDocumentTargets = new [] { DocumentTarget.Window },
                 AcceptMultiple = true,
-                AcceptTypes = new List<ContentType> { ContentType.LtiLink },
+                AcceptTypes = new [] { Constants.ContentItemTypes.LtiLink },
                 AutoCreate = true,
                 DeepLinkReturnUrl = _linkGenerator.GetUriByPage(
                     "/DeepLinks", 

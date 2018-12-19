@@ -17,6 +17,11 @@
         public string CustomProperties { get; set; }
 
         /// <summary>
+        /// The link description.
+        /// </summary>
+        public string Description { get; set; }
+
+        /// <summary>
         /// The link title.
         /// </summary>
         public string Title { get; set; }

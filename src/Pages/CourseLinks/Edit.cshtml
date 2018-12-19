@@ -19,6 +19,11 @@
                     <span asp-validation-for="ResourceLink.Title" class="text-danger"></span>
                 </div>
                 <div class="form-group">
+                    <label asp-for="ResourceLink.Description"></label>
+                    <input asp-for="ResourceLink.Description" class="form-control" />
+                    <span asp-validation-for="ResourceLink.Description" class="text-danger"></span>
+                </div>
+                <div class="form-group">
                     <label asp-for="ResourceLink.ToolId"></label>
                     <select asp-for="ResourceLink.ToolId" asp-items="Model.Tools" asp- class="form-control">
                         <option value="">Select a Tool</option>

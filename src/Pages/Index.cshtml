@@ -11,7 +11,7 @@
         @if (!User.Identity.IsAuthenticated)
         {
             <div class="col">
-            <h4>Welcome Stranger!</h4>
+                <h4>Welcome Stranger!</h4>
                 <p>
                     Please <a asp-area="Identity" asp-page="/Account/Register">Register</a>
                     or <a asp-area="Identity" asp-page="/Account/Login">Sign In</a> to create
@@ -21,22 +21,22 @@
         }
         else
         {
-            <div class="col-3">
+            <div class="col-2">
                 <h4>Welcome!</h4>
                 <p>
                     On the right is a diagram of your personal instance of an LTI Advantage
                     test platform, which includes a course and two people (one teacher and
-                    one student). After you register your tool and create a resource link, 
+                    one student). After you register your tool and create a resource link,
                     you can launch your tool as either the student or teacher.
                 </p>
                 <h4>Getting Started</h4>
                 <ol>
                     <li>
                         <a asp-page="./Tools/Index">Register Your Tool</a>.
-                        This will generate a Client ID which you copy to your Tool. 
+                        This will generate a Client ID which you copy to your Tool.
                     </li>
                     <li>
-                        <a asp-page="./CourseLinks/Index">Create a Course Link</a> to 
+                        <a asp-page="./CourseLinks/Index">Create a Course Link</a> to
                         place your Tool.
                     </li>
                     <li>
@@ -44,7 +44,7 @@
                     </li>
                 </ol>
             </div>
-            <div class="col-9">
+            <div class="col-10">
                 <div class="card text-white bg-info">
                     <h4 class="card-header">
                         Platform
@@ -56,81 +56,94 @@
                         </a>
                     </h4>
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-4">
-                                <div class="row">
-                                    <dl class="col">
-                                        <dt>@Html.DisplayNameFor(m => m.Platform.Name)</dt>
-                                        <dd>
-                                            <div>
-                                                @(Model.Platform.Name ?? "(no name)")
-                                            </div>
-                                            <div>
-                                                @(Model.Platform.Description ?? "(no description)")
-                                            </div>
-                                            <div>
-                                                @(Model.Platform.ProductFamilyCode ?? "(no family code)")
-                                                @(Model.Platform.Version ?? "(no version)")
-                                            </div>
-                                        </dd>
-                                    </dl>
+                        <div class="row mb-3">
+
+                            @* Platform Details Column *@
+
+                            <div class="col-auto mb-3">
+                                <div>
+                                    @(Model.Platform.Name ?? "(no name)")
                                 </div>
-                                <h6>
-                                    <span class="font-weight-bold">Platform Links</span>
-                                    <a class="btn text-light fas fa-edit"
-                                       data-toggle="tooltip"
-                                       title="Edit the platform resource links"
-                                       asp-page="./PlatformLinks/Index">
-                                    </a>
-                                    @foreach (var tool in Model.Tools.Where(t => t.DeepLinkingLaunchUrl.IsPresent()))
-                                    {
-                                        foreach (var person in Model.People.OrderBy(p => p.FirstName))
-                                        {
-                                            <a class="btn text-light fas fa-plus-square pr-0" target="_blank"
-                                               data-toggle="tooltip"
-                                               title="@($"Add platform links using {tool.Name} as {person.FirstName} {person.LastName}")"
-                                               asp-page="ResourceLinks/OidcLaunch"
-                                               asp-route-id="@tool.Id"
-                                               asp-route-messageType="@Constants.Lti.LtiDeepLinkingRequestMessageType"
-                                               asp-route-personId="@person.Id">
-                                            </a> @person.FirstName
-                                        }
-                                    }
-                                </h6>
-                                @if (Model.PlatformResourceLinks.Any())
-                                {
-                                    foreach (var link in Model.PlatformResourceLinks.OrderBy(l => l.Title))
-                                    {
-                                        <div class="row">
-                                            <div class="col-sm-auto">
-                                                <div class="card bg-warning mb-3 text-dark">
-                                                    <h5 class="card-header text-truncate"><span title="@link.Title">@link.Title</span></h5>
-                                                    <div class="card-body">
-                                                        <div class="card-title">
-                                                            @(link.ToolName ?? "(no tool name)")
-                                                        </div>
-                                                        @foreach (var person in Model.People)
-                                                         {
-                                                             <a class="btn btn-sm btn-secondary mt-2 mb-2" target="_blank"
-                                                                data-toggle="tooltip" title="@($"Launch this resource link as {person.FirstName} {person.LastName}")"
-                                                                asp-page="ResourceLinks/OidcLaunch"
-                                                                asp-route-id="@link.Id"
-                                                                asp-route-messageType="@Constants.Lti.LtiResourceLinkRequestMessageType"
-                                                                asp-route-personId="@person.Id"><i class="fas fa-external-link-alt"></i> @person.FirstName
-                                                             </a>
-                                                         }
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    }
-                                }
-                                else
-                                {
-                                    <p>No resource links in the platform yet.</p>
-                                }
+                                <div>
+                                    @(Model.Platform.Description ?? "(no description)")
+                                </div>
+                                <div>
+                                    @(Model.Platform.ProductFamilyCode ?? "(no family code)")
+                                    @(Model.Platform.Version ?? "(no version)")
+                                </div>
                             </div>
-                            <div class="col-8">
+
+                            @* Platform Links Column *@
+
+                            <div class="col-auto mb-3">
+                                <div class="card bg-transparent">
+                                    <h5 class="card-header">
+                                        Platform Links
+                                        <a class="btn text-light fas fa-edit"
+                                           data-toggle="tooltip"
+                                           title="Edit the platform links"
+                                           asp-page="./PlatformLinks/Index">
+                                        </a>
+                                    </h5>
+                                    <div class="card-body">
+                                        Add links:
+                                        @foreach (var tool in Model.Tools.Where(t => t.DeepLinkingLaunchUrl.IsPresent()))
+                                        {
+                                            foreach (var person in Model.People.OrderBy(p => p.FirstName))
+                                            {
+                                                <a class="btn text-light fas fa-plus-square p-0" target="_blank"
+                                                   data-toggle="tooltip"
+                                                   title="@($"Add platform links using {tool.Name} as {person.FirstName} {person.LastName}")"
+                                                   asp-page="ResourceLinks/OidcLaunch"
+                                                   asp-route-id="@tool.Id"
+                                                   asp-route-messageType="@Constants.Lti.LtiDeepLinkingRequestMessageType"
+                                                   asp-route-personId="@person.Id">
+                                                </a>
+                                                @person.FirstName
+                                            }
+                                        }
+                                        @if (!Model.PlatformResourceLinks.Any())
+                                        {
+                                            <p>No platform links.</p>
+                                        }
+                                        else
+                                        {
+                                            <div class="row">
+                                                @foreach (var link in Model.PlatformResourceLinks.OrderBy(l => l.Title))
+                                                {
+                                                    <div class="col-auto">
+                                                        <div class="card bg-warning mb-3 text-dark" style="max-width: 15em">
+                                                            <h5 class="card-header">@link.Title</h5>
+                                                            <div class="card-body">@link.Description</div>
+                                                            <div class="card-footer">
+                                                                @foreach (var person in Model.People.OrderBy(p => p.FirstName))
+                                                                {
+                                                                    <a class="btn btn-sm btn-secondary mt-2 mb-2" target="_blank"
+                                                                       data-toggle="tooltip"
+                                                                       title="@($"Launch this resource link using {link.ToolName} as {person.FirstName} {person.LastName}")"
+                                                                       asp-page="ResourceLinks/OidcLaunch"
+                                                                       asp-route-id="@link.Id"
+                                                                       asp-route-messageType="@Constants.Lti.LtiResourceLinkRequestMessageType"
+                                                                       asp-route-personId="@person.Id">
+                                                                        <i class="fas fa-external-link-alt"></i> @person.FirstName
+                                                                    </a>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        @* Course Row *@
+
+                        <div class="row mb-3">
+                            <div class="col">
                                 <div class="card bg-secondary">
                                     <h4 class="card-header">
                                         Course
@@ -143,114 +156,134 @@
                                     </h4>
                                     <div class="card-body">
                                         <div class="row">
-                                            <dl class="col-sm-4">
-                                                <dt>@Html.DisplayNameFor(m => m.Course.Name)</dt>
-                                                <dd>
-                                                    <div>
-                                                        @(Model.Course.Name ?? "(no name)")
-                                                    </div>
-                                                    <div>
-                                                        @(Model.Course.SisId ?? "(no sis id)")
-                                                    </div>
-                                                </dd>
-                                            </dl>
-                                        </div>
-                                        <h6 class="font-weight-bold">
-                                            Members
-                                            <a class="btn text-light fas fa-edit"
-                                               data-toggle="tooltip"
-                                               title="Edit the member settings"
-                                               asp-area="Identity"
-                                               asp-page="Account/Manage/People">
-                                            </a>
-                                        </h6>
-                                        <div class="row">
-                                            @foreach (var person in Model.People.OrderBy(p => p.FirstName))
-                                            {
-                                                <div class="card bg-secondary mb-3" style="width: 12rem">
+
+                                            @* Course Details Column *@
+
+                                            <div class="col-auto">
+                                                <div>
+                                                    @(Model.Course.Name ?? "(no name)")
+                                                </div>
+                                                <div>
+                                                    @(Model.Course.SisId ?? "(no sis id)")
+                                                </div>
+                                            </div>
+
+                                            @* Course Members Column *@
+
+                                            <div class="col-auto">
+                                                <div class="card bg-transparent">
+                                                    <h5 class="card-header">
+                                                        Members
+                                                        <a class="btn text-light fas fa-edit"
+                                                           data-toggle="tooltip"
+                                                           title="Edit the member settings"
+                                                           asp-area="Identity"
+                                                           asp-page="Account/Manage/People">
+                                                        </a>
+                                                    </h5>
                                                     <div class="card-body">
-                                                        <div class="card-title">
-                                                            @(person.FirstName ?? "(no first name)")
-                                                            @(person.LastName ?? "(no last name)")
-                                                        </div>
-                                                        <div>
-                                                            @(person.Email ?? "(no email)")
-                                                        </div>
-                                                        <div>
-                                                            @(person.Roles ?? "(no roles)")
-                                                        </div>
-                                                        <div>
-                                                            @(person.SisId ?? "(no sis id)")
+                                                        <div class="row">
+                                                            @foreach (var person in Model.People.OrderBy(p => p.FirstName))
+                                                            {
+                                                                <div class="col-auto mb-3" style="max-width: 15em">
+                                                                    <div>
+                                                                        @(person.FirstName ?? "(no first name)")
+                                                                        @(person.LastName ?? "(no last name)")
+                                                                    </div>
+                                                                    <div>
+                                                                        @(person.Email ?? "(no email)")
+                                                                    </div>
+                                                                    <div>
+                                                                        @(person.Roles ?? "(no roles)")
+                                                                    </div>
+                                                                    <div>
+                                                                        @(person.SisId ?? "(no sis id)")
+                                                                    </div>
+                                                                </div>
+                                                            }
                                                         </div>
                                                     </div>
                                                 </div>
-                                            }
-                                        </div>
-                                        <h6>
-                                            <span class="font-weight-bold">Course Links</span>
-                                            <a class="btn text-light fas fa-edit"
-                                               data-toggle="tooltip"
-                                               title="Edit the course resource links"
-                                               asp-page="./CourseLinks/Index">
-                                            </a>
-                                            @foreach (var tool in Model.Tools.Where(t => t.DeepLinkingLaunchUrl.IsPresent()))
-                                            {
-                                                foreach (var person in Model.People.OrderBy(p => p.FirstName))
-                                                {
-                                                    <a class="btn text-light fas fa-plus-square pr-0" target="_blank"
-                                                       data-toggle="tooltip"
-                                                       title="@($"Add course links using {tool.Name} as {person.FirstName} {person.LastName}")"
-                                                       asp-page="ResourceLinks/OidcLaunch"
-                                                       asp-route-id="@tool.Id"
-                                                       asp-route-messageType="@Constants.Lti.LtiDeepLinkingRequestMessageType"
-                                                       asp-route-courseId="@Model.Course.Id"
-                                                       asp-route-personId="@person.Id">
-                                                    </a> @person.FirstName
-                                                }
-                                            }
-                                        </h6>
-                                        @if (Model.CourseResourceLinks.Any())
-                                        {
-                                            <div class="row">
-                                                @foreach (var link in Model.CourseResourceLinks.OrderBy(l => l.Title))
-                                                {
-                                                    <div class="col-sm-auto">
-                                                        <div class="card bg-warning mb-3 text-dark">
-                                                            <h5 class="card-header text-truncate"><span title="@link.Title">@link.Title</span></h5>
-                                                            <div class="card-body">
-                                                                <div class="card-title">
-                                                                    <dl>
-                                                                        <dt>@Html.DisplayNameFor(m => link.ToolName)</dt>
-                                                                        <dd>@(link.ToolName ?? "(no tool name)")</dd>
-                                                                    </dl>
-                                                                </div>
-                                                                @foreach (var person in Model.People.OrderBy(p => p.FirstName))
+                                            </div>
+
+                                            @* Column Links Column *@
+
+                                            <div class="col-auto">
+                                                <div class="card bg-transparent">
+                                                    <h5 class="card-header">
+                                                        Course Links
+                                                        <a class="btn text-light fas fa-edit"
+                                                           data-toggle="tooltip"
+                                                           title="Edit the course links"
+                                                           asp-page="./CourseLinks/Index">
+                                                        </a>
+                                                    </h5>
+                                                    <div class="card-body">
+                                                        Add links:
+                                                        @foreach (var tool in Model.Tools.Where(t => t.DeepLinkingLaunchUrl.IsPresent()))
+                                                        {
+                                                            foreach (var person in Model.People.OrderBy(p => p.FirstName))
+                                                            {
+                                                                <a class="btn text-light fas fa-plus-square p-0" target="_blank"
+                                                                   data-toggle="tooltip"
+                                                                   title="@($"Add course links using {tool.Name} as {person.FirstName} {person.LastName}")"
+                                                                   asp-page="ResourceLinks/OidcLaunch"
+                                                                   asp-route-id="@tool.Id"
+                                                                   asp-route-messageType="@Constants.Lti.LtiDeepLinkingRequestMessageType"
+                                                                   asp-route-courseId="@Model.Course.Id"
+                                                                   asp-route-personId="@person.Id">
+                                                                </a>
+                                                                @person.FirstName
+                                                            }
+                                                        }
+                                                        @if (!Model.CourseResourceLinks.Any())
+                                                        {
+                                                            <p>No course links.</p>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="row">
+                                                                @foreach (var link in Model.CourseResourceLinks.OrderBy(l => l.Title))
                                                                 {
-                                                                    <a class="btn btn-sm btn-secondary mt-2 mb-2" target="_blank"
-                                                                       data-toggle="tooltip" title="@($"Launch this resource link as {person.FirstName} {person.LastName}")"
-                                                                       asp-page="ResourceLinks/OidcLaunch"
-                                                                       asp-route-id="@link.Id"
-                                                                       asp-route-messageType="@Constants.Lti.LtiResourceLinkRequestMessageType"
-                                                                       asp-route-courseId="@Model.Course.Id"
-                                                                       asp-route-personId="@person.Id"><i class="fas fa-external-link-alt"></i> @person.FirstName
-                                                                    </a>
+                                                                    <div class="col-auto">
+                                                                        <div class="card bg-warning mb-3 text-dark" style="max-width: 15em">
+                                                                            <h5 class="card-header">@link.Title</h5>
+                                                                            <div class="card-body">@link.Description</div>
+                                                                            <div class="card-footer">
+                                                                                @foreach (var person in Model.People.OrderBy(p => p.FirstName))
+                                                                                {
+                                                                                    <a class="btn btn-sm btn-secondary mt-2 mb-2" target="_blank"
+                                                                                       data-toggle="tooltip" title="@($"Launch this resource link using {@link.ToolName} as {person.FirstName} {person.LastName}")"
+                                                                                       asp-page="ResourceLinks/OidcLaunch"
+                                                                                       asp-route-id="@link.Id"
+                                                                                       asp-route-messageType="@Constants.Lti.LtiResourceLinkRequestMessageType"
+                                                                                       asp-route-courseId="@Model.Course.Id"
+                                                                                       asp-route-personId="@person.Id">
+                                                                                        <i class="fas fa-external-link-alt"></i> @person.FirstName
+                                                                                    </a>
+                                                                                }
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
                                                                 }
                                                             </div>
-                                                        </div>
+                                                        }
                                                     </div>
-                                                }
+                                                </div>
                                             </div>
-                                            @await Component.InvokeAsync("Gradebook", Model.Course.Id)
-                                        }
-                                        else
-                                        {
-                                            <p>No resource links in the course yet.</p>
-                                        }
+                                        </div>
+                                        
+                                        @* Gradebook Row *@
+
+                                        @await Component.InvokeAsync("Gradebook", Model.Course.Id)
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="row mt-3">
+
+                        @* Tools Row *@
+
+                        <div class="row mb-3">
                             <div class="col">
                                 <div class="card bg-success">
                                     <h5 class="card-header">
@@ -271,9 +304,9 @@
                                             <div class="row">
                                                 @foreach (var tool in Model.Tools.OrderBy(t => t.Name))
                                                 {
-                                                    <div class="col-sm-4">
+                                                    <div class="col-auto">
                                                         <div class="card bg-light mb-3 text-dark">
-                                                            <h5 class="card-header text-truncate">@tool.Name</h5>
+                                                            <h5 class="card-header">@tool.Name</h5>
                                                             <div class="card-body">
                                                                 <dl>
                                                                     <dt>@Html.DisplayNameFor(m => m.Tools[0].LaunchUrl)</dt>

@@ -19,13 +19,8 @@ namespace AdvantagePlatform.Pages.PlatformLinks
         [BindProperty]
         public ResourceLinkModel ResourceLink { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(int? id)
+        public async Task<IActionResult> OnGetAsync(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var user = await _context.GetUserAsync(User);
             if (user == null)
             {
@@ -38,30 +33,13 @@ namespace AdvantagePlatform.Pages.PlatformLinks
                 return NotFound();
             }
 
-            var tool = resourceLink.Tool;
-            if (tool == null)
-            {
-                return NotFound();
-            }
-
-            ResourceLink = new ResourceLinkModel
-            {
-                Id = resourceLink.Id,
-                CustomProperties = resourceLink.CustomProperties,
-                Title = resourceLink.Title,
-                ToolName = tool.Name
-            };
+            ResourceLink = new ResourceLinkModel(resourceLink);
 
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync(int? id)
+        public async Task<IActionResult> OnPostAsync(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var resourceLink = await _context.ResourceLinks.FindAsync(id);
 
             if (resourceLink != null)

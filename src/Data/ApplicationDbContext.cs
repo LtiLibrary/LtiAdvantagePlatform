@@ -31,6 +31,9 @@ namespace AdvantagePlatform.Data
             builder.Entity<ResourceLink>().HasMany<GradebookColumn>().WithOne(g => g.ResourceLink)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            builder.Entity<Tool>().HasMany<ResourceLink>().WithOne(l => l.Tool)
+                .OnDelete(DeleteBehavior.Cascade);
+
             base.OnModelCreating(builder);
         }
 

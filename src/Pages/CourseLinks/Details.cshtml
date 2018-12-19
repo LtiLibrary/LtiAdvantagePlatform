@@ -11,6 +11,8 @@
     <dl>
         <dt>@Html.DisplayNameFor(m => m.ResourceLink.Title)</dt>
         <dd>@Model.ResourceLink.Title</dd>
+        <dt>@Html.DisplayNameFor(m => m.ResourceLink.Description)</dt>
+        <dd>@(Model.ResourceLink.Description ?? "[Not Set]")</dd>
         <dt>@Html.DisplayNameFor(m => m.ResourceLink.ToolName)</dt>
         <dd>@Model.ResourceLink.ToolName</dd>
         <dt>@Html.DisplayNameFor(m => m.ResourceLink.CustomProperties)</dt>

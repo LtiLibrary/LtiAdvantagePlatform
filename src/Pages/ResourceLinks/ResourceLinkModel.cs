@@ -6,7 +6,28 @@ namespace AdvantagePlatform.Pages.ResourceLinks
 {
     public class ResourceLinkModel
     {
+        public ResourceLinkModel() {}
+
+        public ResourceLinkModel(ResourceLink resourceLink)
+        {
+            Id = resourceLink.Id;
+            CustomProperties = resourceLink.CustomProperties;
+            Description = resourceLink.Description;
+            Title = resourceLink.Title;
+            ToolId = resourceLink.Tool.Id;
+            ToolName = resourceLink.Tool.Name;
+        }
+
+        /// <summary>
+        /// Primary key
+        /// </summary>
         public int Id { get; set; }
+
+        [Display(Name = "Custom Properties", Description = "<p>Custom properties to include in all tool launches.<p><p>Put each name=value pair on a separate line.</p>")]
+        public string CustomProperties { get; set; }
+
+        [Display(Name = "Description")]
+        public string Description { get; set; }
 
         [Required]
         [Display(Name = "Title")]
@@ -18,9 +39,6 @@ namespace AdvantagePlatform.Pages.ResourceLinks
 
         [Display(Name = "Tool Name")]
         public string ToolName { get; set; }
-
-        [Display(Name = "Custom Properties", Description = "<p>Custom properties to include in all tool launches.<p><p>Put each name=value pair on a separate line.</p>")]
-        public string CustomProperties { get; set; }
 
         /// <summary>
         /// Convert the resource links into ResourceLinkModels.
@@ -34,28 +52,37 @@ namespace AdvantagePlatform.Pages.ResourceLinks
             foreach (var link in resourceLinks)
             {
                 var tool = link.Tool;
-                if (tool == null)
+                list.Add(new ResourceLinkModel
                 {
-                    list.Add(new ResourceLinkModel
-                    {
-                        Id = link.Id,
-                        Title = link.Title,
-                        CustomProperties = link.CustomProperties
-                    });
-                }
-                else
-                {
-                    list.Add(new ResourceLinkModel
-                    {
-                        Id = link.Id,
-                        Title = link.Title,
-                        ToolName = tool.Name,
-                        CustomProperties = link.CustomProperties
-                    });
-                }
+                    Id = link.Id,
+                    Title = link.Title,
+                    Description = link.Description,
+                    ToolName = tool.Name,
+                    CustomProperties = link.CustomProperties
+                });
             }
 
             return list;
+        }
+
+        public ResourceLink ToResourceLink(Tool tool)
+        {
+            return new ResourceLink
+            {
+                Id = Id,
+                CustomProperties = CustomProperties,
+                Description = Description,
+                Title = Title,
+                Tool = tool
+            };
+        }
+
+        public void UpdateResourceLink(ResourceLink resourceLink, Tool tool)
+        {
+            resourceLink.CustomProperties = CustomProperties;
+            resourceLink.Description = Description;
+            resourceLink.Title = Title;
+            resourceLink.Tool = tool;
         }
     }
 }
