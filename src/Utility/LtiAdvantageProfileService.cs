@@ -270,7 +270,8 @@ namespace AdvantagePlatform.Utility
                 ResourceLink = new ResourceLinkClaimValueType
                 {
                     Id = resourceLink.Id.ToString(),
-                    Title = resourceLink.Title
+                    Title = resourceLink.Title,
+                    Description = resourceLink.Description
                 },
                 Roles = PeopleModel.ParsePersonRoles(person.Roles),
                 TargetLinkUri = resourceLink.Tool.LaunchUrl

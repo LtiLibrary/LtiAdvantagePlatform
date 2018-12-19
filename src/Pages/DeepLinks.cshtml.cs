@@ -65,9 +65,10 @@ namespace AdvantagePlatform.Pages
                 {
                     var resourceLink = new ResourceLink
                     {
+                        CustomProperties = contentItem.Custom.ToDatabaseString(),
+                        Description = contentItem.Text,
                         Title = contentItem.Title,
-                        Tool = tool,
-                        CustomProperties = contentItem.Custom.ToDatabaseString()
+                        Tool = tool
                     };
 
                     if (course == null)
