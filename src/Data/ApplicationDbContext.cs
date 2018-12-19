@@ -28,6 +28,9 @@ namespace AdvantagePlatform.Data
             builder.Entity<GradebookColumn>().HasMany(c => c.Scores).WithOne()
                 .OnDelete(DeleteBehavior.Cascade);
 
+            builder.Entity<ResourceLink>().HasMany<GradebookColumn>().WithOne(g => g.ResourceLink)
+                .OnDelete(DeleteBehavior.Cascade);
+
             base.OnModelCreating(builder);
         }
 
@@ -105,6 +108,18 @@ namespace AdvantagePlatform.Data
         {
             return await People.FindAsync(id);
         }
+
+        /// <summary>
+        /// Returns a full platform.
+        /// </summary>
+        /// <param name="id">The platform id.</param>
+        /// <returns>The platform.</returns>
+        public async Task<Platform> GetPlatformAsync(int id)
+        {
+            return await Platforms
+                .Include(p => p.ResourceLinks)
+                .SingleOrDefaultAsync(p => p.Id == id);
+        }
         
         /// <summary>
         /// Returns a platform given the id of a resource link within the platform.
@@ -113,7 +128,9 @@ namespace AdvantagePlatform.Data
         /// <returns>The platform.</returns>
         public async Task<Platform> GetPlatformByResourceLinkIdAsync(int id)
         {
-            return await Platforms.SingleOrDefaultAsync(p => p.ResourceLinks.Any(l => l.Id == id));
+            return await Platforms
+                .Include(p => p.ResourceLinks)
+                .SingleOrDefaultAsync(p => p.ResourceLinks.Any(l => l.Id == id));
         }
         
         /// <summary>

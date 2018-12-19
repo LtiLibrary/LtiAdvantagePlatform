@@ -151,8 +151,7 @@ namespace AdvantagePlatform.Utility
                 LaunchPresentation = new LaunchPresentationClaimValueType
                 {
                     DocumentTarget = DocumentTarget.Window,
-                    Locale = CultureInfo.CurrentUICulture.Name,
-                    ReturnUrl = $"{httpRequest.Scheme}://{httpRequest.Host}"
+                    Locale = CultureInfo.CurrentUICulture.Name
                 },
                 Lis = new LisClaimValueType
                 {
@@ -197,7 +196,12 @@ namespace AdvantagePlatform.Utility
                 AcceptMultiple = true,
                 AcceptTypes = new List<ContentType> { ContentType.LtiLink },
                 AutoCreate = true,
-                DeepLinkReturnUrl = $"{httpRequest.Scheme}://{httpRequest.Host}"
+                DeepLinkReturnUrl = _linkGenerator.GetUriByPage(
+                    "/DeepLinks", 
+                    handler: null, 
+                    values: new {platformId = platform.Id, courseId = course?.Id}, 
+                    scheme: httpRequest.Scheme, 
+                    host: httpRequest.Host)
             };
 
             // Collect custom properties
