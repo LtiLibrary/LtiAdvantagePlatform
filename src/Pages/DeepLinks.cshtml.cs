@@ -112,7 +112,7 @@ namespace AdvantagePlatform.Pages
                             ResourceId = ltiLink.LineItem?.ResourceId,
                             ResourceLink = resourceLink,
                             ScoreMaximum = ltiLink.LineItem?.ScoreMaximum ?? 100,
-                            Tag = ltiLink.LineItem?.Tag ?? "Deep link"
+                            Tag = ltiLink.LineItem?.Tag.IfMissingThen("Deep Link")
                         });
                     }
                 }

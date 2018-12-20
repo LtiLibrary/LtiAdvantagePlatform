@@ -1,4 +1,5 @@
 ﻿@page
+@using AdvantagePlatform.Utility
 @model DetailsModel
 
 @{
@@ -10,13 +11,13 @@
     <hr />
     <dl>
         <dt>@Html.DisplayNameFor(m => m.ResourceLink.Title)</dt>
-        <dd>@Model.ResourceLink.Title</dd>
+        <dd>@Model.ResourceLink.Title.IfMissingThen()</dd>
         <dt>@Html.DisplayNameFor(m => m.ResourceLink.Description)</dt>
-        <dd>@(Model.ResourceLink.Description ?? "[Not Set]")</dd>
+        <dd>@Model.ResourceLink.Description.IfMissingThen()</dd>
         <dt>@Html.DisplayNameFor(m => m.ResourceLink.ToolName)</dt>
-        <dd>@Model.ResourceLink.ToolName</dd>
+        <dd>@Model.ResourceLink.ToolName.IfMissingThen()</dd>
         <dt>@Html.DisplayNameFor(m => m.ResourceLink.CustomProperties)</dt>
-        <dd><pre>@(Model.ResourceLink.CustomProperties ?? "[Not Set]")</pre></dd>
+        <dd><pre>@Model.ResourceLink.CustomProperties.IfMissingThen()</pre></dd>
     </dl>
     <div>
         <a asp-page="./Edit" asp-route-id="@Model.ResourceLink.Id">Edit</a> |

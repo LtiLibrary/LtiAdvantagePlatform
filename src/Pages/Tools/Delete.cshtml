@@ -1,4 +1,5 @@
 ﻿@page
+@using AdvantagePlatform.Utility
 @model DeleteModel
 
 @{
@@ -15,19 +16,19 @@
                 <div class="card-body">
                     <dl>
                         <dt>@Html.DisplayNameFor(m => m.Tool.Name)</dt>
-                        <dd>@Model.Tool.Name</dd>
+                        <dd>@Model.Tool.Name.IfMissingThen()</dd>
                         <dt>@Html.DisplayNameFor(m => m.Tool.LoginUrl)</dt>
-                        <dd>@Model.Tool.LoginUrl</dd>
+                        <dd>@Model.Tool.LoginUrl.IfMissingThen()</dd>
                         <dt>@Html.DisplayNameFor(m => m.Tool.LaunchUrl)</dt>
-                        <dd>@Model.Tool.LaunchUrl</dd>
+                        <dd>@Model.Tool.LaunchUrl.IfMissingThen()</dd>
                         <dt>@Html.DisplayNameFor(m => m.Tool.DeepLinkingLaunchUrl)</dt>
-                        <dd>@Model.Tool.DeepLinkingLaunchUrl</dd>
+                        <dd>@Model.Tool.DeepLinkingLaunchUrl.IfMissingThen()</dd>
                         <dt>@Html.DisplayNameFor(m => m.Tool.CustomProperties)</dt>
-                        <dd><pre>@(Model.Tool.CustomProperties ?? "[Not Set]")</pre></dd>
+                        <dd><pre>@Model.Tool.CustomProperties.IfMissingThen()</pre></dd>
                         <dt>@Html.DisplayNameFor(m => m.Tool.ClientId)</dt>
-                        <dd>@Model.Tool.ClientId</dd>
+                        <dd>@Model.Tool.ClientId.IfMissingThen()</dd>
                         <dt>@Html.DisplayNameFor(m => m.Tool.DeploymentId)</dt>
-                        <dd>@Model.Tool.DeploymentId</dd>
+                        <dd>@Model.Tool.DeploymentId.IfMissingThen()</dd>
                     </dl>
                 </div>
             </div>

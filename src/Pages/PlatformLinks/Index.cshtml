@@ -1,4 +1,5 @@
 ﻿@page
+@using AdvantagePlatform.Utility
 @model IndexModel
 
 @{
@@ -22,8 +23,8 @@
             @foreach (var item in Model.ResourceLinks)
             {
             <tr>
-                <td>@Html.DisplayFor(m => item.Title)</td>
-                <td>@Html.DisplayFor(m => item.ToolName)</td>
+                <td>@item.Title.IfMissingThen()</td>
+                <td>@item.ToolName.IfMissingThen()</td>
                 <td>
                     <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
                     <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |

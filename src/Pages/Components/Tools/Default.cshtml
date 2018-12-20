@@ -1,4 +1,5 @@
-﻿@model ToolsViewComponentModel
+﻿@using AdvantagePlatform.Utility
+@model ToolsViewComponentModel
 
 <div class="row">
     <div class="col">
@@ -27,15 +28,15 @@
                                     <div class="card-body">
                                         <dl>
                                             <dt>@Html.DisplayNameFor(m => m.Tools[0].LoginUrl)</dt>
-                                            <dd>@tool.LoginUrl</dd>
+                                            <dd>@tool.LoginUrl.IfMissingThen()</dd>
                                             <dt>@Html.DisplayNameFor(m => m.Tools[0].LaunchUrl)</dt>
-                                            <dd>@tool.LaunchUrl</dd>
+                                            <dd>@tool.LaunchUrl.IfMissingThen()</dd>
                                             <dt>@Html.DisplayNameFor(m => m.Tools[0].DeepLinkingLaunchUrl)</dt>
-                                            <dd>@tool.DeepLinkingLaunchUrl</dd>
+                                            <dd>@tool.DeepLinkingLaunchUrl.IfMissingThen()</dd>
                                             <dt>@Html.DisplayNameFor(m => m.Tools[0].ClientId)</dt>
-                                            <dd>@tool.ClientId</dd>
+                                            <dd>@tool.ClientId.IfMissingThen()</dd>
                                             <dt>@Html.DisplayNameFor(m => m.Tools[0].DeploymentId)</dt>
-                                            <dd>@tool.DeploymentId</dd>
+                                            <dd>@tool.DeploymentId.IfMissingThen()</dd>
                                         </dl>
                                     </div>
                                 </div>

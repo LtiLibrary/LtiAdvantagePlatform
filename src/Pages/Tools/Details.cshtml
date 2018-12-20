@@ -1,4 +1,5 @@
 ﻿@page
+@using AdvantagePlatform.Utility
 @model DetailsModel
 
 @{
@@ -16,39 +17,39 @@
                 <div class="card-body">
                     <dl>
                         <dt>@Html.DisplayNameFor(m => m.Tool.Name)</dt>
-                        <dd>@Model.Tool.Name</dd>
+                        <dd>@Model.Tool.Name.IfMissingThen()</dd>
                         <dt>
                             @Html.DisplayNameFor(m => m.Tool.LoginUrl)
                             <tooltip asp-for="Tool.LoginUrl"></tooltip>
                         </dt>
-                        <dd>@Model.Tool.LoginUrl</dd>
+                        <dd>@Model.Tool.LoginUrl.IfMissingThen()</dd>
                         <dt>
                             @Html.DisplayNameFor(m => m.Tool.LaunchUrl)
                             <tooltip asp-for="Tool.LaunchUrl"></tooltip>
                         </dt>
-                        <dd>@Model.Tool.LaunchUrl</dd>
+                        <dd>@Model.Tool.LaunchUrl.IfMissingThen()</dd>
                         <dt>
                             @Html.DisplayNameFor(m => m.Tool.DeepLinkingLaunchUrl)
                             <tooltip asp-for="Tool.DeepLinkingLaunchUrl"></tooltip>
                         </dt>
-                        <dd>@Model.Tool.DeepLinkingLaunchUrl</dd>
+                        <dd>@Model.Tool.DeepLinkingLaunchUrl.IfMissingThen()</dd>
                         <dt>
                             @Html.DisplayNameFor(m => m.Tool.CustomProperties)
                             <tooltip asp-for="Tool.CustomProperties"></tooltip>
                         </dt>
-                        <dd><pre>@(Model.Tool.CustomProperties ?? "[Not Set]")</pre></dd>
+                        <dd><pre>@Model.Tool.CustomProperties.IfMissingThen()</pre></dd>
                         <dt>@Html.DisplayNameFor(m => m.Tool.ClientId)</dt>
-                        <dd>@Model.Tool.ClientId</dd>
+                        <dd>@Model.Tool.ClientId.IfMissingThen()</dd>
                         <dt>
                             @Html.DisplayNameFor(m => m.Tool.PrivateKey)
                             <tooltip asp-for="Tool.PrivateKey"></tooltip>
                         </dt>
-                        <dd><pre class="securitykey">@Model.Tool.PrivateKey</pre></dd>
+                        <dd><pre class="securitykey">@Model.Tool.PrivateKey.IfMissingThen()</pre></dd>
                         <dt>
                             @Html.DisplayNameFor(m => m.Tool.DeploymentId)
                             <tooltip asp-for="Tool.DeploymentId"></tooltip>
                         </dt>
-                        <dd>@Model.Tool.DeploymentId</dd>
+                        <dd>@Model.Tool.DeploymentId.IfMissingThen()</dd>
                     </dl>
                 </div>
             </div>

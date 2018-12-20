@@ -3,6 +3,7 @@
 @using AdvantagePlatform.Pages.Components.Gradebook
 @using AdvantagePlatform.Pages.Components.ResourceLinks
 @using AdvantagePlatform.Pages.Components.Tools
+@using AdvantagePlatform.Utility
 @model IndexModel
 @{
     ViewData["Title"] = "Home page";
@@ -67,14 +68,14 @@
                                     <h5 class="card-header">Platform Details</h5>
                                     <div class="card-body">
                                         <div>
-                                            @(Model.Platform.Name ?? "(no name)")
+                                            @Model.Platform.Name.IfMissingThen("(no name)")
                                         </div>
                                         <div>
-                                            @(Model.Platform.Description ?? "(no description)")
+                                            @Model.Platform.Description.IfMissingThen("(no description)")
                                         </div>
                                         <div>
-                                            @(Model.Platform.ProductFamilyCode ?? "(no family code)")
-                                            @(Model.Platform.Version ?? "(no version)")
+                                            @Model.Platform.ProductFamilyCode.IfMissingThen("(no family code)")
+                                            @Model.Platform.Version.IfMissingThen("(no version)")
                                         </div>
                                     </div>
                                 </div>
@@ -127,10 +128,10 @@
                                                     <h5 class="card-header">Course Details</h5>
                                                     <div class="card-body">
                                                         <div>
-                                                            @(Model.Course.Name ?? "(no name)")
+                                                            @Model.Course.Name.IfMissingThen("(no name)")
                                                         </div>
                                                         <div>
-                                                            @(Model.Course.SisId ?? "(no sis id)")
+                                                            @Model.Course.SisId.IfMissingThen("(no sis id)")
                                                         </div>
                                                     </div>
                                                 </div>
@@ -155,17 +156,17 @@
                                                             {
                                                                 <div class="col-auto mb-3" style="max-width: 15em">
                                                                     <div>
-                                                                        @(person.FirstName ?? "(no first name)")
-                                                                        @(person.LastName ?? "(no last name)")
+                                                                        @person.FirstName.IfMissingThen("(no first name)")
+                                                                        @person.LastName.IfMissingThen("(no last name)")
                                                                     </div>
                                                                     <div>
-                                                                        @(person.Email ?? "(no email)")
+                                                                        @person.Email.IfMissingThen("(no email)")
                                                                     </div>
                                                                     <div>
-                                                                        @(person.Roles ?? "(no roles)")
+                                                                        @person.Roles.IfMissingThen("(no roles)")
                                                                     </div>
                                                                     <div>
-                                                                        @(person.SisId ?? "(no sis id)")
+                                                                        @person.SisId.IfMissingThen("(no sis id)")
                                                                     </div>
                                                                 </div>
                                                             }
@@ -174,7 +175,7 @@
                                                 </div>
                                             </div>
 
-                                            @* Column Links Column *@
+                                            @* Course Links Column *@
 
                                             <div class="col-12">
                                                 <div class="card bg-transparent">
