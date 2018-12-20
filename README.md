@@ -10,6 +10,8 @@ Sample LTI Advantage Platform using .NET Core 2.1. So that it has a purpose (oth
    - Tools can get all line items for a course, get a specific line item, and get results from the platform; and they can post scores to the platform.
 - Names and Role Provisioning Services v2
    - Tools can get course membership from the platform.
+- Deep Linking
+   - Tools can add LTI links to the platform or course.
 
 ## Dependencies
 
