@@ -53,6 +53,16 @@ namespace AdvantagePlatform.Controllers
             {
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
+                        
+            var user = await _context.GetUserAsync(User);
+            if (user.Course.Id != contextId)
+            {
+                return Unauthorized(new ProblemDetails
+                {
+                    Title = "Not authorized",
+                    Detail = "You are not authorized to access the requested course."
+                });
+            }
 
             var course = await _context.GetCourseAsync(contextId);
             if (course == null)

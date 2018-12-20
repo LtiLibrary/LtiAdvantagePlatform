@@ -118,6 +118,16 @@ namespace AdvantagePlatform.Controllers
             {
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
+            
+            var user = await _context.GetUserAsync(User);
+            if (user.Course.Id != contextId)
+            {
+                return Unauthorized(new ProblemDetails
+                {
+                    Title = "Not authorized",
+                    Detail = "You are not authorized to access the requested course."
+                });
+            }
 
             var course = await _context.GetCourseAsync(contextId);
             if (course == null)
@@ -168,6 +178,16 @@ namespace AdvantagePlatform.Controllers
             {
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
+            
+            var user = await _context.GetUserAsync(User);
+            if (user.Course.Id != contextId)
+            {
+                return Unauthorized(new ProblemDetails
+                {
+                    Title = "Not authorized",
+                    Detail = "You are not authorized to access the requested course."
+                });
+            }
 
             var course = await _context.GetCourseAsync(contextId);
             if (course == null)
@@ -214,6 +234,16 @@ namespace AdvantagePlatform.Controllers
                 var name = $"{nameof(request)}.{nameof(request.ContextId)}";
                 ModelState.AddModelError(name, $"The {name} field cannot be converted into a course id.");
                 return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+            
+            var user = await _context.GetUserAsync(User);
+            if (user.Course.Id != contextId)
+            {
+                return Unauthorized(new ProblemDetails
+                {
+                    Title = "Not authorized",
+                    Detail = "You are not authorized to access the requested course."
+                });
             }
 
             var course = await _context.GetCourseAsync(contextId);
@@ -282,6 +312,16 @@ namespace AdvantagePlatform.Controllers
             if (!ModelState.IsValid)
             {
                 return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+                        
+            var user = await _context.GetUserAsync(User);
+            if (user.Course.Id != contextId)
+            {
+                return Unauthorized(new ProblemDetails
+                {
+                    Title = "Not authorized",
+                    Detail = "You are not authorized to access the requested course."
+                });
             }
 
             var course = await _context.GetCourseAsync(contextId);

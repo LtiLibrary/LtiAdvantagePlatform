@@ -277,8 +277,10 @@ namespace AdvantagePlatform.Data
             }
 
             // Because this app is using Identity Server, the user id
-            // is in the sub claim.
-            return principal.FindFirstValue("sub");
+            // is typically in the sub claim. But when swagger authenticates,
+            // the user id is in the nameidentifier claim.
+            return principal.FindFirstValue("sub") 
+                   ?? principal.FindFirstValue(ClaimTypes.NameIdentifier);
         }
 
         #endregion
