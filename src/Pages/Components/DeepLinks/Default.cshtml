@@ -1,20 +1,61 @@
 ﻿@using LtiAdvantage
 @model DeepLinksViewComponentModel
 
-Add links:
-@foreach (var tool in Model.Tools)
+@if (Model.Tools.Any())
 {
-    foreach (var person in Model.People.OrderBy(p => p.FirstName))
-    {
-        <a class="btn text-light fas fa-plus-square p-0" target="_blank"
-           data-toggle="tooltip"
-           title="@($"Add course links using {tool.Name} as {person.FirstName} {person.LastName}")"
-           asp-page="ResourceLinks/OidcLaunch"
-           asp-route-id="@tool.Id"
-           asp-route-messageType="@Constants.Lti.LtiDeepLinkingRequestMessageType"
-           asp-route-courseId="@Model.CourseId"
-           asp-route-personId="@person.Id">
-        </a>
-        @person.FirstName
-    }
+
+    var modalId = $"deeplink-{Model.CourseId}";
+    var modalIframeId = $"deeplink-iframe-{Model.CourseId}";
+    var modalLabelId = $"deeplink-label-{Model.CourseId}";
+
+    <div class="mb-3">
+        Add Deep Links:
+        @foreach (var tool in Model.Tools)
+        {
+            foreach (var person in Model.People.OrderBy(p => p.FirstName))
+            {
+                var url = Url.Page("ResourceLinks/OidcLaunch", new
+                {
+                    id = tool.Id,
+                    messageType = Constants.Lti.LtiDeepLinkingRequestMessageType,
+                    courseId = Model.CourseId,
+                    personId = person.Id
+                });
+
+                <button class="btn btn-light btn-sm" data-toggle="modal" data-url="@url" data-target="#@modalId">As @person.FirstName</button>
+            }
+        }
+    </div>
+
+    <div class="modal fade" id="@modalId" tabindex="-1" role="dialog" aria-labeledby="@modalLabelId" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title text-dark" id="@modalLabelId">Deep Links</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <iframe id="@modalIframeId" src="about:blank" width="100%" height="400" frameborder="0" allowtransparency="true"></iframe>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/lib/jquery/jquery.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#@modalId').on('show.bs.modal',
+                function(event) {
+                    var button = $(event.relatedTarget); // Button that triggered the modal
+                    var url = button.data('url'); // Extract info from data-* attributes
+                    // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+                    // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+                    var modal = $(this);
+                    modal.find('#@modalIframeId').attr('src', url);
+                });
+        });
+    </script>
 }

@@ -120,7 +120,7 @@ namespace AdvantagePlatform.Pages
                 await _context.SaveChangesAsync();
             }
 
-            return Redirect("/");
+            return Page();
         }
 
         private async Task<bool> ValidateToken(string idToken)
