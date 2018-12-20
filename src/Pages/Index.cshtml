@@ -49,15 +49,7 @@
             </div>
             <div class="col-10">
                 <div class="card text-white bg-info">
-                    <h4 class="card-header">
-                        Platform
-                        <a class="btn text-light fas fa-edit"
-                           data-toggle="tooltip"
-                           title="Edit the platform settings"
-                           asp-area="Identity"
-                           asp-page="Account/Manage/Platform">
-                        </a>
-                    </h4>
+                    <h4 class="card-header">Platform</h4>
                     <div class="card-body">
                         <div class="row mb-3">
 
@@ -65,7 +57,15 @@
 
                             <div class="col-3 mb-3">
                                 <div class="card bg-transparent">
-                                    <h5 class="card-header">Platform Details</h5>
+                                    <h5 class="card-header">
+                                        Platform Details
+                                        <a class="btn text-light fas fa-edit"
+                                           data-toggle="tooltip"
+                                           title="Edit the platform settings"
+                                           asp-area="Identity"
+                                           asp-page="Account/Manage/Platform">
+                                        </a>
+                                    </h5>
                                     <div class="card-body">
                                         <div>
                                             @Model.Platform.Name.IfMissingThen("(no name)")
@@ -109,15 +109,7 @@
                         <div class="row mb-3">
                             <div class="col-12">
                                 <div class="card bg-secondary">
-                                    <h4 class="card-header">
-                                        Course
-                                        <a class="btn text-light fas fa-edit"
-                                           data-toggle="tooltip"
-                                           title="Edit the course settings"
-                                           asp-area="Identity"
-                                           asp-page="Account/Manage/Course">
-                                        </a>
-                                    </h4>
+                                    <h4 class="card-header">Course</h4>
                                     <div class="card-body">
                                         <div class="row">
 
@@ -125,7 +117,15 @@
 
                                             <div class="col-3 mb-3">
                                                 <div class="card bg-transparent">
-                                                    <h5 class="card-header">Course Details</h5>
+                                                    <h5 class="card-header">
+                                                        Course Details
+                                                        <a class="btn text-light fas fa-edit"
+                                                           data-toggle="tooltip"
+                                                           title="Edit the course settings"
+                                                           asp-area="Identity"
+                                                           asp-page="Account/Manage/Course">
+                                                        </a>
+                                                    </h5>
                                                     <div class="card-body">
                                                         <div>
                                                             @Model.Course.Name.IfMissingThen("(no name)")
@@ -154,7 +154,7 @@
                                                         <div class="row">
                                                             @foreach (var person in Model.People.OrderBy(p => p.FirstName))
                                                             {
-                                                                <div class="col-auto mb-3" style="max-width: 15em">
+                                                                <div class="col-auto mb-3" style="max-width: 12em">
                                                                     <div>
                                                                         @person.FirstName.IfMissingThen("(no first name)")
                                                                         @person.LastName.IfMissingThen("(no last name)")

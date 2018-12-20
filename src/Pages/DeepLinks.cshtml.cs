@@ -43,6 +43,13 @@ namespace AdvantagePlatform.Pages
         [BindProperty(Name = "id_token")]
         public string IdToken { get; set; }
 
+        [BindProperty(Name = "JWT")]
+        public string Jwt
+        {
+            get { return IdToken; }
+            set { IdToken = value; }
+        }
+
         public async Task<IActionResult> OnPost(int platformId, int? courseId = null)
         {
             if (IdToken.IsMissing())
