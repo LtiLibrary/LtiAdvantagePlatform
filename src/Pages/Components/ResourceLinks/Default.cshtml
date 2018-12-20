@@ -1,0 +1,35 @@
+﻿@using LtiAdvantage
+@model ResourceLinksViewComponentModel
+
+@if (!Model.ResourceLinks.Any())
+{
+    <p>No links.</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var link in Model.ResourceLinks.OrderBy(l => l.Title))
+        {
+            <div class="col-auto">
+                <div class="card bg-warning mb-3 text-dark" style="max-width: 15em">
+                    <h5 class="card-header">@link.Title</h5>
+                    <div class="card-body">@link.Description</div>
+                    <div class="card-footer">
+                        @foreach (var person in Model.People.OrderBy(p => p.FirstName))
+                        {
+                            <a class="btn btn-sm btn-secondary mt-2 mb-2" target="_blank"
+                               data-toggle="tooltip" title="@($"Launch this resource link using {link.ToolName} as {person.FirstName} {person.LastName}")"
+                               asp-page="ResourceLinks/OidcLaunch"
+                               asp-route-id="@link.Id"
+                               asp-route-messageType="@Constants.Lti.LtiResourceLinkRequestMessageType"
+                               asp-route-courseId="@Model.CourseId"
+                               asp-route-personId="@person.Id">
+                                <i class="fas fa-external-link-alt"></i> @person.FirstName
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

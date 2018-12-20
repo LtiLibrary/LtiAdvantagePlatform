@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
@@ -18,7 +17,7 @@ namespace AdvantagePlatform.Pages.Components.Gradebook
 
         public async Task<IViewComponentResult> InvokeAsync(int courseId)
         {
-            var model = new GradebookModel();
+            var model = new GradebookViewComponentModel();
 
             var user = await _context.GetUserAsync(HttpContext.User);
             model.Members = new Dictionary<int, string>();
@@ -32,7 +31,7 @@ namespace AdvantagePlatform.Pages.Components.Gradebook
 
             var course = await _context.GetCourseAsync(courseId);
             model.Columns = course.GradebookColumns
-                .Select(c => new GradebookModel.MyGradebookColumn
+                .Select(c => new GradebookViewComponentModel.MyGradebookColumn
                 {
                     Column = c,
                     Header = c.Label ?? $"Tag: {c.Tag}"

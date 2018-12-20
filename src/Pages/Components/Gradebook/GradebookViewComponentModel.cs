@@ -3,7 +3,7 @@ using AdvantagePlatform.Data;
 
 namespace AdvantagePlatform.Pages.Components.Gradebook
 {
-    public class GradebookModel
+    public class GradebookViewComponentModel
     {
         public Dictionary<int, string> Members { get; set; }
         public List<MyGradebookColumn> Columns { get; set; }

@@ -1,0 +1,20 @@
+﻿@using LtiAdvantage
+@model DeepLinksViewComponentModel
+
+Add links:
+@foreach (var tool in Model.Tools)
+{
+    foreach (var person in Model.People.OrderBy(p => p.FirstName))
+    {
+        <a class="btn text-light fas fa-plus-square p-0" target="_blank"
+           data-toggle="tooltip"
+           title="@($"Add course links using {tool.Name} as {person.FirstName} {person.LastName}")"
+           asp-page="ResourceLinks/OidcLaunch"
+           asp-route-id="@tool.Id"
+           asp-route-messageType="@Constants.Lti.LtiDeepLinkingRequestMessageType"
+           asp-route-courseId="@Model.CourseId"
+           asp-route-personId="@person.Id">
+        </a>
+        @person.FirstName
+    }
+}
