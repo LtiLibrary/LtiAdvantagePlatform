@@ -269,7 +269,7 @@ namespace AdvantagePlatform.Data
         /// </summary>
         /// <param name="principal">The principal.</param>
         /// <returns>The user id.</returns>
-        private string GetUserId(ClaimsPrincipal principal)
+        public string GetUserId(ClaimsPrincipal principal)
         {
             if (principal == null)
             {
