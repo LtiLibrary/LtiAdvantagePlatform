@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using AdvantagePlatform.Areas.Identity.Pages.Account.Manage;
 using AdvantagePlatform.Data;
+using AdvantagePlatform.Utility;
 using LtiAdvantage.IdentityServer4;
 using LtiAdvantage.NamesRoleProvisioningService;
 using Microsoft.AspNetCore.Hosting;
@@ -21,13 +22,16 @@ namespace AdvantagePlatform.Controllers
     public class MembershipController : MembershipControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly CourseAccessValidator _courseValidator;
 
         public MembershipController(
             IHostingEnvironment env,
             ILogger<MembershipController> logger,
-            ApplicationDbContext context) : base(env, logger)
+            ApplicationDbContext context,
+            CourseAccessValidator courseValidator) : base(env, logger)
         {
             _context = context;
+            _courseValidator = courseValidator;
         }
 
         /// <inheritdoc />
@@ -48,13 +52,12 @@ namespace AdvantagePlatform.Controllers
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
                         
-            var user = await _context.GetUserAsync(User);
-            if (user.Course.Id != contextId)
+            if (!await _courseValidator.UserHasAccess(contextId))
             {
                 return Unauthorized(new ProblemDetails
                 {
                     Title = "Not authorized",
-                    Detail = "You are not authorized to access the requested course."
+                    Detail = "User not authorized to access the requested course."
                 });
             }
 
@@ -67,6 +70,8 @@ namespace AdvantagePlatform.Controllers
                     Detail = "Course not found"
                 });
             }
+
+            var user = await _context.GetUserByCourseIdAsync(course.Id);
 
             var membership = new MembershipContainer
             {

@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
+using AdvantagePlatform.Utility;
 using LtiAdvantage;
 using LtiAdvantage.AssignmentGradeServices;
 using LtiAdvantage.IdentityServer4;
@@ -20,13 +21,16 @@ namespace AdvantagePlatform.Controllers
     public class ResultsController : ResultsControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly CourseAccessValidator _courseValidator;
 
         public ResultsController(
             IHostingEnvironment env,
             ILogger<ResultsController> logger,
-            ApplicationDbContext context) : base(env, logger)
+            ApplicationDbContext context,
+            CourseAccessValidator courseValidator) : base(env, logger)
         {
             _context = context;
+            _courseValidator = courseValidator;
         }
 
         /// <inheritdoc />
@@ -54,13 +58,12 @@ namespace AdvantagePlatform.Controllers
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
                         
-            var user = await _context.GetUserAsync(User);
-            if (user.Course.Id != contextId)
+            if (!await _courseValidator.UserHasAccess(contextId))
             {
                 return Unauthorized(new ProblemDetails
                 {
                     Title = "Not authorized",
-                    Detail = "You are not authorized to access the requested course."
+                    Detail = "User not authorized to access the requested course."
                 });
             }
 

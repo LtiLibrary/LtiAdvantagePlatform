@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
+using AdvantagePlatform.Utility;
 using LtiAdvantage.AssignmentGradeServices;
 using LtiAdvantage.IdentityServer4;
 using Microsoft.AspNetCore.Hosting;
@@ -20,6 +21,7 @@ namespace AdvantagePlatform.Controllers
     public class LineItemsController : LineItemsControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly CourseAccessValidator _courseValidator;
 
         /// <inheritdoc />
         /// <summary>
@@ -27,9 +29,11 @@ namespace AdvantagePlatform.Controllers
         public LineItemsController(
             IHostingEnvironment env,
             ILogger<LineItemsController> logger,
-            ApplicationDbContext context) : base(env, logger)
+            ApplicationDbContext context,
+            CourseAccessValidator courseValidator) : base(env, logger)
         {
             _context = context;
+            _courseValidator = courseValidator;
         }
 
         /// <inheritdoc />
@@ -44,6 +48,15 @@ namespace AdvantagePlatform.Controllers
                 var name = $"{nameof(request)}.{nameof(request.ContextId)}";
                 ModelState.AddModelError(name, $"The {name} field cannot be converted into a course id.");
                 return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+            
+            if (!await _courseValidator.UserHasAccess(contextId))
+            {
+                return Unauthorized(new ProblemDetails
+                {
+                    Title = "Not authorized",
+                    Detail = "User not authorized to access the requested course."
+                });
             }
 
             var course = await _context.GetCourseAsync(contextId);
@@ -119,13 +132,12 @@ namespace AdvantagePlatform.Controllers
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
             
-            var user = await _context.GetUserAsync(User);
-            if (user.Course.Id != contextId)
+            if (!await _courseValidator.UserHasAccess(contextId))
             {
                 return Unauthorized(new ProblemDetails
                 {
                     Title = "Not authorized",
-                    Detail = "You are not authorized to access the requested course."
+                    Detail = "User not authorized to access the requested course."
                 });
             }
 
@@ -179,13 +191,12 @@ namespace AdvantagePlatform.Controllers
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
             
-            var user = await _context.GetUserAsync(User);
-            if (user.Course.Id != contextId)
+            if (!await _courseValidator.UserHasAccess(contextId))
             {
                 return Unauthorized(new ProblemDetails
                 {
                     Title = "Not authorized",
-                    Detail = "You are not authorized to access the requested course."
+                    Detail = "User not authorized to access the requested course."
                 });
             }
 
@@ -236,13 +247,12 @@ namespace AdvantagePlatform.Controllers
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
             
-            var user = await _context.GetUserAsync(User);
-            if (user.Course.Id != contextId)
+            if (!await _courseValidator.UserHasAccess(contextId))
             {
                 return Unauthorized(new ProblemDetails
                 {
                     Title = "Not authorized",
-                    Detail = "You are not authorized to access the requested course."
+                    Detail = "User not authorized to access the requested course."
                 });
             }
 
@@ -314,13 +324,12 @@ namespace AdvantagePlatform.Controllers
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
                         
-            var user = await _context.GetUserAsync(User);
-            if (user.Course.Id != contextId)
+            if (!await _courseValidator.UserHasAccess(contextId))
             {
                 return Unauthorized(new ProblemDetails
                 {
                     Title = "Not authorized",
-                    Detail = "You are not authorized to access the requested course."
+                    Detail = "User not authorized to access the requested course."
                 });
             }
 

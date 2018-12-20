@@ -162,6 +162,11 @@ namespace AdvantagePlatform
 
             // Add LTI Advantage service authorization policies that enforce API scopes
             services.AddLtiAdvantagePolicies();
+
+            // Each app user is a tenant with their own platform, course, and people. This
+            // course access validator is used by the controllers to make sure each tenant
+            // can only access their own course.
+            services.AddTransient<CourseAccessValidator>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
