@@ -232,6 +232,7 @@ namespace AdvantagePlatform.Data.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     CustomProperties = table.Column<string>(nullable: true),
+                    DeepLinkingLaunchUrl = table.Column<string>(nullable: true),
                     DeploymentId = table.Column<string>(nullable: true),
                     IdentityServerClientId = table.Column<int>(nullable: false),
                     LaunchUrl = table.Column<string>(nullable: true),
@@ -257,6 +258,7 @@ namespace AdvantagePlatform.Data.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     CustomProperties = table.Column<string>(nullable: true),
+                    Description = table.Column<string>(nullable: true),
                     Title = table.Column<string>(nullable: true),
                     ToolId = table.Column<int>(nullable: true),
                     CourseId = table.Column<int>(nullable: true),
@@ -282,7 +284,7 @@ namespace AdvantagePlatform.Data.Migrations
                         column: x => x.ToolId,
                         principalTable: "Tools",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -314,7 +316,33 @@ namespace AdvantagePlatform.Data.Migrations
                         column: x => x.ResourceLinkId,
                         principalTable: "ResourceLinks",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "GradebookRows",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    ActivityProgress = table.Column<int>(nullable: false),
+                    Comment = table.Column<string>(nullable: true),
+                    GradingProgress = table.Column<int>(nullable: false),
+                    PersonId = table.Column<int>(nullable: false),
+                    ScoreGiven = table.Column<double>(nullable: false),
+                    ScoreMaximum = table.Column<double>(nullable: false),
+                    TimeStamp = table.Column<DateTime>(nullable: false),
+                    GradebookColumnId = table.Column<int>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GradebookRows", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_GradebookRows_GradebookColumns_GradebookColumnId",
+                        column: x => x.GradebookColumnId,
+                        principalTable: "GradebookColumns",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -377,6 +405,11 @@ namespace AdvantagePlatform.Data.Migrations
                 column: "ResourceLinkId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_GradebookRows_GradebookColumnId",
+                table: "GradebookRows",
+                column: "GradebookColumnId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_People_AdvantagePlatformUserId",
                 table: "People",
                 column: "AdvantagePlatformUserId");
@@ -420,13 +453,16 @@ namespace AdvantagePlatform.Data.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "GradebookColumns");
+                name: "GradebookRows");
 
             migrationBuilder.DropTable(
                 name: "People");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "GradebookColumns");
 
             migrationBuilder.DropTable(
                 name: "ResourceLinks");
