@@ -9,7 +9,6 @@ using AdvantagePlatform.Utility;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.Extensions;
-using IdentityServer4.Models;
 using LtiAdvantage;
 using LtiAdvantage.DeepLinking;
 using LtiAdvantage.IdentityServer4;
@@ -144,8 +143,6 @@ namespace AdvantagePlatform.Pages
                 return false;
             }
 
-            var pemKeys = GetPemKeys(client.ClientSecrets);
-
             var tokenValidationParameters = new TokenValidationParameters
             {
                 // The token must be signed to prove the client credentials.
@@ -173,7 +170,6 @@ namespace AdvantagePlatform.Pages
                 _logger.LogError(e, "JWT token validation error");
                 return false;
             }
-
         }
         
         /// <summary>
@@ -181,7 +177,7 @@ namespace AdvantagePlatform.Pages
         /// </summary>
         /// <param name="secrets">The secrets to examine.</param>
         /// <returns>The PEM secrets converted into <see cref="RsaSecurityKey"/>'s.</returns>
-        private static List<RsaSecurityKey> GetPemKeys(IEnumerable<ClientSecret> secrets)
+        private static IEnumerable<RsaSecurityKey> GetPemKeys(IEnumerable<ClientSecret> secrets)
         {
             var pemKeys = secrets
                 .Where(s => s.Type == LtiAdvantage.IdentityServer4.Validation.Constants.SecretTypes.PrivatePemKey)
