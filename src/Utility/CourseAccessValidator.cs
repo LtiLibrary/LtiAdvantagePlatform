@@ -55,7 +55,6 @@ namespace AdvantagePlatform.Utility
             if (client != null)
             {
                 return await _context.Users
-                    .Include(u => u.Tools)
                     .AnyAsync(u => u.Tools.Any(t => t.IdentityServerClientId == client.Id));
             }
 
