@@ -45,7 +45,6 @@ namespace AdvantagePlatform.Utility
             if (userId != null)
             {
                 return await _context.Users
-                    .Include(u => u.Course)
                     .AnyAsync(u => u.Course.Id == courseId);
             }
 
