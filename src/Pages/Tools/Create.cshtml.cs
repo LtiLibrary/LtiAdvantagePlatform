@@ -70,7 +70,6 @@ namespace AdvantagePlatform.Pages.Tools
             {
                 ClientId = Tool.ClientId,
                 ClientName = Tool.Name,
-                AllowOfflineAccess = true,
                 AllowedGrantTypes = GrantTypes.ImplicitAndClientCredentials, 
                 AllowedScopes = Config.LtiScopes,
                 ClientSecrets = new List<Secret>
