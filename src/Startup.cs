@@ -17,7 +17,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -143,7 +142,7 @@ namespace AdvantagePlatform
             services.AddAuthentication(IdentityConstants.ApplicationScheme)
 
                 // Add Bearer authentication to authenticate API calls
-                .AddJwtBearer(options =>
+                .AddIdentityServerAuthentication(options =>
                 {
                     // The JwtBearer authentication handler will use the discovery endpoint
                     // of the authorization server to find the JWKS endpoint, to find the
@@ -152,12 +151,6 @@ namespace AdvantagePlatform
                     // "Unauthorized" errors when you call an API that is protected by a
                     // JwtBearer token.
                     options.Authority = Configuration["Authority"];
-
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidAudiences = Config.GetApiResources().Select(a => a.Name)
-                    };
                 });
 
             // Add LTI Advantage service authorization policies that enforce API scopes
