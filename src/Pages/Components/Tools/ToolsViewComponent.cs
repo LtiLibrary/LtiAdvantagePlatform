@@ -24,7 +24,7 @@ namespace AdvantagePlatform.Pages.Components.Tools
         public async Task<IViewComponentResult> InvokeAsync()
         {
             var model = new ToolsViewComponentModel();
-            var user = await _context.GetUserAsync(HttpContext.User);
+            var user = await _context.GetUserLightAsync(HttpContext.User);
             model.Tools = await GetTools(user);
             return View(model);
         }

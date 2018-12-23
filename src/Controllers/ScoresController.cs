@@ -159,7 +159,7 @@ namespace AdvantagePlatform.Controllers
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
                         
-            var user = await _context.GetUserAsync(User);
+            var user = await _context.GetUserLightAsync(User);
             if (user.Course.Id != contextId)
             {
                 return Unauthorized(new ProblemDetails

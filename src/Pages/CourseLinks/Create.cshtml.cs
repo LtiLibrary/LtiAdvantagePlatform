@@ -27,7 +27,7 @@ namespace AdvantagePlatform.Pages.CourseLinks
 
         public async Task<IActionResult> OnGet()
         {
-            var user = await _context.GetUserAsync(User);
+            var user = await _context.GetUserLightAsync(User);
             if (user == null)
             {
                 return NotFound();
@@ -62,7 +62,7 @@ namespace AdvantagePlatform.Pages.CourseLinks
                 return Page();
             }
 
-            var user = await _context.GetUserAsync(User);
+            var user = await _context.GetUserFullAsync(User);
             var tool = await _context.Tools.FindAsync(ResourceLink.ToolId);
             
             // Add the resource link to the course

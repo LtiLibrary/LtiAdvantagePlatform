@@ -26,7 +26,7 @@ namespace AdvantagePlatform.Pages.Components.DeepLinks
         {
             var model = new DeepLinksViewComponentModel {CourseId = courseId};
 
-            var user = await _context.GetUserAsync(HttpContext.User);
+            var user = await _context.GetUserLightAsync(HttpContext.User);
             model.People = user.People.ToList();
             model.Tools = await GetTools(user);
             return View(model);

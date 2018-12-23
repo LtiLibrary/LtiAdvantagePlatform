@@ -25,7 +25,7 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account.Manage
 
         public async Task<IActionResult> OnGet()
         {
-            var user = await _context.GetUserAsync(User);
+            var user = await _context.GetUserLightAsync(User);
             if (user == null)
             {
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");

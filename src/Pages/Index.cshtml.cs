@@ -21,7 +21,7 @@ namespace AdvantagePlatform.Pages
 
         public async Task OnGetAsync()
         {
-            var user = await _context.GetUserAsync(User);
+            var user = await _context.GetUserLightAsync(User);
             if (user != null)
             {
                 Platform = user.Platform;

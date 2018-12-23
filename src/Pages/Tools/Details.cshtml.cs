@@ -30,7 +30,7 @@ namespace AdvantagePlatform.Pages.Tools
                 return NotFound();
             }
 
-            var user = await _context.GetUserAsync(User);
+            var user = await _context.GetUserLightAsync(User);
             if (user == null)
             {
                 return NotFound();

@@ -20,7 +20,7 @@ namespace AdvantagePlatform.Pages.CourseLinks
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
-            var user = await _context.GetUserAsync(User);
+            var user = await _context.GetUserFullAsync(User);
             if (user == null)
             {
                 return NotFound();

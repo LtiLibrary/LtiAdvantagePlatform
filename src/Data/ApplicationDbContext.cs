@@ -159,27 +159,71 @@ namespace AdvantagePlatform.Data
         }
 
         /// <summary>
-        /// Returns the fully populated <see cref="AdvantagePlatformUser"/> corresponding to the
-        /// IdentityOptions.ClaimsIdentity.UserIdClaimType claim in the principal or null.
+        /// Returns the fully populated <see cref="AdvantagePlatformUser"/>.
         /// </summary>
-        /// <param name="principal">The principal which contains the user id claim.</param>
-        /// <returns>The user corresponding to the IdentityOptions.ClaimsIdentity.UserIdClaimType claim in
-        /// the principal or null</returns>
-        public async Task<AdvantagePlatformUser> GetUserAsync(ClaimsPrincipal principal)
+        /// <param name="principal">The ClaimsPrincipal which contains the user id claim.</param>
+        /// <returns>The user.</returns>
+        public async Task<AdvantagePlatformUser> GetUserFullAsync(ClaimsPrincipal principal)
         {
             if (principal == null)
             {
                 throw new ArgumentNullException(nameof(principal));
             }
             var id = GetUserId(principal);
-            return await GetUserAsync(id);
+            return await GetUserFullAsync(id);
         }
 
         /// <summary>
-        /// Returns the lightly populated <see cref="AdvantagePlatformUser"/> (Course and Platform only)
-        /// corresponding to the IdentityOptions.ClaimsIdentity.UserIdClaimType claim in the principal.
+        /// Returns the fully populated <see cref="AdvantagePlatformUser"/>.
         /// </summary>
-        /// <param name="principal">The principal which contains the user id claim.</param>
+        /// <param name="id">The user id.</param>
+        /// <returns>The user.</returns>
+        public async Task<AdvantagePlatformUser> GetUserFullAsync(string id)
+        {
+            if (id == null)
+            {
+                return null;
+            }
+
+            return await Users
+                .Include(u => u.Course)
+                .ThenInclude(c => c.ResourceLinks)
+                .ThenInclude(l => l.Tool)
+                .Include(u => u.Course)
+                .ThenInclude(c => c.GradebookColumns)
+                .ThenInclude(c => c.ResourceLink)
+                .Include(u => u.People)
+                .Include(u => u.Platform)
+                .ThenInclude(p => p.ResourceLinks)
+                .ThenInclude(l => l.Tool)
+                .Include(u => u.Tools)
+                .SingleOrDefaultAsync(u => u.Id == id);
+        }
+
+        /// <summary>
+        /// Return the user id from the <see cref="ClaimsPrincipal"/>.
+        /// </summary>
+        /// <param name="principal">The principal.</param>
+        /// <returns>The user id.</returns>
+        public string GetUserId(ClaimsPrincipal principal)
+        {
+            if (principal == null)
+            {
+                throw new ArgumentNullException(nameof(principal));
+            }
+
+            // Because this app is using Identity Server, the user id
+            // is typically in the sub claim. But when swagger authenticates,
+            // the user id is in the nameidentifier claim.
+            return principal.FindFirstValue("sub") 
+                   ?? principal.FindFirstValue(ClaimTypes.NameIdentifier);
+        }
+
+        /// <summary>
+        /// Returns the <see cref="AdvantagePlatformUser"/> and first level dependents
+        /// (Course, People, Platform, and Tools).
+        /// </summary>
+        /// <param name="principal">The ClaimsPrincial which contains the user id claim.</param>
         /// <returns>The user.</returns>
         public async Task<AdvantagePlatformUser> GetUserLightAsync(ClaimsPrincipal principal)
         {
@@ -192,36 +236,8 @@ namespace AdvantagePlatform.Data
         }
 
         /// <summary>
-        /// Returns the fully populated <see cref="AdvantagePlatformUser"/>.
-        /// </summary>
-        /// <param name="id">The user id.</param>
-        /// <returns>The user.</returns>
-        public async Task<AdvantagePlatformUser> GetUserAsync(string id)
-        {
-            if (id == null)
-            {
-                return null;
-            }
-
-            return await Users
-                .Include(u => u.Course)
-                    .ThenInclude(c => c.ResourceLinks)
-                        .ThenInclude(l => l.Tool)
-                .Include(u => u.Course)
-                    .ThenInclude(c => c.GradebookColumns)
-                        .ThenInclude(c => c.ResourceLink)
-                .Include(u => u.People)
-                .Include(u => u.Platform)
-                    .ThenInclude(p => p.ResourceLinks)
-                        .ThenInclude(l => l.Tool)
-                .Include(u => u.Tools)
-                .SingleOrDefaultAsync(u => u.Id == id);
-        }
-
-        /// <summary>
-        /// Returns the lightly populated <see cref="AdvantagePlatformUser"/>
-        /// (tenant Course and Platform only).
-        /// </summary>
+        /// Returns the <see cref="AdvantagePlatformUser"/> and first dependents
+        /// (Course, People, Platform, and Tools).</summary>)
         /// <param name="id">The user id.</param>
         /// <returns>The user.</returns>
         public async Task<AdvantagePlatformUser> GetUserLightAsync(string id)
@@ -233,7 +249,9 @@ namespace AdvantagePlatform.Data
 
             return await Users
                 .Include(u => u.Course)
+                .Include(u => u.People)
                 .Include(u => u.Platform)
+                .Include(u => u.Tools)
                 .SingleOrDefaultAsync(u => u.Id == id);
         }
 
@@ -250,7 +268,7 @@ namespace AdvantagePlatform.Data
 
             if (user != null)
             {
-                return await GetUserAsync(user.Id);
+                return await GetUserFullAsync(user.Id);
             }
 
             return null;
@@ -269,7 +287,7 @@ namespace AdvantagePlatform.Data
 
             if (user != null)
             {
-                return await GetUserAsync(user.Id);
+                return await GetUserFullAsync(user.Id);
             }
 
             return null;
@@ -296,25 +314,6 @@ namespace AdvantagePlatform.Data
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Return the user id from the <see cref="ClaimsPrincipal"/>.
-        /// </summary>
-        /// <param name="principal">The principal.</param>
-        /// <returns>The user id.</returns>
-        public string GetUserId(ClaimsPrincipal principal)
-        {
-            if (principal == null)
-            {
-                throw new ArgumentNullException(nameof(principal));
-            }
-
-            // Because this app is using Identity Server, the user id
-            // is typically in the sub claim. But when swagger authenticates,
-            // the user id is in the nameidentifier claim.
-            return principal.FindFirstValue("sub") 
-                   ?? principal.FindFirstValue(ClaimTypes.NameIdentifier);
         }
 
         #endregion

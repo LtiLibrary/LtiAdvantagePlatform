@@ -19,7 +19,7 @@ namespace AdvantagePlatform.Pages.Components.Gradebook
         {
             var model = new GradebookViewComponentModel();
 
-            var user = await _context.GetUserAsync(HttpContext.User);
+            var user = await _context.GetUserLightAsync(HttpContext.User);
             model.Members = new Dictionary<int, string>();
             foreach (var person in user.People.OrderBy(p => p.LastName).ThenBy(p => p.FirstName))
             {

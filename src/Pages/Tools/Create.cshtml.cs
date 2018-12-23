@@ -101,7 +101,7 @@ namespace AdvantagePlatform.Pages.Tools
             };
             await _context.Tools.AddAsync(tool);
 
-            var user = await _context.GetUserAsync(User);
+            var user = await _context.GetUserLightAsync(User);
             user.Tools.Add(tool);
 
             await _context.SaveChangesAsync();

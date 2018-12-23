@@ -19,7 +19,7 @@ namespace AdvantagePlatform.Pages.Components.ResourceLinks
         {
             var model = new ResourceLinksViewComponentModel {CourseId = courseId};
 
-            var user = await _context.GetUserAsync(HttpContext.User);
+            var user = await _context.GetUserFullAsync(HttpContext.User);
             model.People = user.People.ToList();
             model.ResourceLinks = ResourceLinkModel.GetResourceLinks(courseId.HasValue 
                 ? user.Course.ResourceLinks 

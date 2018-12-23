@@ -26,7 +26,7 @@ namespace AdvantagePlatform.Pages.PlatformLinks
 
         public async Task<IActionResult> OnGet()
         {
-            var user = await _context.GetUserAsync(User);
+            var user = await _context.GetUserLightAsync(User);
             if (user == null)
             {
                 return NotFound();
@@ -61,7 +61,7 @@ namespace AdvantagePlatform.Pages.PlatformLinks
                 return Page();
             }
 
-            var user = await _context.GetUserAsync(User);
+            var user = await _context.GetUserFullAsync(User);
             var tool = await _context.Tools.FindAsync(ResourceLink.ToolId);
 
             var resourceLink = ResourceLink.ToResourceLink(tool);
