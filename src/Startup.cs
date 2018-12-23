@@ -55,7 +55,8 @@ namespace AdvantagePlatform
                 })
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-            // Use app specific cookie name so both AdvantagePlatform and AdvantageTool can run at the same time.
+            // Use app specific cookie name so both AdvantagePlatform and AdvantageTool can run
+            // on localhost at the same time.
             services.ConfigureApplicationCookie(options => { options.Cookie.Name = "AdvantagePlatform"; });
 
 			// Some pages require authorization.
