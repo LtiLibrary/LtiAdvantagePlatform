@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using AdvantagePlatform.Areas.Identity.Pages.Account.Manage;
 using AdvantagePlatform.Data;
+using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Validation;
@@ -55,64 +56,69 @@ namespace AdvantagePlatform.Utility
         /// <returns></returns>
         public async Task GetProfileDataAsync(ProfileDataRequestContext context)
         {
-            try
+            if (context.ValidatedRequest is ValidatedAuthorizeRequest request)
             {
-                _logger.LogInformation($"Starting {nameof(GetProfileDataAsync)}.");
+                _logger.LogDebug("Getting LTI Advantage claims for identity token for subject: {subject} and client: {clientId}",
+                    context.Subject.GetSubjectId(),
+                    request.Client.ClientId);
 
-                if (context.ValidatedRequest is ValidatedAuthorizeRequest request)
+                // LTI Advantage authorization requests include an lti_message_hint parameter
+                var ltiMessageHint = request.Raw["lti_message_hint"];
+                if (ltiMessageHint.IsMissing())
                 {
-                    var ltiMessageHint = request.Raw["lti_message_hint"];
-                    if (ltiMessageHint.IsMissing())
-                    {
-                        _logger.LogInformation("Not an LTI request.");
-                        return;
-                    }
-
-                    if (!int.TryParse(request.LoginHint, out var personId))
-                    {
-                        _logger.LogError("Cannot convert login hint to person id.");
-                    }
-
-                    var message = JToken.Parse(ltiMessageHint);
-                    var id = message.Value<int>("id");
-                    var user = await _context.GetUserAsync(_httpContextAccessor.HttpContext.User);
-                    var course = message.Value<string>("courseId") == null ? null : user.Course;
-                    var person = await _context.GetPersonAsync(personId);
-                    var messageType = message.Value<string>("messageType");
-
-                    switch (messageType)
-                    {
-                        case Constants.Lti.LtiResourceLinkRequestMessageType:
-                        {
-                            var resourceLink = await _context.GetResourceLinkAsync(id);
-
-                            // Null unless there is exactly one gradebook column for the resource link.
-                            var gradebookColumn = await _context.GetGradebookColumnByResourceLinkIdAsync(id);
-
-                            context.IssuedClaims = GetResourceLinkRequestClaims(
-                                resourceLink, gradebookColumn, person, course, user.Platform);
-
-                            break;
-                        }
-                        case Constants.Lti.LtiDeepLinkingRequestMessageType:
-                        {
-                            var tool = await _context.GetToolAsync(id);
-
-                            context.IssuedClaims = GetDeepLinkingRequestClaims(
-                                tool, person, course, user.Platform);
-
-                            break;
-                        }
-                        default:
-                            _logger.LogError($"{nameof(messageType)}=\"{messageType}\" not supported.");
-
-                            break;
-                    }
+                    _logger.LogInformation("Not an LTI request.");
+                    return;
                 }
-            }
-            finally
-            {
-                _logger.LogInformation($"Exiting {nameof(GetProfileDataAsync)}.");
+
+                // LTI Advantage authorization requests include the the user id in the LoginHint
+                // (also available in the Subject). In this sample platform, the user id is for one
+                // of the tenants' people.
+                if (!int.TryParse(request.LoginHint, out var personId))
+                {
+                    _logger.LogError("Cannot convert login hint to person id.");
+                }
+
+                // In this sample platform, the lti_message_hint is a JSON object that includes the
+                // message type (LtiResourceLinkRequest or DeepLinkingRequest), the tenant's course
+                // id, and either the resource link id or the tool id depending on the type of message.
+                // For example, "{"id":3,"messageType":"LtiResourceLinkRequest","courseId":"1"}"
+                var message = JToken.Parse(ltiMessageHint);
+                var id = message.Value<int>("id");
+                // In this sample platform, each application user is a tenant.
+                var user = await _context.GetUserLightAsync(_httpContextAccessor.HttpContext.User);
+                var course = message.Value<int?>("courseId").HasValue ? user.Course : null;
+                var person = await _context.GetPersonAsync(personId);
+
+                var messageType = message.Value<string>("messageType");
+
+                switch (messageType)
+                {
+                    case Constants.Lti.LtiResourceLinkRequestMessageType:
+                    {
+                        var resourceLink = await _context.GetResourceLinkAsync(id);
+
+                        // Null unless there is exactly one gradebook column for the resource link.
+                        var gradebookColumn = await _context.GetGradebookColumnByResourceLinkIdAsync(id);
+
+                        context.IssuedClaims = GetResourceLinkRequestClaims(
+                            resourceLink, gradebookColumn, person, course, user.Platform);
+
+                        break;
+                    }
+                    case Constants.Lti.LtiDeepLinkingRequestMessageType:
+                    {
+                        var tool = await _context.GetToolAsync(id);
+
+                        context.IssuedClaims = GetDeepLinkingRequestClaims(
+                            tool, person, course, user.Platform);
+
+                        break;
+                    }
+                    default:
+                        _logger.LogError($"{nameof(messageType)}=\"{messageType}\" not supported.");
+
+                        break;
+                }
             }
         }
 

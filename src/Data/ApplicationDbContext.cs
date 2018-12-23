@@ -176,11 +176,26 @@ namespace AdvantagePlatform.Data
         }
 
         /// <summary>
-        /// Returns the fully populated <see cref="AdvantagePlatformUser"/> corresponding to the
-        /// IdentityOptions.ClaimsIdentity.UserIdClaimType claim in the principal or null.
+        /// Returns the lightly populated <see cref="AdvantagePlatformUser"/> (Course and Platform only)
+        /// corresponding to the IdentityOptions.ClaimsIdentity.UserIdClaimType claim in the principal.
+        /// </summary>
+        /// <param name="principal">The principal which contains the user id claim.</param>
+        /// <returns>The user.</returns>
+        public async Task<AdvantagePlatformUser> GetUserLightAsync(ClaimsPrincipal principal)
+        {
+            if (principal == null)
+            {
+                throw new ArgumentNullException(nameof(principal));
+            }
+            var id = GetUserId(principal);
+            return await GetUserLightAsync(id);
+        }
+
+        /// <summary>
+        /// Returns the fully populated <see cref="AdvantagePlatformUser"/>.
         /// </summary>
         /// <param name="id">The user id.</param>
-        /// <returns>The user corresponding to the user id.</returns>
+        /// <returns>The user.</returns>
         public async Task<AdvantagePlatformUser> GetUserAsync(string id)
         {
             if (id == null)
@@ -200,6 +215,25 @@ namespace AdvantagePlatform.Data
                     .ThenInclude(p => p.ResourceLinks)
                         .ThenInclude(l => l.Tool)
                 .Include(u => u.Tools)
+                .SingleOrDefaultAsync(u => u.Id == id);
+        }
+
+        /// <summary>
+        /// Returns the lightly populated <see cref="AdvantagePlatformUser"/>
+        /// (tenant Course and Platform only).
+        /// </summary>
+        /// <param name="id">The user id.</param>
+        /// <returns>The user.</returns>
+        public async Task<AdvantagePlatformUser> GetUserLightAsync(string id)
+        {
+            if (id == null)
+            {
+                return null;
+            }
+
+            return await Users
+                .Include(u => u.Course)
+                .Include(u => u.Platform)
                 .SingleOrDefaultAsync(u => u.Id == id);
         }
 
