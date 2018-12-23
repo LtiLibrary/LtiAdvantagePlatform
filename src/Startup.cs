@@ -91,9 +91,6 @@ namespace AdvantagePlatform
                 });
             });
 
-			// Add an HttpClientFactory
-            services.AddHttpClient();
-
             // Add Identity Server configured to support LTI Advantage needs
             services.AddIdentityServer(options =>
                 {
