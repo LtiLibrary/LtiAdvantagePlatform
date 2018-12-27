@@ -36,7 +36,7 @@ namespace AdvantagePlatform.Controllers
 
         /// <inheritdoc />
         /// <summary>
-        /// Returns members of the course. Ignores filters.
+        /// Returns members of the course.
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>The members of the sample course.</returns>
