@@ -38,11 +38,33 @@ body > .container, body > .container-fluid {
     opacity: 1;
 }
 
-textarea.small {
-    font-size: 80%;
+@media (max-width: 1410px) {
+    textarea.key {
+        font-size: small;
+    }
+}
+@media (max-width: 1200px) {
+    textarea.key {
+        font-size: x-small;
+    }
+}
+@media (max-width: 1000px) {
+    textarea.key {
+        font-size: inherit;
+    }
+}
+@media (max-width: 750px) {
+    textarea.key {
+        font-size: small;
+    }
+}
+@media (max-width: 625px) {
+    textarea.key {
+        font-size: x-small;
+    }
 }
 
-pre.securitykey {
+pre.key {
     font-size: 80%;
     height: 80px;
     line-height: 1.05;

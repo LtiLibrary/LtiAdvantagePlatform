@@ -44,7 +44,7 @@
                             @Html.DisplayNameFor(m => m.Tool.PrivateKey)
                             <tooltip asp-for="Tool.PrivateKey"></tooltip>
                         </dt>
-                        <dd><pre class="securitykey">@Model.Tool.PrivateKey.IfMissingThen()</pre></dd>
+                        <dd><pre class="key">@Model.Tool.PrivateKey.IfMissingThen()</pre></dd>
                         <dt>
                             @Html.DisplayNameFor(m => m.Tool.DeploymentId)
                             <tooltip asp-for="Tool.DeploymentId"></tooltip>
