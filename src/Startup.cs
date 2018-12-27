@@ -66,7 +66,7 @@ namespace AdvantagePlatform
                 .AddRazorPagesOptions(options => { options.Conventions.AuthorizeFolder("/Tools"); })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-			// Add Swagger
+            // Add Swagger tools using Swashbuckle.AspNetCore
             services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new Info
@@ -76,9 +76,19 @@ namespace AdvantagePlatform
                     Description = "These are the LTI Advantage service endpoints implemented by this sample platform. " 
                                   + "Click on Authorize and login with the username and password you registered to try the various services."
                 });
+
+                // This will include the xml-doc comments for each endpoint in the Swagger UI
                 options.IncludeXmlComments(Path.Combine(System.AppContext.BaseDirectory, "LtiAdvantage.xml"));
+
+                // Ruby controllers accept a format extension (i.e. ".json"). All the controllers
+                // in this sample platform have two routes for each endpoint, one with and one without
+                // the format extension. This filter will remove the route with the format extension.
                 options.SwaggerGeneratorOptions.DocumentFilters = new List<IDocumentFilter>
                     {new HideRubyRoutesInSwaggerFilter()};
+
+                // All the controllers in this sample platform require authorization. This 
+                // SecurityDefinition will use validate the user is registered, then request
+                // an access token from the TokenUrl.
                 options.AddSecurityDefinition("oauth2", new OAuth2Scheme
                 {
                     TokenUrl = "/connect/token",
@@ -86,6 +96,10 @@ namespace AdvantagePlatform
                     Flow = "password",
                     Scopes = Config.LtiScopes.ToDictionary(s => s, s => "")
                 });
+
+                // All the controllers in this sample require specific scopes. This 
+                // SecurityRequirement will allow the user to select the scopes they
+                // want to test with.
                 options.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
                 {
                     { "oauth2", Config.LtiScopes }
@@ -184,7 +198,7 @@ namespace AdvantagePlatform
 			// Fire up Identity Server (replaces app.UseAuthentication())
             app.UseIdentityServer();
 
-			// Fire up Swagger and Swagger UI
+            // Fire up Swagger and Swagger UI
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
