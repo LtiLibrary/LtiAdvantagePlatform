@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace AdvantagePlatform.Pages.ResourceLinks
+namespace AdvantagePlatform.Pages
 {
     public class OidcLaunchModel : PageModel
     {

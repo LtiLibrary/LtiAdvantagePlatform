@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
-using AdvantagePlatform.Pages.ResourceLinks;
+using AdvantagePlatform.Pages.Models;
 using AdvantagePlatform.Utility;
 using LtiAdvantage.IdentityServer4;
 using Microsoft.AspNetCore.Mvc;

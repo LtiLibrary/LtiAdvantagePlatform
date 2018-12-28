@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using AdvantagePlatform.Data;
 
-namespace AdvantagePlatform.Pages.ResourceLinks
+namespace AdvantagePlatform.Pages.Models
 {
     public class ResourceLinkModel
     {

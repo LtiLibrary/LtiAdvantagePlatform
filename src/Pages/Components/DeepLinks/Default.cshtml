@@ -14,7 +14,7 @@
         {
             foreach (var person in Model.People.OrderBy(p => p.FirstName))
             {
-                var url = Url.Page("ResourceLinks/OidcLaunch", new
+                var url = Url.Page("OidcLaunch", new
                 {
                     id = tool.Id,
                     messageType = Constants.Lti.LtiDeepLinkingRequestMessageType,

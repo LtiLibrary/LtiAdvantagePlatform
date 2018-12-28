@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
-using AdvantagePlatform.Pages.ResourceLinks;
+using AdvantagePlatform.Pages.Models;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace AdvantagePlatform.Pages.CourseLinks

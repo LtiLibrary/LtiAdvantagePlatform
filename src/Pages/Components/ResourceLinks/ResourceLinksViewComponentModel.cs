@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using AdvantagePlatform.Data;
-using AdvantagePlatform.Pages.ResourceLinks;
+using AdvantagePlatform.Pages.Models;
 
 namespace AdvantagePlatform.Pages.Components.ResourceLinks
 {

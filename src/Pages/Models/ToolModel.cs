@@ -9,7 +9,7 @@ using LtiAdvantage.IdentityServer4;
 using LtiAdvantage.IdentityServer4.Validation;
 using Microsoft.AspNetCore.Http;
 
-namespace AdvantagePlatform.Pages.Tools
+namespace AdvantagePlatform.Pages.Models
 {
     /// <summary>
     /// This Tool implements the "2.1.2.2 Tool registered and deployed" model shown in
@@ -38,7 +38,7 @@ namespace AdvantagePlatform.Pages.Tools
 
         /// <inheritdoc />
         /// <summary>
-        /// Create an instance of <see cref="T:AdvantagePlatform.Pages.Tools.ToolModel" /> using tool and client entities.
+        /// Create an instance of <see cref="T:AdvantagePlatform.Pages.Models.ToolModel" /> using tool and client entities.
         /// </summary>
         /// <param name="httpContext">The HttpContext.</param>
         /// <param name="tool">The tool entity.</param>

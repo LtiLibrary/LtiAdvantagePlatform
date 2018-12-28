@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using AdvantagePlatform.Data;
+using AdvantagePlatform.Pages.Models;
 using AdvantagePlatform.Pages.Tools;
 
 namespace AdvantagePlatform.Pages.Components.DeepLinks

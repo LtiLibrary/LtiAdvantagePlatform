@@ -19,7 +19,7 @@ else
                         {
                             <a class="btn btn-sm btn-secondary mt-2 mb-2" target="_blank"
                                data-toggle="tooltip" title="@($"Launch this resource link using {link.ToolName} as {person.FirstName} {person.LastName}")"
-                               asp-page="ResourceLinks/OidcLaunch"
+                               asp-page="OidcLaunch"
                                asp-route-id="@link.Id"
                                asp-route-messageType="@Constants.Lti.LtiResourceLinkRequestMessageType"
                                asp-route-courseId="@Model.CourseId"

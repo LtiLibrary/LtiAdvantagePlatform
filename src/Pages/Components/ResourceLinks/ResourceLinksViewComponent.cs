@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
-using AdvantagePlatform.Pages.ResourceLinks;
+using AdvantagePlatform.Pages.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AdvantagePlatform.Pages.Components.ResourceLinks
