@@ -116,10 +116,6 @@ namespace AdvantagePlatform
                 // This is not appropriate for production
                 .AddDeveloperSigningCredential()
 
-                // In LTI Advantage world, client credentials are signed JWTs
-                .AddSecretParser<JwtBearerClientAssertionSecretParser>()
-                .AddSecretValidator<PrivatePemKeyJwtSecretValidator>()
-
                 // Store Configuration and Operational data in the database
                 .AddConfigurationStore(options =>
                 {
@@ -142,11 +138,15 @@ namespace AdvantagePlatform
                 // Configure IdentityServer to work with ASP.NET Core Identity
                 .AddAspNetIdentity<AdvantagePlatformUser>()
 
+                // Allow the application user to impersonate a Platform member (e.g. a student in the course)
+                .AddImpersonationSupport()
+
                 // Custom profile service to add LTI Advantage claims to id_token
                 .AddProfileService<LtiAdvantageProfileService>()
 
-                // Allow the ASP.NET user to impersonate a Platform user (e.g. a student in the course)
-                .AddImpersonationSupport();
+                // Adds support for client authentication using JWT bearer assertions
+                // where token is signed by a private key stored in PEM format. 
+                .AddLtiJwtBearerClientAuthentication();
 
             // Add authentication and set the default scheme to IdentityConstants.ApplicationScheme
             // so that IdentityServer can find the right ASP.NET Core Identity pages
