@@ -100,27 +100,27 @@ namespace AdvantagePlatform.Pages.Tools
                 new ClientRedirectUri { RedirectUri = Tool.LaunchUrl }
             };
 
-            var privateKey = client.ClientSecrets
-                .SingleOrDefault(s => s.Type == Constants.SecretTypes.PrivatePemKey);
+            var publicKey = client.ClientSecrets
+                .SingleOrDefault(s => s.Type == Constants.SecretTypes.PublicPemKey);
 
-            if (Tool.PrivateKey.IsPresent())
+            if (Tool.PublicKey.IsPresent())
             {
-                if (privateKey == null)
+                if (publicKey == null)
                 {
-                    privateKey = new ClientSecret
+                    publicKey = new ClientSecret
                     {
                         Client = client,
-                        Type = Constants.SecretTypes.PrivatePemKey
+                        Type = Constants.SecretTypes.PublicPemKey
                     };
-                    client.ClientSecrets.Add(privateKey);
+                    client.ClientSecrets.Add(publicKey);
                 }
-                privateKey.Value = Tool.PrivateKey;
+                publicKey.Value = Tool.PublicKey;
             }
             else
             {
-                if (privateKey != null)
+                if (publicKey != null)
                 {
-                    client.ClientSecrets.Remove(privateKey);
+                    client.ClientSecrets.Remove(publicKey);
                 }
             }
 

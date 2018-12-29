@@ -53,10 +53,11 @@
                             <span asp-validation-for="Tool.ClientId" class="text-danger"></span>
                         </div>
                         <div class="form-group">
-                            <label asp-for="Tool.PrivateKey"></label>
-                            <tooltip asp-for="Tool.PrivateKey"></tooltip>
-                            <textarea asp-for="Tool.PrivateKey" class="form-control text-monospace key" rows="5" placeholder="Enter the private key in PEM format."></textarea>
-                            <span asp-validation-for="Tool.PrivateKey" class="text-danger"></span>
+                            <label asp-for="Tool.PublicKey"></label>
+                            <tooltip asp-for="Tool.PublicKey"></tooltip>
+                            For development keys see <a href="https://lti-ri.imsglobal.org/keygen/index" target="_blank">https://lti-ri.imsglobal.org/keygen/index</a>
+                            <textarea asp-for="Tool.PublicKey" class="form-control text-monospace key" rows="5" placeholder="Enter the public key in PEM format."></textarea>
+                            <span asp-validation-for="Tool.PublicKey" class="text-danger"></span>
                         </div>
                         <div class="form-group">
                             <label asp-for="Tool.DeploymentId"></label>
@@ -99,15 +100,15 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        $('#@($"{nameof(Model.Tool)}_{nameof(Model.Tool.PrivateKey)}")').bind('paste', function(){
+        $('#@($"{nameof(Model.Tool)}_{nameof(Model.Tool.PublicKey)}")').bind('paste', function(){
             window.setTimeout(function(){
                 var text = '';
-                $($('#@($"{nameof(Model.Tool)}_{nameof(Model.Tool.PrivateKey)}")').val().split('\n')).each(function(i,v){
+                $($('#@($"{nameof(Model.Tool)}_{nameof(Model.Tool.PublicKey)}")').val().split('\n')).each(function(i,v){
                     v = $.trim(v);
                     if (v.length > 0) text+= v+'\n';
                 });
                 console.log(text);
-                $('#@($"{nameof(Model.Tool)}_{nameof(Model.Tool.PrivateKey)}")').val(text);
+                $('#@($"{nameof(Model.Tool)}_{nameof(Model.Tool.PublicKey)}")').val(text);
             },1);
         });
     </script>

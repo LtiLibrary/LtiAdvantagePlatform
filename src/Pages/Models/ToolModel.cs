@@ -60,8 +60,8 @@ namespace AdvantagePlatform.Pages.Models
             // These are the tool's Identity Server properties (client)
             IdentityServerClientId = client.Id;
             ClientId = client.ClientId;
-            PrivateKey = client.ClientSecrets
-                ?.FirstOrDefault(s => s.Type == Constants.SecretTypes.PrivatePemKey)
+            PublicKey = client.ClientSecrets
+                ?.FirstOrDefault(s => s.Type == Constants.SecretTypes.PublicPemKey)
                 ?.Value;
         }
 
@@ -85,11 +85,11 @@ namespace AdvantagePlatform.Pages.Models
         public string ClientId { get; set; }
 
         /// <summary>
-        /// The client private signing key.
+        /// The client public signing key.
         /// </summary>
         [Required]
-        [Display(Name = "Private Key", Description = "Private key to sign messages sent by the tool.")]
-        public string PrivateKey { get; set; }
+        [Display(Name = "Public Key", Description = "Public key to validate messages signed by the tool.")]
+        public string PublicKey { get; set; }
 
         #endregion
 

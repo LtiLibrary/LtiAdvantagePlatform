@@ -17,27 +17,25 @@ namespace AdvantagePlatform.Pages.Tools
     public class CreateModel : PageModel
     {
         private readonly ApplicationDbContext _context;
-        private readonly IConfigurationDbContext _identityContext;
+        private readonly IConfigurationDbContext _identityConfig;
 
         [BindProperty]
         public ToolModel Tool { get; set; }
 
         public CreateModel(
             ApplicationDbContext context,
-            IConfigurationDbContext identityContext)
+            IConfigurationDbContext identityConfig)
         {
             _context = context;
-            _identityContext = identityContext;
+            _identityConfig = identityConfig;
         }
 
         public IActionResult OnGet()
         {
             // Create the Client for this tool registration
-            var keyPair = PemHelper.GenerateRsaKeyPair();
             Tool = new ToolModel(Request.HttpContext)
             {
                 ClientId = CryptoRandom.CreateUniqueId(8),
-                PrivateKey = keyPair.PrivateKey,
                 DeploymentId = CryptoRandom.CreateUniqueId(8)
             };
 
@@ -56,7 +54,7 @@ namespace AdvantagePlatform.Pages.Tools
                 }
             }
 
-            if (_identityContext.Clients.Any(c => c.ClientId == Tool.ClientId))
+            if (_identityConfig.Clients.Any(c => c.ClientId == Tool.ClientId))
             {
                 ModelState.AddModelError($"{nameof(Tool)}.{nameof(Tool.ClientId)}",
                     "This Client ID already exists.");
@@ -77,8 +75,8 @@ namespace AdvantagePlatform.Pages.Tools
                 {
                     new Secret
                     {
-                        Type = LtiAdvantage.IdentityServer4.Validation.Constants.SecretTypes.PrivatePemKey,
-                        Value = Tool.PrivateKey
+                        Type = LtiAdvantage.IdentityServer4.Validation.Constants.SecretTypes.PublicPemKey,
+                        Value = Tool.PublicKey
                     }
                 },
                 RedirectUris = { Tool.LaunchUrl },
@@ -87,8 +85,8 @@ namespace AdvantagePlatform.Pages.Tools
 
             // Create the IdentityServer Client first to get its primary key
             var entity = client.ToEntity();
-            await _identityContext.Clients.AddAsync(entity);
-            await _identityContext.SaveChangesAsync();
+            await _identityConfig.Clients.AddAsync(entity);
+            await _identityConfig.SaveChangesAsync();
 
             var tool = new Tool
             {

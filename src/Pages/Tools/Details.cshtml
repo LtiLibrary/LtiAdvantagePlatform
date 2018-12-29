@@ -41,10 +41,10 @@
                         <dt>@Html.DisplayNameFor(m => m.Tool.ClientId)</dt>
                         <dd>@Model.Tool.ClientId.IfMissingThen()</dd>
                         <dt>
-                            @Html.DisplayNameFor(m => m.Tool.PrivateKey)
-                            <tooltip asp-for="Tool.PrivateKey"></tooltip>
+                            @Html.DisplayNameFor(m => m.Tool.PublicKey)
+                            <tooltip asp-for="Tool.PublicKey"></tooltip>
                         </dt>
-                        <dd><pre class="key">@Model.Tool.PrivateKey.IfMissingThen()</pre></dd>
+                        <dd><pre class="key">@Model.Tool.PublicKey.IfMissingThen()</pre></dd>
                         <dt>
                             @Html.DisplayNameFor(m => m.Tool.DeploymentId)
                             <tooltip asp-for="Tool.DeploymentId"></tooltip>
