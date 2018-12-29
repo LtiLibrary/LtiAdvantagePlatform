@@ -76,15 +76,17 @@ namespace AdvantagePlatform.Pages
             {
                 // The issuer identifier for the platform
                 iss = Request.HttpContext.GetIdentityServerIssuerUri(),
+
                 // The platform identifier for the user to login
                 login_hint = personId,
+
                 // The endpoint to be executed at the end of the OIDC authentication flow
                 target_link_uri = tool.LaunchUrl,
+
                 // The identifier of the LtiResourceLink message (or the deep link message, etc)
                 lti_message_hint = JsonConvert.SerializeObject(new {id, messageType, courseId })
             };
 
-            // Uncomment to use a GET to initiate login
             var url = new RequestUrl(tool.LoginUrl).Create(values);
             _logger.LogInformation($"Launching {tool.Name} using GET {url}");
             return Redirect(url);
