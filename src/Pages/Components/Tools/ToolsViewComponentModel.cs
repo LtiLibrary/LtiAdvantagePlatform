@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using AdvantagePlatform.Pages.Models;
-using AdvantagePlatform.Pages.Tools;
 
 namespace AdvantagePlatform.Pages.Components.Tools
 {

@@ -6,8 +6,6 @@ using AdvantagePlatform.Data;
 using AdvantagePlatform.Utility;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
-using IdentityServer4.Validation;
-using LtiAdvantage.IdentityServer4.Validation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
