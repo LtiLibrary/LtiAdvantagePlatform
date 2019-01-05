@@ -57,7 +57,7 @@ is a map of where to find the LTI specific stuff.
     ├── Data/ (database entities and Entity Framework Core migrations)
     ├── Pages/
         ├── DeepLinks (receives the deep links response)
-		└── OidcLaunch (starts the LTI 1.3 launch process)
+	└── OidcLaunch (starts the LTI 1.3 launch process)
     ├── Utility/
         └── LtiAdvantageProfileService.cs (works with Identity Server 2 to add LTI claims to the id_token for launch)
     ├── wwwroot/ (static website files)        
