@@ -38,8 +38,8 @@ This package provides some JSON Web Token functionality.
 This library makes implementing LTI Advantage with ASP.NET Core easier.
 
 [LtiAdvantage.IdentityServer4](https://github.com/andyfmiller/LtiAdvantage/tree/master/src/LtiAdvantage.IdentityServer4)
-This library adds an Identity Server 4 secret validator that understands the IMS recommended format of 
-client-credentials grant.
+This library has an Identity Server 4 secret validator that understands the IMS recommended format of 
+client-credentials grant, and impersonation support so that an application user can impersonate a platform user.
 
 [LtiAdvantage.IdentityModel](https://github.com/andyfmiller/LtiAdvantage/tree/master/src/LtiAdvantage.IdentityModel)
 This library adds an HttpClient extension method to request a token using using the IMS recommended
