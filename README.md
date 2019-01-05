@@ -52,7 +52,7 @@ is a map of where to find the LTI specific stuff.
 / (Visual Studio solution file)
 └── src/
     ├── Startup.cs (configure ASP.NET Core Identity and Identity Server 4)
-    ├── Areas/Identity/ (ASP.NET Core Identity user management, platform, course, and people editors)
+    ├── Areas/Identity/ (ASP.NET Core Identity user management; edit platform, course, and people)
     ├── Controllers/ (API controllers that implement Assignment and Grade Services and Names and Role Provisioning Services)
     ├── Data/ (database entities and Entity Framework Core migrations)
     ├── Pages/
@@ -60,5 +60,5 @@ is a map of where to find the LTI specific stuff.
 	└── OidcLaunch (starts the LTI 1.3 launch process)
     ├── Utility/
         └── LtiAdvantageProfileService.cs (called by Identity Server to add LTI claims to the id_token for launch)
-    ├── wwwroot/ (static website files)        
+    └── wwwroot/ (static website files)
 ```
