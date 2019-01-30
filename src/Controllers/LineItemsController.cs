@@ -103,7 +103,7 @@ namespace AdvantagePlatform.Controllers
 
             await _context.SaveChangesAsync();
 
-            request.LineItem.Id = Url.Link(LtiAdvantage.Constants.ServiceEndpoints.AgsLineItemService,
+            request.LineItem.Id = Url.Link(LtiAdvantage.Constants.ServiceEndpoints.Ags.LineItemService,
                 new {contextId = request.ContextId, lineItemId = gradebookColumn.Id});
 
             return Created(request.LineItem.Id, request.LineItem);
@@ -271,7 +271,7 @@ namespace AdvantagePlatform.Controllers
             {
                 lineitems.Add(new LineItem
                 {
-                    Id = Url.Link(LtiAdvantage.Constants.ServiceEndpoints.AgsLineItemService,
+                    Id = Url.Link(LtiAdvantage.Constants.ServiceEndpoints.Ags.LineItemService,
                         new {contextId = request.ContextId, lineItemId = gradebookColumn.Id}),
                     EndDateTime = gradebookColumn.EndDateTime,
                     Label = gradebookColumn.Label,
