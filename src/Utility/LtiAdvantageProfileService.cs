@@ -302,17 +302,17 @@ namespace AdvantagePlatform.Utility
                 {
                     Scope = new List<string>
                     {
-                        Constants.LtiScopes.AgsLineItem
+                        Constants.LtiScopes.Ags.LineItem
                     },
-                    LineItemUrl = gradebookColumn == null ? null : _linkGenerator.GetUriByRouteValues(Constants.ServiceEndpoints.AgsLineItemService,
+                    LineItemUrl = gradebookColumn == null ? null : _linkGenerator.GetUriByRouteValues(Constants.ServiceEndpoints.Ags.LineItemService,
                         new { contextId = course.Id, lineItemId = gradebookColumn.Id }, httpRequest.Scheme, httpRequest.Host),
-                    LineItemsUrl = _linkGenerator.GetUriByRouteValues(Constants.ServiceEndpoints.AgsLineItemsService,
+                    LineItemsUrl = _linkGenerator.GetUriByRouteValues(Constants.ServiceEndpoints.Ags.LineItemsService,
                         new { contextId = course.Id }, httpRequest.Scheme, httpRequest.Host)
                 };
 
                 request.NamesRoleService = new NamesRoleServiceClaimValueType
                 {
-                    ContextMembershipUrl = _linkGenerator.GetUriByRouteValues(Constants.ServiceEndpoints.NrpsMembershipService,
+                    ContextMembershipUrl = _linkGenerator.GetUriByRouteValues(Constants.ServiceEndpoints.Nrps.MembershipService,
                         new { contextId = course.Id }, httpRequest.Scheme, httpRequest.Host)
                 };
             }

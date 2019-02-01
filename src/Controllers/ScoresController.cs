@@ -118,7 +118,7 @@ namespace AdvantagePlatform.Controllers
             gradebookColumn.Scores.Add(gradebookRow);
             await _context.SaveChangesAsync();
 
-            var url = Url.Link(LtiAdvantage.Constants.ServiceEndpoints.AgsScoreService,
+            var url = Url.Link(LtiAdvantage.Constants.ServiceEndpoints.Ags.ScoreService,
                 new {request.ContextId, lineItemId = request.LineItemId, scoreId = gradebookRow.Id});
 
             // Save the score

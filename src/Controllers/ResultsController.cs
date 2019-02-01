@@ -100,7 +100,7 @@ namespace AdvantagePlatform.Controllers
                               + $"<div>Lowest Score: {g.Min(x => x.ScoreGiven):N1}</div></p>",
                     ResultMaximum = g.Max(x => x.ScoreMaximum),
                     ResultScore = g.Last().ScoreGiven,
-                    ScoreOf = Url.Link(Constants.ServiceEndpoints.AgsLineItemService, 
+                    ScoreOf = Url.Link(Constants.ServiceEndpoints.Ags.LineItemService, 
                         new { contextId = request.ContextId, lineItemId = request.LineItemId }),
                     UserId = g.Key.ToString()
                 })
