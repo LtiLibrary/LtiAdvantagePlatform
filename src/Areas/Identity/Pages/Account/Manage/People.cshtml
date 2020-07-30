@@ -49,6 +49,11 @@
                         <input asp-for="@Model.People[i].Username" class="form-control" />
                         <span asp-validation-for="@Model.People[i].Username" class="text-danger"></span>
                     </div>
+                    <div class="form-group">
+                        <label asp-for="@Model.People[i].Email"></label>
+                        <input asp-for="@Model.People[i].Email" class="form-control" />
+                        <span asp-validation-for="@Model.People[i].Email" class="text-danger"></span>
+                    </div>
                 </div>
             </div>
         }
