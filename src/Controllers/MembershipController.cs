@@ -93,7 +93,8 @@ namespace AdvantagePlatform.Controllers
                         Roles = PeopleModel.ParsePersonRoles(p.Roles),
                         Status = MemberStatus.Active,
                         LisPersonSourcedId = p.SisId,
-                        UserId = p.Id.ToString()
+                        UserId = p.Id.ToString(),
+                        Email = p.Email
                     });
 
                 if (request.Rlid.IsPresent())
