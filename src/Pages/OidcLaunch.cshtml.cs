@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using AdvantagePlatform.Data;
 using IdentityModel.Client;
 using IdentityModel.Internal;
@@ -84,7 +85,10 @@ namespace AdvantagePlatform.Pages
                 target_link_uri = tool.LaunchUrl,
 
                 // The identifier of the LtiResourceLink message (or the deep link message, etc)
-                lti_message_hint = JsonConvert.SerializeObject(new {id, messageType, courseId })
+                lti_message_hint = JsonConvert.SerializeObject(new {id, messageType, courseId }),
+
+                // optional (but well supported) client id per LTI Core Spec 1.3, section 4.1.3
+                client_id = HttpUtility.UrlEncode(client.ClientId),
             };
 
             var url = new RequestUrl(tool.LoginUrl).Create(values);
