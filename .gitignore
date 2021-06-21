@@ -264,3 +264,4 @@ __pycache__/
 # Identity Server 4 Developer Signing Key
 
 tempkey.rsa
+/.editorconfig
