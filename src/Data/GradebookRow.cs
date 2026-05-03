@@ -27,7 +27,7 @@ namespace AdvantagePlatform.Data
         /// <summary>
         /// The status of the grading process.
         /// </summary>
-        public GradingProgess GradingProgress { get; set; }
+        public GradingProgress GradingProgress { get; set; }
 
         /// <summary>
         /// The person id.

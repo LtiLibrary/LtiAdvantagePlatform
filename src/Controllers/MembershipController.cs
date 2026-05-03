@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using AdvantagePlatform.Areas.Identity.Pages.Account.Manage;
 using AdvantagePlatform.Data;
 using AdvantagePlatform.Utility;
-using LtiAdvantage.IdentityServer4;
+using LtiAdvantage.AspNetCore.NamesRoleProvisioningService;
 using LtiAdvantage.NamesRoleProvisioningService;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -25,7 +25,7 @@ namespace AdvantagePlatform.Controllers
         private readonly CourseAccessValidator _courseValidator;
 
         public MembershipController(
-            IHostingEnvironment env,
+            IWebHostEnvironment env,
             ILogger<MembershipController> logger,
             ApplicationDbContext context,
             CourseAccessValidator courseValidator) : base(env, logger)

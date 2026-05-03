@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using AdvantagePlatform.Utility;
+using LtiAdvantage.AspNetCore.AssignmentGradeServices;
 using LtiAdvantage.AssignmentGradeServices;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -24,7 +25,7 @@ namespace AdvantagePlatform.Controllers
         /// <summary>
         /// </summary>
         public ScoresController(
-            IHostingEnvironment env,
+            IWebHostEnvironment env,
             ILogger<ScoresController> logger,
             ApplicationDbContext context,
             CourseAccessValidator courseValidator) : base(env, logger)

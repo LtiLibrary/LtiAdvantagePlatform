@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using AdvantagePlatform.Pages.Models;
 using AdvantagePlatform.Utility;
-using LtiAdvantage.IdentityServer4;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
