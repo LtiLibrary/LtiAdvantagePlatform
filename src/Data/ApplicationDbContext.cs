@@ -34,6 +34,8 @@ namespace AdvantagePlatform.Data
             builder.Entity<Tool>().HasMany<ResourceLink>().WithOne(l => l.Tool)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            builder.UseOpenIddict();
+
             base.OnModelCreating(builder);
         }
 
@@ -212,11 +214,8 @@ namespace AdvantagePlatform.Data
                 throw new ArgumentNullException(nameof(principal));
             }
 
-            // Because this app is using Identity Server, the user id
-            // is typically in the sub claim. But when swagger authenticates,
-            // the user id is in the nameidentifier claim.
-            return principal.FindFirstValue("sub") 
-                   ?? principal.FindFirstValue(ClaimTypes.NameIdentifier);
+            return principal.FindFirstValue(ClaimTypes.NameIdentifier)
+                   ?? principal.FindFirstValue("sub");
         }
 
         /// <summary>

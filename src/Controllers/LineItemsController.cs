@@ -3,8 +3,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using AdvantagePlatform.Utility;
+using LtiAdvantage.AspNetCore.AssignmentGradeServices;
 using LtiAdvantage.AssignmentGradeServices;
-using LtiAdvantage.IdentityServer4;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -27,7 +27,7 @@ namespace AdvantagePlatform.Controllers
         /// <summary>
         /// </summary>
         public LineItemsController(
-            IHostingEnvironment env,
+            IWebHostEnvironment env,
             ILogger<LineItemsController> logger,
             ApplicationDbContext context,
             CourseAccessValidator courseValidator) : base(env, logger)

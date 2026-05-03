@@ -1,61 +1,60 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
-using IdentityServer4.EntityFramework.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using OpenIddict.Abstractions;
 
 namespace AdvantagePlatform.Utility
 {
     public class CourseAccessValidator
     {
         private readonly ApplicationDbContext _context;
-        private readonly IConfigurationDbContext _identityConfig;
         private readonly IHttpContextAccessor _httpContext;
         private readonly ILogger<CourseAccessValidator> _logger;
 
         public CourseAccessValidator(
             ApplicationDbContext context,
-            IConfigurationDbContext identityConfig,
             IHttpContextAccessor httpContext,
             ILogger<CourseAccessValidator> logger)
         {
             _context = context;
-            _identityConfig = identityConfig;
             _httpContext = httpContext;
             _logger = logger;
         }
 
         public async Task<bool> UserHasAccess(int courseId)
         {
-            _logger.LogInformation($"Validating access to course [{courseId}].");
+            _logger.LogInformation("Validating access to course {CourseId}.", courseId);
             var httpContext = _httpContext.HttpContext;
 
-            // This must be an authenticated request
-            if (httpContext?.User == null || !httpContext.User.Identity.IsAuthenticated)
+            if (httpContext?.User == null || !httpContext.User.Identity!.IsAuthenticated)
             {
                 _logger.LogError("Request is not authenticated.");
                 return false;
             }
 
-            // First check if this is an application user
+            // Application user (browser session) — owns the course directly.
             var userId = _context.GetUserId(httpContext.User);
             if (userId != null)
             {
-                return await _context.Users
-                    .AnyAsync(u => u.Course.Id == courseId);
+                if (await _context.Users.AnyAsync(u => u.Id == userId && u.Course.Id == courseId))
+                {
+                    return true;
+                }
             }
 
-            // If not an application user, then maybe an API client
-            var client =
-                await _identityConfig.Clients
-                    .SingleOrDefaultAsync(c => c.ClientId == GetClientId(httpContext.User));
-            if (client != null)
+            // API client (tool) — its ClientId claim points to the Tool that belongs
+            // to one of the application users. Allow access if that tool's owner
+            // owns the requested course.
+            var clientId = GetClientId(httpContext.User);
+            if (clientId != null)
             {
                 return await _context.Users
-                    .AnyAsync(u => u.Tools.Any(t => t.IdentityServerClientId == client.Id));
+                    .AnyAsync(u => u.Course.Id == courseId
+                                   && u.Tools.Any(t => t.ClientId == clientId));
             }
 
             _logger.LogError("ClaimsPrincipal not recognized.");
@@ -64,7 +63,8 @@ namespace AdvantagePlatform.Utility
 
         private static string GetClientId(ClaimsPrincipal principal)
         {
-            return principal.FindFirstValue(IdentityModel.JwtClaimTypes.ClientId);
+            return principal.FindFirstValue(OpenIddictConstants.Claims.ClientId)
+                   ?? principal.FindFirstValue("client_id");
         }
     }
 }

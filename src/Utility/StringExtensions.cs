@@ -6,11 +6,33 @@ namespace AdvantagePlatform.Utility
     public static class StringExtensions
     {
         /// <summary>
+        /// True if the value is null, empty, or whitespace.
+        /// </summary>
+        public static bool IsMissing(this string value)
+        {
+            return string.IsNullOrWhiteSpace(value);
+        }
+
+        /// <summary>
+        /// True if the value is not null, empty, or whitespace.
+        /// </summary>
+        public static bool IsPresent(this string value)
+        {
+            return !string.IsNullOrWhiteSpace(value);
+        }
+
+        /// <summary>
+        /// Ensures the URL ends with a single trailing slash.
+        /// </summary>
+        public static string EnsureTrailingSlash(this string url)
+        {
+            if (url == null) return null;
+            return url.EndsWith("/") ? url : url + "/";
+        }
+
+        /// <summary>
         /// Returns "[Not Set]" or replacement if string is missing.
         /// </summary>
-        /// <param name="value">The string.</param>
-        /// <param name="replacement">The replacement (defaults to "[Not Set]").</param>
-        /// <returns>A string.</returns>
         public static string IfMissingThen(this string value, string replacement = "[Not Set]")
         {
             return string.IsNullOrWhiteSpace(value) ? replacement : value;

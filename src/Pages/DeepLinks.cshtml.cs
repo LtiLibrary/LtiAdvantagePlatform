@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
@@ -6,12 +6,8 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using AdvantagePlatform.Utility;
-using IdentityServer4.EntityFramework.Entities;
-using IdentityServer4.EntityFramework.Interfaces;
-using IdentityServer4.Extensions;
 using LtiAdvantage;
 using LtiAdvantage.DeepLinking;
-using LtiAdvantage.IdentityServer4;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -26,16 +22,13 @@ namespace AdvantagePlatform.Pages
     public class DeepLinksModel : PageModel
     {
         private readonly ApplicationDbContext _context;
-        private readonly IConfigurationDbContext _identityContext;
         private readonly ILogger<DeepLinksModel> _logger;
 
         public DeepLinksModel(
-            ApplicationDbContext context, 
-            IConfigurationDbContext identityContext,
+            ApplicationDbContext context,
             ILogger<DeepLinksModel> logger)
         {
             _context = context;
-            _identityContext = identityContext;
             _logger = logger;
         }
 
@@ -45,8 +38,8 @@ namespace AdvantagePlatform.Pages
         [BindProperty(Name = "JWT")]
         public string Jwt
         {
-            get { return IdToken; }
-            set { IdToken = value; }
+            get => IdToken;
+            set => IdToken = value;
         }
 
         public async Task<IActionResult> OnPost(int platformId, int? courseId = null)
@@ -78,8 +71,16 @@ namespace AdvantagePlatform.Pages
                 });
             }
 
-            var client = await _identityContext.Clients.SingleOrDefaultAsync(c => c.ClientId == token.Issuer);
-            var tool = await _context.Tools.SingleOrDefaultAsync(t => t.IdentityServerClientId == client.Id);
+            var tool = await _context.Tools.SingleOrDefaultAsync(t => t.ClientId == token.Issuer);
+            if (tool == null)
+            {
+                return BadRequest(new ProblemDetails
+                {
+                    Title = "Unknown tool",
+                    Detail = $"No registered tool with client id {token.Issuer}."
+                });
+            }
+
             var platform = await _context.GetPlatformAsync(platformId);
             var course = courseId.HasValue ? await _context.GetCourseAsync(courseId.Value) : null;
 
@@ -89,7 +90,6 @@ namespace AdvantagePlatform.Pages
             {
                 foreach (var contentItem in contentItems)
                 {
-                    // Can only handle LTI Links
                     if (contentItem.Type != Constants.ContentItemTypes.LtiLink)
                     {
                         continue;
@@ -134,85 +134,72 @@ namespace AdvantagePlatform.Pages
             var handler = new JwtSecurityTokenHandler();
             if (!handler.CanReadToken(idToken))
             {
-                _logger.LogError($"Cannot read {nameof(idToken)}");
+                _logger.LogError("Cannot read {IdToken}.", nameof(idToken));
                 return false;
             }
 
             var token = handler.ReadJwtToken(idToken);
-            var client = await _identityContext.Clients
-                .Include(c => c.ClientSecrets)
-                .SingleOrDefaultAsync(c => c.ClientId == token.Issuer);
-            var tool = await _context.Tools.SingleOrDefaultAsync(t => t.IdentityServerClientId == client.Id);
-            if (client == null || tool == null)
+            var tool = await _context.Tools.SingleOrDefaultAsync(t => t.ClientId == token.Issuer);
+            if (tool == null)
             {
-                _logger.LogError($"Cannot find {token.Issuer}.");
+                _logger.LogError("Cannot find tool for issuer {Issuer}.", token.Issuer);
+                return false;
+            }
+
+            var keys = GetPemKeys(tool.PublicKey).ToList();
+            if (keys.Count == 0)
+            {
+                _logger.LogError("Tool {ToolId} has no usable public key.", tool.Id);
                 return false;
             }
 
             var tokenValidationParameters = new TokenValidationParameters
             {
-                // The token must be signed to prove the client credentials.
                 RequireSignedTokens = true,
                 RequireExpirationTime = true,
 
-                IssuerSigningKeys = GetPemKeys(client.ClientSecrets),
+                IssuerSigningKeys = keys,
                 ValidateIssuerSigningKey = true,
 
-                // Already checked issuer above
                 ValidateIssuer = false,
 
-                ValidAudience = HttpContext.GetIdentityServerIssuerUri(),
+                ValidAudience = $"{Request.Scheme}://{Request.Host}",
                 ValidateAudience = true
             };
 
             try
             {
                 handler.ValidateToken(idToken, tokenValidationParameters, out _);
-
                 return true;
             }
             catch (System.Exception e)
             {
-                _logger.LogError(e, "JWT token validation error");
+                _logger.LogError(e, "JWT token validation error.");
                 return false;
             }
         }
-        
+
         /// <summary>
-        /// Get the PEM format secrets.
+        /// Convert a PEM-encoded RSA public key into a <see cref="RsaSecurityKey"/>.
         /// </summary>
-        /// <param name="secrets">The secrets to examine.</param>
-        /// <returns>The PEM secrets converted into <see cref="RsaSecurityKey"/>'s.</returns>
-        private static IEnumerable<RsaSecurityKey> GetPemKeys(IEnumerable<ClientSecret> secrets)
+        private static IEnumerable<RsaSecurityKey> GetPemKeys(string pemKey)
         {
-            var pemKeys = secrets
-                .Where(s => s.Type == LtiAdvantage.IdentityServer4.Validation.Constants.SecretTypes.PublicPemKey)
-                .Select(s => s.Value)
-                .ToList();
-
-            var rsaSecurityKeys = new List<RsaSecurityKey>();
-
-            foreach (var pemKey in pemKeys)
+            if (string.IsNullOrWhiteSpace(pemKey))
             {
-                using (var keyTextReader = new StringReader(pemKey))
-                {
-                    // PemReader can read any PEM file. Only interested in RsaKeyParameters.
-                    if (new PemReader(keyTextReader).ReadObject() is RsaKeyParameters bouncyKeyParameters)
-                    {
-                        var rsaParameters = new RSAParameters
-                        {
-                            Modulus = bouncyKeyParameters.Modulus.ToByteArrayUnsigned(),
-                            Exponent = bouncyKeyParameters.Exponent.ToByteArrayUnsigned()
-                        };
-
-                        var rsaSecurityKey = new RsaSecurityKey(rsaParameters);
-
-                        rsaSecurityKeys.Add(rsaSecurityKey);
-                    }
-                }
+                yield break;
             }
 
-            return rsaSecurityKeys;
+            using var keyTextReader = new StringReader(pemKey);
+            if (new PemReader(keyTextReader).ReadObject() is RsaKeyParameters bouncyKeyParameters)
+            {
+                var rsaParameters = new RSAParameters
+                {
+                    Modulus = bouncyKeyParameters.Modulus.ToByteArrayUnsigned(),
+                    Exponent = bouncyKeyParameters.Exponent.ToByteArrayUnsigned()
+                };
+
+                yield return new RsaSecurityKey(rsaParameters);
+            }
         }
     }
 }
