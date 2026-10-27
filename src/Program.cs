@@ -14,7 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using OpenIddict.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -103,15 +103,9 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
     {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oauth2" }
-            },
-            Config.LtiScopes.ToList()
-        }
+        [new OpenApiSecuritySchemeReference("oauth2", document)] = Config.LtiScopes.ToList()
     });
 });
 
