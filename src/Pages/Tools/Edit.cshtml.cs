@@ -46,6 +46,12 @@ namespace AdvantagePlatform.Pages.Tools
                     "Cannot parse the Custom Properties.");
             }
 
+            if (PemKeys.ParseRsaPublicKey(Tool.PublicKey) == null)
+            {
+                ModelState.AddModelError($"{nameof(Tool)}.{nameof(Tool.PublicKey)}",
+                    "Enter the tool's PEM-encoded RSA public key.");
+            }
+
             if (!ModelState.IsValid)
             {
                 return Page();
@@ -62,7 +68,7 @@ namespace AdvantagePlatform.Pages.Tools
             _context.Tools.Attach(tool).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            await _toolClientManager.UpdateRedirectUriAsync(tool.ClientId, tool.LaunchUrl);
+            await _toolClientManager.UpdateAsync(tool.ClientId, tool.Name, tool.LaunchUrl, tool.PublicKey);
 
             return RedirectToPage("./Index");
         }

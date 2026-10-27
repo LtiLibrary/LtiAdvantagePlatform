@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using AdvantagePlatform.Utility;
@@ -13,8 +11,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.OpenSsl;
 
 namespace AdvantagePlatform.Pages
 {
@@ -146,8 +142,8 @@ namespace AdvantagePlatform.Pages
                 return false;
             }
 
-            var keys = GetPemKeys(tool.PublicKey).ToList();
-            if (keys.Count == 0)
+            var key = PemKeys.ParseRsaPublicKey(tool.PublicKey);
+            if (key == null)
             {
                 _logger.LogError("Tool {ToolId} has no usable public key.", tool.Id);
                 return false;
@@ -158,12 +154,14 @@ namespace AdvantagePlatform.Pages
                 RequireSignedTokens = true,
                 RequireExpirationTime = true,
 
-                IssuerSigningKeys = keys,
+                IssuerSigningKey = key,
                 ValidateIssuerSigningKey = true,
 
                 ValidateIssuer = false,
 
-                ValidAudience = $"{Request.Scheme}://{Request.Host}",
+                // Tools address the response to the "iss" they received in the id_token.
+                // Also accept it without the trailing slash, as older tools may send that.
+                ValidAudiences = new[] { Request.GetIssuer(), Request.GetIssuer().TrimEnd('/') },
                 ValidateAudience = true
             };
 
@@ -176,29 +174,6 @@ namespace AdvantagePlatform.Pages
             {
                 _logger.LogError(e, "JWT token validation error.");
                 return false;
-            }
-        }
-
-        /// <summary>
-        /// Convert a PEM-encoded RSA public key into a <see cref="RsaSecurityKey"/>.
-        /// </summary>
-        private static IEnumerable<RsaSecurityKey> GetPemKeys(string pemKey)
-        {
-            if (string.IsNullOrWhiteSpace(pemKey))
-            {
-                yield break;
-            }
-
-            using var keyTextReader = new StringReader(pemKey);
-            if (new PemReader(keyTextReader).ReadObject() is RsaKeyParameters bouncyKeyParameters)
-            {
-                var rsaParameters = new RSAParameters
-                {
-                    Modulus = bouncyKeyParameters.Modulus.ToByteArrayUnsigned(),
-                    Exponent = bouncyKeyParameters.Exponent.ToByteArrayUnsigned()
-                };
-
-                yield return new RsaSecurityKey(rsaParameters);
             }
         }
     }

@@ -15,7 +15,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using OpenIddict.Abstractions;
+using OpenIddict.Validation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -152,6 +154,9 @@ builder.Services.AddOpenIddict()
         // OpenIddict's response generation for non-authorize sign-ins (e.g. password
         // grant exchanges).
         options.AddLtiAdvantageClaims();
+
+        // Accept the "typ": "JWT" client assertions LTI tools send to the token endpoint.
+        options.AcceptLtiClientAssertions();
     })
     .AddValidation(options =>
     {
@@ -160,12 +165,15 @@ builder.Services.AddOpenIddict()
     });
 
 // Default scheme so [Authorize] without a scheme uses the application cookie for
-// browser pages, and JwtBearer-marked endpoints fall back to OpenIddict validation.
+// browser pages. The LtiAdvantage AGS / NRPS controller bases require the "Bearer"
+// scheme, so register "Bearer" as an alias for OpenIddict's access token validation.
 builder.Services.AddAuthentication(options =>
-{
-    options.DefaultScheme = IdentityConstants.ApplicationScheme;
-    options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
-});
+    {
+        options.DefaultScheme = IdentityConstants.ApplicationScheme;
+        options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+    })
+    .AddPolicyScheme(JwtBearerDefaults.AuthenticationScheme, displayName: null, options =>
+        options.ForwardDefault = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
 
 builder.Services.AddAuthorization();
 builder.Services.AddLtiAdvantagePolicies();
