@@ -55,6 +55,7 @@ deep-linking launches.
     │   └── OidcLaunch.cshtml (initiates the LTI 1.3 launch by redirecting to the tool)
     ├── Utility/
     │   ├── LtiAdvantageClaimsHandler.cs (OpenIddict ProcessSignInContext handler that adds LTI claims)
+    │   ├── LtiClientAssertionHandlers.cs (accepts the client assertions LTI tools send to /connect/token)
     │   ├── ToolClientManager.cs (creates / updates OpenIddict applications for registered tools)
     │   └── CourseAccessValidator.cs (per-tenant access checks)
     └── wwwroot/ (static website files)
@@ -64,8 +65,16 @@ deep-linking launches.
 
 Prerequisites:
 
-- .NET 10 SDK. `global.json` pins this. The LtiAdvantage libraries multi-target
-  net8.0 and net10.0; this sample targets net10.0.
+- .NET 10 SDK. `global.json` pins this.
+- A checkout of [LtiAdvantage](https://github.com/LtiLibrary/LtiAdvantage) next
+  to this repository. The sample builds against the library source, so the
+  folders must sit side by side:
+
+  ```
+  some-folder/
+  ├── LtiAdvantage/
+  └── LtiAdvantagePlatform/
+  ```
 
 Steps from the repo root:
 
@@ -74,8 +83,8 @@ dotnet build
 dotnet run --project src/AdvantagePlatform.csproj
 ```
 
-The app listens on the URL configured in `Properties/launchSettings.json`
-(default `http://localhost:5099`). On first run EF Core creates a SQLite
+The app listens on `http://localhost:5099` (use `--launch-profile https` for
+`https://localhost:7099`). On first run EF Core creates a SQLite
 `advantageplatform.db` in the working directory and seeds the OpenIddict
 `swagger` confidential client used by Swagger UI's "Authorize" button.
 
@@ -87,12 +96,38 @@ Visit:
 - `/.well-known/openid-configuration` — OpenID Connect discovery.
 - `/.well-known/jwks` — JSON Web Key Set used by tools to verify id_tokens.
 
-## Reference layout for a tool
+## Trying it with the sample tool
 
-Tools are configured under **Tools → Create**. The sample manages an
-OpenIddict application for each tool (client_id, redirect URI, allowed
-grants). The tool's PEM-encoded RSA public key is stored on the `Tool`
-entity and used to verify deep-linking responses.
+Run [LtiAdvantageTool](https://github.com/LtiLibrary/LtiAdvantageTool) at the
+same time (it listens on `http://localhost:5072`), then:
+
+1. In the tool, register an admin account and open **Platforms → Add
+   platform**. Leave the page open: its "Tool side" section lists the URLs and
+   public key the platform needs.
+2. In the platform, register an account and open **Tools → Register New
+   Tool**. Enter the tool's Login URL, Launch URL, Deep linking URL and public
+   key. Note the Client ID, and the Issuer, Authorize URL, Token URL and JWKS
+   URL shown on the page.
+3. Back in the tool, fill in the platform side with those values and save.
+   Copy the Issuer exactly, including the trailing slash
+   (`http://localhost:5099/`): it must match the `iss` claim of the id_token
+   character for character.
+4. In the platform, create a **Course Link** (or **Platform Link**) for the
+   tool, or use **Add Deep Links**, then launch it from the home page as the
+   teacher or the student.
+
+A launch from a course link also gives the tool access to Assignment and
+Grade Services and Names and Role Provisioning. Scores the tool posts show up
+in the platform's gradebook.
+
+## How the platform handles tools
+
+Tools are configured under **Tools → Register New Tool**. The sample manages
+an OpenIddict application for each tool: a confidential client with the
+launch URL as redirect URI, and the tool's PEM-encoded RSA public key as its
+JSON Web Key Set. The tool uses that key to sign the client assertion it sends
+to `/connect/token` (LTI's JWT client credentials grant). The platform also
+uses the key to verify deep-linking responses.
 
 [LtiAdvantage](https://github.com/LtiLibrary/LtiAdvantage) provides the LTI
 message classes, the AGS / NRPS controller base classes
