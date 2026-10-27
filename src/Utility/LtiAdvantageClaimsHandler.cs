@@ -69,21 +69,29 @@ namespace AdvantagePlatform.Utility
             {
                 _logger.LogInformation("Impersonating subject {Subject}.", loginHint);
 
-                var impersonatedIdentity = new ClaimsIdentity(new[]
+                // Swap the user claims in place. Replacing the whole principal would
+                // drop OpenIddict's internal claims (scopes, presenters → id_token aud).
+                var currentIdentity = (ClaimsIdentity)context.Principal.Identity!;
+                foreach (var claim in currentIdentity.Claims
+                             .Where(c => c.Type is OpenIddictConstants.Claims.Subject
+                                 or OpenIddictConstants.Claims.Name
+                                 or OpenIddictConstants.Claims.Email)
+                             .ToList())
                 {
-                    new Claim(OpenIddictConstants.Claims.Subject, loginHint),
-                    new Claim(OpenIddictConstants.Claims.AuthenticationTime,
-                        DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(),
-                        ClaimValueTypes.Integer64),
-                    new Claim("idp", "local")
-                }, authenticationType: "Impersonation");
-
-                foreach (var claim in impersonatedIdentity.Claims)
-                {
-                    claim.SetDestinations(OpenIddictConstants.Destinations.IdentityToken);
+                    currentIdentity.RemoveClaim(claim);
                 }
 
-                context.Principal = new ClaimsPrincipal(impersonatedIdentity);
+                currentIdentity.AddClaims(new[]
+                {
+                    new Claim(OpenIddictConstants.Claims.Subject, loginHint)
+                        .SetDestinations(OpenIddictConstants.Destinations.IdentityToken),
+                    new Claim(OpenIddictConstants.Claims.AuthenticationTime,
+                            DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(),
+                            ClaimValueTypes.Integer64)
+                        .SetDestinations(OpenIddictConstants.Destinations.IdentityToken),
+                    new Claim("idp", "local")
+                        .SetDestinations(OpenIddictConstants.Destinations.IdentityToken)
+                });
             }
 
             var ltiMessageHint = (string)context.Request.GetParameter("lti_message_hint");
@@ -382,8 +390,12 @@ namespace AdvantagePlatform.Utility
         public static OpenIddictServerBuilder AddLtiAdvantageClaims(this OpenIddictServerBuilder builder)
         {
             builder.Services.TryAddScoped<LtiAdvantageClaimsHandler>();
+            // Must run before PrepareIdentityTokenPrincipal, which copies the principal's
+            // claims into the id_token. Anything added after that step never reaches the tool.
             builder.AddEventHandler<OpenIddictServerEvents.ProcessSignInContext>(
-                provider => provider.UseScopedHandler<LtiAdvantageClaimsHandler>());
+                descriptor => descriptor
+                    .UseScopedHandler<LtiAdvantageClaimsHandler>()
+                    .SetOrder(OpenIddictServerHandlers.PrepareIdentityTokenPrincipal.Descriptor.Order - 1));
             return builder;
         }
     }
