@@ -32,22 +32,14 @@ namespace AdvantagePlatform.Controllers
 
         protected override async Task<ActionResult<ContextGroupSetContainer>> OnGetGroupSetsAsync(GetGroupSetsRequest request)
         {
-            if (!int.TryParse(request.ContextId, out var contextId))
+            var (course, problem) = await _courseValidator.GetCourseAsync(request.ContextId, request.CancellationToken);
+            if (problem != null)
             {
-                return NotFound(new ProblemDetails { Title = "Not Found", Detail = "Course not found" });
-            }
-
-            if (!await _courseValidator.UserHasAccess(contextId))
-            {
-                return Unauthorized(new ProblemDetails
-                {
-                    Title = "Not authorized",
-                    Detail = "User not authorized to access the requested course."
-                });
+                return problem;
             }
 
             // A course has a handful of sets, so the optional limit (paging) is ignored.
-            var groupSets = await _context.GetGroupSetsAsync(contextId);
+            var groupSets = await _context.GetGroupSetsAsync(course.Id, request.CancellationToken);
 
             return new ContextGroupSetContainer
             {

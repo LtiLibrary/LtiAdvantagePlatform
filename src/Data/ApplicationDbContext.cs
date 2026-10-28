@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -82,7 +83,7 @@ namespace AdvantagePlatform.Data
         /// </summary>
         /// <param name="id">The course id.</param>
         /// <returns>The course.</returns>
-        public async Task<Course> GetCourseAsync(int id)
+        public async Task<Course> GetCourseAsync(int id, CancellationToken cancellationToken = default)
         {
             return await Courses
                 .Include(c => c.GradebookColumns)
@@ -92,7 +93,7 @@ namespace AdvantagePlatform.Data
                 .Include(c => c.ResourceLinks)
                 .ThenInclude(l => l.Tool)
                 .Include(c => c.LinkedContent)
-                .SingleOrDefaultAsync(c => c.Id == id);
+                .SingleOrDefaultAsync(c => c.Id == id, cancellationToken);
         }
 
         /// <summary>
@@ -111,7 +112,7 @@ namespace AdvantagePlatform.Data
         /// Returns the group sets of a course, with their groups and the groups' members.
         /// </summary>
         /// <param name="courseId">The course id.</param>
-        public async Task<List<CourseGroupSet>> GetGroupSetsAsync(int courseId)
+        public async Task<List<CourseGroupSet>> GetGroupSetsAsync(int courseId, CancellationToken cancellationToken = default)
         {
             return await Courses
                 .Where(c => c.Id == courseId)
@@ -119,7 +120,7 @@ namespace AdvantagePlatform.Data
                 .Include(s => s.Groups)
                 .ThenInclude(g => g.Members)
                 .OrderBy(s => s.Name)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
         }
 
         /// <summary>
@@ -140,11 +141,11 @@ namespace AdvantagePlatform.Data
         /// </summary>
         /// <param name="id">The gradebook column id.</param>
         /// <returns>The gradebook column.</returns>
-        public async Task<GradebookColumn> GetGradebookColumnAsync(int id)
+        public async Task<GradebookColumn> GetGradebookColumnAsync(int id, CancellationToken cancellationToken = default)
         {
             return await GradebookColumns
                 .Include(c => c.Scores)
-                .SingleOrDefaultAsync(c => c.Id == id);
+                .SingleOrDefaultAsync(c => c.Id == id, cancellationToken);
         }
 
         /// <summary>
@@ -176,9 +177,9 @@ namespace AdvantagePlatform.Data
         /// </summary>
         /// <param name="id">The gradebook row id.</param>
         /// <returns>The gradebook row.</returns>
-        public async Task<GradebookRow> GetGradebookRowAsync(int id)
+        public async Task<GradebookRow> GetGradebookRowAsync(int id, CancellationToken cancellationToken = default)
         {
-            return await GradebookRows.FindAsync(id);
+            return await GradebookRows.FindAsync(new object[] { id }, cancellationToken);
         }
 
         /// <summary>
@@ -186,9 +187,9 @@ namespace AdvantagePlatform.Data
         /// </summary>
         /// <param name="id">The person id.</param>
         /// <returns>The person.</returns>
-        public async Task<Person> GetPersonAsync(int id)
+        public async Task<Person> GetPersonAsync(int id, CancellationToken cancellationToken = default)
         {
-            return await People.FindAsync(id);
+            return await People.FindAsync(new object[] { id }, cancellationToken);
         }
 
         /// <summary>
@@ -221,11 +222,11 @@ namespace AdvantagePlatform.Data
         /// </summary>
         /// <param name="id">The resource link id.</param>
         /// <returns>The resource link.</returns>
-        public async Task<ResourceLink> GetResourceLinkAsync(int id)
+        public async Task<ResourceLink> GetResourceLinkAsync(int id, CancellationToken cancellationToken = default)
         {
             return await ResourceLinks
                 .Include(l => l.Tool)
-                .SingleOrDefaultAsync(l => l.Id == id);
+                .SingleOrDefaultAsync(l => l.Id == id, cancellationToken);
         }
                 
         /// <summary>
@@ -258,7 +259,7 @@ namespace AdvantagePlatform.Data
         /// </summary>
         /// <param name="id">The user id.</param>
         /// <returns>The user.</returns>
-        public async Task<AdvantagePlatformUser> GetUserFullAsync(string id)
+        public async Task<AdvantagePlatformUser> GetUserFullAsync(string id, CancellationToken cancellationToken = default)
         {
             if (id == null)
             {
@@ -281,7 +282,7 @@ namespace AdvantagePlatform.Data
                 .Include(u => u.Platform)
                 .ThenInclude(p => p.LinkedContent)
                 .Include(u => u.Tools)
-                .SingleOrDefaultAsync(u => u.Id == id);
+                .SingleOrDefaultAsync(u => u.Id == id, cancellationToken);
         }
 
         /// <summary>
@@ -341,15 +342,15 @@ namespace AdvantagePlatform.Data
         /// </summary>
         /// <param name="id">The course id.</param>
         /// <returns>The user.</returns>
-        public async Task<AdvantagePlatformUser> GetUserByCourseIdAsync(int id)
+        public async Task<AdvantagePlatformUser> GetUserByCourseIdAsync(int id, CancellationToken cancellationToken = default)
         {
             var user = await Users
                 .Include(u => u.Course)
-                .SingleOrDefaultAsync(u => u.Course.Id == id);
+                .SingleOrDefaultAsync(u => u.Course.Id == id, cancellationToken);
 
             if (user != null)
             {
-                return await GetUserFullAsync(user.Id);
+                return await GetUserFullAsync(user.Id, cancellationToken);
             }
 
             return null;

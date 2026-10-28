@@ -359,6 +359,19 @@ The pieces that make this work:
 A real LMS would launch as the signed-in user. This sample lets you pick the
 teacher or the student, so the API returns one launch URL per person.
 
+## When a service call fails
+
+The service endpoints (Assignment and Grade Services, Names and Roles, Course
+Groups, Assessment Control) answer failures with a `ProblemDetails` JSON body:
+404 when the course, line item, score or attempt doesn't exist, 403 when the
+course doesn't belong to the tool whose token is used, and 400 for invalid
+input (for example a score for someone who isn't in the course). Anything
+unexpected is logged and answered with a 500 by the library's controller
+bases, with the exception details only in Development. The overrides pass the
+request's `CancellationToken` to their database queries, so a call the tool
+gave up on stops early. See `Utility/ServiceProblems.cs` and
+`CourseAccessValidator.GetCourseAsync`.
+
 ## How the platform handles tools
 
 Tools are configured under **Tools → Register New Tool**. The sample manages

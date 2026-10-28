@@ -32,21 +32,13 @@ namespace AdvantagePlatform.Controllers
 
         protected override async Task<ActionResult<ContextGroupContainer>> OnGetGroupsAsync(GetGroupsRequest request)
         {
-            if (!int.TryParse(request.ContextId, out var contextId))
+            var (course, problem) = await _courseValidator.GetCourseAsync(request.ContextId, request.CancellationToken);
+            if (problem != null)
             {
-                return NotFound(new ProblemDetails { Title = "Not Found", Detail = "Course not found" });
+                return problem;
             }
 
-            if (!await _courseValidator.UserHasAccess(contextId))
-            {
-                return Unauthorized(new ProblemDetails
-                {
-                    Title = "Not authorized",
-                    Detail = "User not authorized to access the requested course."
-                });
-            }
-
-            var groups = (await _context.GetGroupSetsAsync(contextId))
+            var groups = (await _context.GetGroupSetsAsync(course.Id, request.CancellationToken))
                 .SelectMany(s => s.Groups)
                 .OrderBy(g => g.Name)
                 .AsEnumerable();

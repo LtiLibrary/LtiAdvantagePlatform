@@ -6,10 +6,8 @@ using LtiAdvantage;
 using LtiAdvantage.AspNetCore.AssignmentGradeServices;
 using LtiAdvantage.AssignmentGradeServices;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 
 namespace AdvantagePlatform.Controllers
@@ -41,52 +39,18 @@ namespace AdvantagePlatform.Controllers
         /// <returns></returns>
         protected override async Task<ActionResult<ResultContainer>> OnGetResultsAsync(GetResultsRequest request)
         {
-            if (!int.TryParse(request.ContextId, out var contextId))
+            var (course, problem) = await _courseValidator.GetCourseAsync(request.ContextId, request.CancellationToken);
+            if (problem != null)
             {
-                var name = $"{nameof(request)}.{nameof(request.ContextId)}";
-                ModelState.AddModelError(name, $"The {name} field cannot be converted into a course id.");
+                return problem;
             }
 
-            if (!int.TryParse(request.LineItemId, out var lineItemId))
+            if (!int.TryParse(request.LineItemId, out var lineItemId) || course.GradebookColumns.All(c => c.Id != lineItemId))
             {
-                var name = $"{nameof(request)}.{nameof(request.LineItemId)}";
-                ModelState.AddModelError(name, $"The {name} field cannot be converted into a gradebook column id.");
+                return ServiceProblems.NotFound($"Line item {request.LineItemId} not found.");
             }
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new ValidationProblemDetails(ModelState));
-            }
-                        
-            if (!await _courseValidator.UserHasAccess(contextId))
-            {
-                return Unauthorized(new ProblemDetails
-                {
-                    Title = "Not authorized",
-                    Detail = "User not authorized to access the requested course."
-                });
-            }
-
-            var course = await _context.GetCourseAsync(contextId);
-            if (course == null)
-            {
-                return NotFound(new ProblemDetails
-                {
-                    Title = ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound), 
-                    Detail = "Course not found"
-                });
-            }
-
-            if (course.GradebookColumns.All(c => c.Id != lineItemId))
-            {
-                return NotFound(new ProblemDetails
-                {
-                    Title = ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound), 
-                    Detail = "Gradebook column not found"
-                });
-            }
-
-            var gradebookColumn = await _context.GetGradebookColumnAsync(lineItemId);
+            var gradebookColumn = await _context.GetGradebookColumnAsync(lineItemId, request.CancellationToken);
 
             var results = gradebookColumn.Scores
                 .OrderBy(s => s.TimeStamp)

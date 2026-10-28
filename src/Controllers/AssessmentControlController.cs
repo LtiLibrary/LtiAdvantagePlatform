@@ -40,7 +40,7 @@ namespace AdvantagePlatform.Controllers
             // user.iss is the issuer that identified the candidate: this platform.
             if (control.User.Iss.TrimEnd('/') != Request.GetIssuer().TrimEnd('/'))
             {
-                return BadRequest(new ProblemDetails { Title = "Unknown issuer", Detail = $"user.iss must be {Request.GetIssuer()}." });
+                return ServiceProblems.BadRequest($"user.iss must be {Request.GetIssuer()}.");
             }
 
             // Only the tool that proctors the assessment may control its attempts. Its client
@@ -61,11 +61,8 @@ namespace AdvantagePlatform.Controllers
 
             if (attempt == null)
             {
-                return NotFound(new ProblemDetails
-                {
-                    Title = "Attempt not found",
-                    Detail = "No attempt of this tool's assessment matches resource_link, user and attempt_number."
-                });
+                // Also when the attempt belongs to another tool's assessment: don't reveal it exists.
+                return ServiceProblems.NotFound("No attempt of this tool's assessment matches resource_link, user and attempt_number.");
             }
 
             switch (control.Action)

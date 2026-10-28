@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 
 namespace AdvantagePlatform.Controllers
@@ -46,33 +45,13 @@ namespace AdvantagePlatform.Controllers
             // In this sample app, each registered app user has an associated platform,
             // course, and membership. So look up the user that owns the requested course.
 
-            if (!int.TryParse(request.ContextId, out var contextId))
+            var (course, problem) = await _courseValidator.GetCourseAsync(request.ContextId, request.CancellationToken);
+            if (problem != null)
             {
-                var name = $"{nameof(request)}.{nameof(request.ContextId)}";
-                ModelState.AddModelError(name, $"The {name} field cannot be converted into a course id.");
-                return BadRequest(new ValidationProblemDetails(ModelState));
-            }
-                        
-            if (!await _courseValidator.UserHasAccess(contextId))
-            {
-                return Unauthorized(new ProblemDetails
-                {
-                    Title = "Not authorized",
-                    Detail = "User not authorized to access the requested course."
-                });
+                return problem;
             }
 
-            var course = await _context.GetCourseAsync(contextId);
-            if (course == null)
-            {
-                return NotFound(new ProblemDetails
-                {
-                    Title= ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound), 
-                    Detail = "Course not found"
-                });
-            }
-
-            var user = await _context.GetUserByCourseIdAsync(course.Id);
+            var user = await _context.GetUserByCourseIdAsync(course.Id, request.CancellationToken);
 
             var membership = new MembershipContainer
             {
@@ -100,14 +79,12 @@ namespace AdvantagePlatform.Controllers
 
                 if (request.Rlid.IsPresent())
                 {
-                    if (!int.TryParse(request.Rlid, out var resourceLinkId))
+                    // Every member of the sample course can use every link in it, so the filter
+                    // only checks that the link is in this course.
+                    if (user.Course.ResourceLinks.All(l => l.Id.ToString() != request.Rlid))
                     {
-                        var name = $"{nameof(request)}.{nameof(request.ContextId)}";
-                        ModelState.AddModelError(name, $"The {name} field cannot be converted into a resource linkid id.");
-                        return BadRequest(new ValidationProblemDetails(ModelState));
+                        return ServiceProblems.NotFound($"Resource link {request.Rlid} not found in this course.");
                     }
-
-                    people = people.Where(p => user.Course.ResourceLinks.Any(l => l.Id == resourceLinkId));
                 }
 
                 if (request.Role.HasValue)
@@ -119,7 +96,7 @@ namespace AdvantagePlatform.Controllers
                 // The base class only asks for them when the token has the groups scope.
                 if (request.IncludeGroups)
                 {
-                    var groups = (await _context.GetGroupSetsAsync(contextId)).SelectMany(s => s.Groups).ToList();
+                    var groups = (await _context.GetGroupSetsAsync(course.Id, request.CancellationToken)).SelectMany(s => s.Groups).ToList();
                     people = people.Select(member =>
                     {
                         member.GroupEnrollments = groups

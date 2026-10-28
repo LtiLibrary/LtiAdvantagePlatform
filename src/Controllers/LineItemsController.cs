@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 
 namespace AdvantagePlatform.Controllers
@@ -43,30 +42,10 @@ namespace AdvantagePlatform.Controllers
         /// <returns>The line item corresponding to the new gradebook column.</returns>
         protected override async Task<ActionResult<LineItem>> OnAddLineItemAsync(AddLineItemRequest request)
         {
-            if (!int.TryParse(request.ContextId, out var contextId))
+            var (course, problem) = await _courseValidator.GetCourseAsync(request.ContextId, request.CancellationToken);
+            if (problem != null)
             {
-                var name = $"{nameof(request)}.{nameof(request.ContextId)}";
-                ModelState.AddModelError(name, $"The {name} field cannot be converted into a course id.");
-                return BadRequest(new ValidationProblemDetails(ModelState));
-            }
-            
-            if (!await _courseValidator.UserHasAccess(contextId))
-            {
-                return Unauthorized(new ProblemDetails
-                {
-                    Title = "Not authorized",
-                    Detail = "User not authorized to access the requested course."
-                });
-            }
-
-            var course = await _context.GetCourseAsync(contextId);
-            if (course == null)
-            {
-                return NotFound(new ProblemDetails
-                {
-                    Title= ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound), 
-                    Detail = "Course not found"
-                });
+                return problem;
             }
 
             // Add a gradebook column to the course
@@ -83,19 +62,11 @@ namespace AdvantagePlatform.Controllers
 
             if (request.LineItem.ResourceLinkId.IsPresent())
             {
-                if (!int.TryParse(request.LineItem.ResourceLinkId, out var resourceLinkId))
-                {
-                    var name = $"{nameof(request)}.{nameof(request.LineItem.ResourceLinkId)}";
-                    ModelState.AddModelError(name, $"The {name} field cannot be converted into a resource link id.");
-                    return BadRequest(new ValidationProblemDetails(ModelState));
-                }
-
-                var resourceLink = await _context.GetResourceLinkAsync(resourceLinkId);
+                // The resource link must be one of this course's links.
+                var resourceLink = course.ResourceLinks.SingleOrDefault(l => l.Id.ToString() == request.LineItem.ResourceLinkId);
                 if (resourceLink == null)
                 {
-                    var name = $"{nameof(request)}.{nameof(request.LineItem)}.{request.LineItem.ResourceLinkId}";
-                    ModelState.AddModelError(name, $"The {name} field is not a valid resource link id.");
-                    return BadRequest(new ValidationProblemDetails(ModelState));
+                    return ServiceProblems.BadRequest($"resourceLinkId {request.LineItem.ResourceLinkId} is not a link in this course.");
                 }
 
                 gradebookColumn.ResourceLink = resourceLink;
@@ -103,7 +74,7 @@ namespace AdvantagePlatform.Controllers
 
             course.GradebookColumns.Add(gradebookColumn);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(request.CancellationToken);
 
             request.LineItem.Id = Url.Link(LtiAdvantage.Constants.ServiceEndpoints.Ags.LineItemService,
                 new {contextId = request.ContextId, lineItemId = gradebookColumn.Id});
@@ -117,56 +88,22 @@ namespace AdvantagePlatform.Controllers
         /// </summary>
         protected override async Task<ActionResult> OnDeleteLineItemAsync(DeleteLineItemRequest request)
         {
-            if (!int.TryParse(request.ContextId, out var contextId))
+            var (course, problem) = await _courseValidator.GetCourseAsync(request.ContextId, request.CancellationToken);
+            if (problem != null)
             {
-                var name = $"{nameof(request)}.{nameof(request.ContextId)}";
-                ModelState.AddModelError(name, $"The {name} field cannot be converted into a course id.");
+                return problem;
             }
 
-            if (!int.TryParse(request.LineItemId, out var lineItemId))
+            if (!int.TryParse(request.LineItemId, out var lineItemId) || course.GradebookColumns.All(c => c.Id != lineItemId))
             {
-                var name = $"{nameof(request)}.{nameof(request.LineItemId)}";
-                ModelState.AddModelError(name, $"The {name} field cannot be converted into a gradebook column id.");
+                return ServiceProblems.NotFound($"Line item {request.LineItemId} not found.");
             }
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new ValidationProblemDetails(ModelState));
-            }
-            
-            if (!await _courseValidator.UserHasAccess(contextId))
-            {
-                return Unauthorized(new ProblemDetails
-                {
-                    Title = "Not authorized",
-                    Detail = "User not authorized to access the requested course."
-                });
-            }
+            var gradebookColumn = await _context.GetGradebookColumnAsync(lineItemId, request.CancellationToken);
+            _context.GradebookColumns.Remove(gradebookColumn);
+            await _context.SaveChangesAsync(request.CancellationToken);
 
-            var course = await _context.GetCourseAsync(contextId);
-            if (course == null)
-            {
-                return NotFound(new ProblemDetails
-                {
-                    Title= ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound), 
-                    Detail = "Course not found"
-                });
-            }
-
-            if (course.GradebookColumns.Any(c => c.Id == lineItemId))
-            {
-                var gradebookColumn = await _context.GetGradebookColumnAsync(lineItemId);
-                _context.GradebookColumns.Remove(gradebookColumn);
-                await _context.SaveChangesAsync();
-
-                return NoContent();
-            }
-
-            return NotFound(new ProblemDetails
-            {
-                Title = ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound), 
-                Detail = "Gradebook column not found"
-            });
+            return NoContent();
         }
 
         /// <inheritdoc />
@@ -176,51 +113,18 @@ namespace AdvantagePlatform.Controllers
         /// <returns>The line item corresponding to the gradebook column.</returns>
         protected override async Task<ActionResult<LineItem>> OnGetLineItemAsync(GetLineItemRequest request)
         {
-            if (!int.TryParse(request.ContextId, out var contextId))
+            var (course, problem) = await _courseValidator.GetCourseAsync(request.ContextId, request.CancellationToken);
+            if (problem != null)
             {
-                var name = $"{nameof(request)}.{nameof(request.ContextId)}";
-                ModelState.AddModelError(name, $"The {name} field cannot be converted into a course id.");
+                return problem;
             }
 
-            if (!int.TryParse(request.LineItemId, out var lineItemId))
+            if (!int.TryParse(request.LineItemId, out var lineItemId) || course.GradebookColumns.All(c => c.Id != lineItemId))
             {
-                var name = $"{nameof(request)}.{nameof(request.LineItemId)}";
-                ModelState.AddModelError(name, $"The {name} field cannot be converted into a gradebook column id.");
+                return ServiceProblems.NotFound($"Line item {request.LineItemId} not found.");
             }
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new ValidationProblemDetails(ModelState));
-            }
-            
-            if (!await _courseValidator.UserHasAccess(contextId))
-            {
-                return Unauthorized(new ProblemDetails
-                {
-                    Title = "Not authorized",
-                    Detail = "User not authorized to access the requested course."
-                });
-            }
-
-            var course = await _context.GetCourseAsync(contextId);
-            if (course == null)
-            {
-                return NotFound(new ProblemDetails
-                {
-                    Title = ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound), 
-                    Detail = "Course not found"
-                });
-            }
-
-            var gradebookColumn = course.GradebookColumns.SingleOrDefault(c => c.Id == lineItemId);
-            if (gradebookColumn == null)
-            {
-                return NotFound(new ProblemDetails
-                {
-                    Title = ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound), 
-                    Detail = "Gradebook column not found"
-                });
-            }
+            var gradebookColumn = course.GradebookColumns.Single(c => c.Id == lineItemId);
 
             return new LineItem
             {
@@ -243,30 +147,10 @@ namespace AdvantagePlatform.Controllers
         /// <returns>Line items corresponding to the gradebook columns.</returns>
         protected override async Task<ActionResult<LineItemContainer>> OnGetLineItemsAsync(GetLineItemsRequest request)
         {
-            if (!int.TryParse(request.ContextId, out var contextId))
+            var (course, problem) = await _courseValidator.GetCourseAsync(request.ContextId, request.CancellationToken);
+            if (problem != null)
             {
-                var name = $"{nameof(request)}.{nameof(request.ContextId)}";
-                ModelState.AddModelError(name, $"The {name} field cannot be converted into a course id.");
-                return BadRequest(new ValidationProblemDetails(ModelState));
-            }
-            
-            if (!await _courseValidator.UserHasAccess(contextId))
-            {
-                return Unauthorized(new ProblemDetails
-                {
-                    Title = "Not authorized",
-                    Detail = "User not authorized to access the requested course."
-                });
-            }
-
-            var course = await _context.GetCourseAsync(contextId);
-            if (course == null)
-            {
-                return NotFound(new ProblemDetails
-                {
-                    Title= ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound), 
-                    Detail = "Course not found"
-                });
+                return problem;
             }
 
             var lineitems = new List<LineItem>();
@@ -311,52 +195,18 @@ namespace AdvantagePlatform.Controllers
         /// </summary>
         protected override async Task<ActionResult> OnUpdateLineItemAsync(UpdateLineItemRequest request)
         {
-            if (!int.TryParse(request.ContextId, out var contextId))
+            var (course, problem) = await _courseValidator.GetCourseAsync(request.ContextId, request.CancellationToken);
+            if (problem != null)
             {
-                var name = $"{nameof(request)}.{nameof(request.ContextId)}";
-                ModelState.AddModelError(name, $"The {name} field cannot be converted into a course id.");
+                return problem;
             }
 
-            if (!int.TryParse(request.LineItemId, out var lineItemId))
+            if (!int.TryParse(request.LineItemId, out var lineItemId) || course.GradebookColumns.All(c => c.Id != lineItemId))
             {
-                var name = $"{nameof(request)}.{nameof(request.LineItemId)}";
-                ModelState.AddModelError(name, $"The {name} field cannot be converted into a gradebook column id.");
+                return ServiceProblems.NotFound($"Line item {request.LineItemId} not found.");
             }
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new ValidationProblemDetails(ModelState));
-            }
-                        
-            if (!await _courseValidator.UserHasAccess(contextId))
-            {
-                return Unauthorized(new ProblemDetails
-                {
-                    Title = "Not authorized",
-                    Detail = "User not authorized to access the requested course."
-                });
-            }
-
-            var course = await _context.GetCourseAsync(contextId);
-            if (course == null)
-            {
-                return NotFound(new ProblemDetails
-                {
-                    Title= ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound), 
-                    Detail = "Course not found"
-                });
-            }
-
-            if (course.GradebookColumns.All(c => c.Id != lineItemId))
-            {
-                return NotFound(new ProblemDetails
-                {
-                    Title= ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound), 
-                    Detail = "Gradebook column not found"
-                });
-            }
-
-            var gradebookColumn = await _context.GetGradebookColumnAsync(lineItemId);
+            var gradebookColumn = await _context.GetGradebookColumnAsync(lineItemId, request.CancellationToken);
             gradebookColumn.EndDateTime = request.LineItem.EndDateTime;
             gradebookColumn.Label = request.LineItem.Label;
             gradebookColumn.ResourceId = request.LineItem.ResourceId;
@@ -366,19 +216,11 @@ namespace AdvantagePlatform.Controllers
             gradebookColumn.SetSubmissionReview(request.LineItem.SubmissionReviewExtension);
             if (request.LineItem.ResourceLinkId.IsPresent())
             {
-                if (!int.TryParse(request.LineItem.ResourceLinkId, out var resourceLinkId))
-                {
-                    var name = $"{nameof(request)}.{nameof(request.LineItem)}.{request.LineItem.ResourceLinkId}";
-                    ModelState.AddModelError(name, $"The {name} field cannot be converted into a valid resource link id.");
-                    return BadRequest(new ValidationProblemDetails(ModelState));
-                }
-
-                var resourceLink = await _context.GetResourceLinkAsync(resourceLinkId);
+                // The resource link must be one of this course's links.
+                var resourceLink = course.ResourceLinks.SingleOrDefault(l => l.Id.ToString() == request.LineItem.ResourceLinkId);
                 if (resourceLink == null)
                 {
-                    var name = $"{nameof(request)}.{nameof(request.LineItem)}.{request.LineItem.ResourceLinkId}";
-                    ModelState.AddModelError(name, $"The {name} field is not a valid resource link id.");
-                    return BadRequest(new ValidationProblemDetails(ModelState));
+                    return ServiceProblems.BadRequest($"resourceLinkId {request.LineItem.ResourceLinkId} is not a link in this course.");
                 }
 
                 gradebookColumn.ResourceLink = resourceLink;
@@ -390,7 +232,7 @@ namespace AdvantagePlatform.Controllers
 
             _context.GradebookColumns.Update(gradebookColumn);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(request.CancellationToken);
 
             return NoContent();
         }

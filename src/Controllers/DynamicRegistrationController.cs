@@ -65,7 +65,7 @@ namespace AdvantagePlatform.Controllers
             }
 
             _registration = await _context.ToolRegistrations
-                .SingleOrDefaultAsync(r => r.Token == registrationToken);
+                .SingleOrDefaultAsync(r => r.Token == registrationToken, HttpContext.RequestAborted);
 
             if (_registration == null
                 || _registration.ToolId != null
@@ -113,7 +113,7 @@ namespace AdvantagePlatform.Controllers
 
             await _toolClientManager.CreateAsync(tool.ClientId, tool.Name, tool.GetAllRedirectUris(), keySet);
 
-            var user = await _context.GetUserLightAsync(_registration.UserId);
+            var user = await _context.GetUserFullAsync(_registration.UserId, request.CancellationToken);
             user.Tools.Add(tool);
             await _context.SaveChangesAsync(request.CancellationToken);
 

@@ -1,8 +1,10 @@
 using System.Linq;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OpenIddict.Abstractions;
@@ -25,7 +27,30 @@ namespace AdvantagePlatform.Utility
             _logger = logger;
         }
 
-        public async Task<bool> UserHasAccess(int courseId)
+        /// <summary>
+        /// Loads the course a service request is about. Returns a problem instead when the
+        /// context id is not a course (404) or the course belongs to someone else (403).
+        /// </summary>
+        public async Task<(Course Course, ActionResult Problem)> GetCourseAsync(
+            string contextId, CancellationToken cancellationToken)
+        {
+            var course = int.TryParse(contextId, out var courseId)
+                ? await _context.GetCourseAsync(courseId, cancellationToken)
+                : null;
+            if (course == null)
+            {
+                return (null, ServiceProblems.NotFound($"Course {contextId} not found."));
+            }
+
+            if (!await UserHasAccess(courseId, cancellationToken))
+            {
+                return (null, ServiceProblems.Forbidden());
+            }
+
+            return (course, null);
+        }
+
+        public async Task<bool> UserHasAccess(int courseId, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Validating access to course {CourseId}.", courseId);
             var httpContext = _httpContext.HttpContext;
@@ -40,7 +65,7 @@ namespace AdvantagePlatform.Utility
             var userId = _context.GetUserId(httpContext.User);
             if (userId != null)
             {
-                if (await _context.Users.AnyAsync(u => u.Id == userId && u.Course.Id == courseId))
+                if (await _context.Users.AnyAsync(u => u.Id == userId && u.Course.Id == courseId, cancellationToken))
                 {
                     return true;
                 }
@@ -54,7 +79,7 @@ namespace AdvantagePlatform.Utility
             {
                 return await _context.Users
                     .AnyAsync(u => u.Course.Id == courseId
-                                   && u.Tools.Any(t => t.ClientId == clientId));
+                                   && u.Tools.Any(t => t.ClientId == clientId), cancellationToken);
             }
 
             _logger.LogError("ClaimsPrincipal not recognized.");
