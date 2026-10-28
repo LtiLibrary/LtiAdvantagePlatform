@@ -59,6 +59,18 @@ namespace AdvantagePlatform.Data
         public string Tag { get; set; }
 
         /// <summary>
+        /// AGS 2.0 gradesReleased: whether learners may see this column's grades. Null means the
+        /// tool did not say; this platform then shows them. The tool sets it on the line item,
+        /// and the instructor can change it in the gradebook.
+        /// </summary>
+        public bool? GradesReleased { get; set; }
+
+        /// <summary>
+        /// Whether learners see this column's grades.
+        /// </summary>
+        public bool ReleasedToLearners => GradesReleased ?? true;
+
+        /// <summary>
         /// Submission Review: label of the "view submission" action. The tool sets the
         /// submissionReview property on the line item to say it can show a submission
         /// (https://www.imsglobal.org/spec/lti-sr/v1p0#line-item-submission-review-property).

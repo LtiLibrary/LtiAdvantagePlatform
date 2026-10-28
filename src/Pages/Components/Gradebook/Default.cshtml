@@ -12,7 +12,27 @@
                         <th scope="col" class="border-left-0 border-top-0"></th>
                         @foreach (var column in Model.Columns.OrderBy(c => c.Header))
                         {
-                            <th scope="col" class="text-center">@column.Header</th>
+                            <th scope="col" class="text-center">
+                                @column.Header
+                                @* AGS 2.0 gradesReleased: set by the tool, and changeable here. *@
+                                <form method="post" asp-page="/Index" asp-page-handler="SetGradesReleased" asp-route-id="@column.Column.Id" class="d-block">
+                                    @if (column.Column.ReleasedToLearners)
+                                    {
+                                        <small class="text-success" data-toggle="tooltip"
+                                               title="@(column.Column.GradesReleased == null ? "The tool did not set gradesReleased; this platform shows the grades" : "gradesReleased: true")">
+                                            <i class="fas fa-eye"></i> released@(column.Column.GradesReleased == null ? " (default)" : "")
+                                        </small>
+                                        <button type="submit" name="released" value="false" class="btn btn-link btn-sm p-0 ml-1">hide</button>
+                                    }
+                                    else
+                                    {
+                                        <small class="text-muted" data-toggle="tooltip" title="gradesReleased: false">
+                                            <i class="fas fa-eye-slash"></i> hidden from learners
+                                        </small>
+                                        <button type="submit" name="released" value="true" class="btn btn-link btn-sm p-0 ml-1">release</button>
+                                    }
+                                </form>
+                            </th>
                         }
                     </tr>
                     </thead>

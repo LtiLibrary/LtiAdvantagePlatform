@@ -56,7 +56,8 @@ namespace AdvantagePlatform.Controllers
                 ResourceId = request.LineItem.ResourceId,
                 ScoreMaximum = request.LineItem.ScoreMaximum,
                 StartDateTime = request.LineItem.StartDateTime,
-                Tag = request.LineItem.Tag
+                Tag = request.LineItem.Tag,
+                GradesReleased = request.LineItem.GradesReleased
             };
             gradebookColumn.SetSubmissionReview(request.LineItem.SubmissionReviewExtension);
 
@@ -126,18 +127,7 @@ namespace AdvantagePlatform.Controllers
 
             var gradebookColumn = course.GradebookColumns.Single(c => c.Id == lineItemId);
 
-            return new LineItem
-            {
-                Id = Request.GetDisplayUrl(),
-                EndDateTime = gradebookColumn.EndDateTime,
-                Label = gradebookColumn.Label,
-                ResourceId = gradebookColumn.ResourceId,
-                ResourceLinkId = gradebookColumn.ResourceLink?.Id.ToString(),
-                ScoreMaximum = gradebookColumn.ScoreMaximum,
-                StartDateTime = gradebookColumn.StartDateTime,
-                SubmissionReviewExtension = gradebookColumn.GetSubmissionReview(),
-                Tag = gradebookColumn.Tag
-            };
+            return ToLineItem(gradebookColumn, Request.GetDisplayUrl());
         }
 
         /// <inheritdoc />
@@ -156,19 +146,9 @@ namespace AdvantagePlatform.Controllers
             var lineitems = new List<LineItem>();
             foreach (var gradebookColumn in course.GradebookColumns)
             {
-                lineitems.Add(new LineItem
-                {
-                    Id = Url.Link(LtiAdvantage.Constants.ServiceEndpoints.Ags.LineItemService,
-                        new {contextId = request.ContextId, lineItemId = gradebookColumn.Id}),
-                    EndDateTime = gradebookColumn.EndDateTime,
-                    Label = gradebookColumn.Label,
-                    ResourceId = gradebookColumn.ResourceId,
-                    ResourceLinkId = gradebookColumn.ResourceLink?.Id.ToString(),
-                    ScoreMaximum = gradebookColumn.ScoreMaximum,
-                    StartDateTime = gradebookColumn.StartDateTime,
-                    SubmissionReviewExtension = gradebookColumn.GetSubmissionReview(),
-                    Tag = gradebookColumn.Tag
-                });
+                lineitems.Add(ToLineItem(gradebookColumn,
+                    Url.Link(LtiAdvantage.Constants.ServiceEndpoints.Ags.LineItemService,
+                        new {contextId = request.ContextId, lineItemId = gradebookColumn.Id})));
             }
 
             if (request.ResourceId.IsPresent())
@@ -213,6 +193,8 @@ namespace AdvantagePlatform.Controllers
             gradebookColumn.ScoreMaximum = request.LineItem.ScoreMaximum;
             gradebookColumn.StartDateTime = request.LineItem.StartDateTime;
             gradebookColumn.Tag = request.LineItem.Tag;
+            // PUT replaces the line item, so a missing gradesReleased goes back to "not set".
+            gradebookColumn.GradesReleased = request.LineItem.GradesReleased;
             gradebookColumn.SetSubmissionReview(request.LineItem.SubmissionReviewExtension);
             if (request.LineItem.ResourceLinkId.IsPresent())
             {
@@ -236,5 +218,19 @@ namespace AdvantagePlatform.Controllers
 
             return NoContent();
         }
+
+        private static LineItem ToLineItem(GradebookColumn gradebookColumn, string id) => new LineItem
+        {
+            Id = id,
+            EndDateTime = gradebookColumn.EndDateTime,
+            GradesReleased = gradebookColumn.GradesReleased,
+            Label = gradebookColumn.Label,
+            ResourceId = gradebookColumn.ResourceId,
+            ResourceLinkId = gradebookColumn.ResourceLink?.Id.ToString(),
+            ScoreMaximum = gradebookColumn.ScoreMaximum,
+            StartDateTime = gradebookColumn.StartDateTime,
+            SubmissionReviewExtension = gradebookColumn.GetSubmissionReview(),
+            Tag = gradebookColumn.Tag
+        };
     }
 }
