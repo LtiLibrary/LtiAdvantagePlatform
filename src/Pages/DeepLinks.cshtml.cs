@@ -3,11 +3,13 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
 using AdvantagePlatform.Data;
+using AdvantagePlatform.Spa;
 using AdvantagePlatform.Utility;
 using LtiAdvantage;
 using LtiAdvantage.DeepLinking;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -22,11 +24,26 @@ namespace AdvantagePlatform.Pages
 
         public DeepLinksModel(
             ApplicationDbContext context,
+            IConfiguration configuration,
             ILogger<DeepLinksModel> logger)
         {
             _context = context;
             _logger = logger;
+
+            // The page tells the window that opened the deep linking flow (the Razor home page or
+            // the React app) that it is done. Only these origins may receive that message.
+            MessageTargetOrigins = configuration.GetSpaOrigins();
         }
+
+        /// <summary>
+        /// Number of LTI links the tool sent back and the platform saved.
+        /// </summary>
+        public int AddedCount { get; private set; }
+
+        /// <summary>
+        /// Extra origins (besides this platform's own) that may receive the "done" message.
+        /// </summary>
+        public string[] MessageTargetOrigins { get; }
 
         [BindProperty(Name = "id_token")]
         public string IdToken { get; set; }
@@ -117,6 +134,8 @@ namespace AdvantagePlatform.Pages
                             Tag = ltiLink.LineItem?.Tag.IfMissingThen("Deep Link")
                         });
                     }
+
+                    AddedCount++;
                 }
 
                 await _context.SaveChangesAsync();

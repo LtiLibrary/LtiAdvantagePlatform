@@ -272,3 +272,7 @@ __pycache__/
 # Identity Server 4 Developer Signing Key
 
 tempkey.rsa
+
+# React app (src/ClientApp): dependencies and build output
+node_modules/
+src/wwwroot/app/
