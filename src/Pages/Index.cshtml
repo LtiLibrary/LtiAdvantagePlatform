@@ -28,8 +28,8 @@
                 <h4>Welcome!</h4>
                 <p>
                     On the right is a diagram of your personal instance of an LTI Advantage
-                    test platform, which includes a course and two people (one teacher and
-                    one student). After you register your tool and create a resource link,
+                    test platform, which includes a course and three people (one teacher and
+                    two students), who are also in course groups. After you register your tool and create a resource link,
                     you can launch your tool as either the student or teacher.
                 </p>
                 <h4>Getting Started</h4>
@@ -171,6 +171,19 @@
                                                                 </div>
                                                             }
                                                         </div>
+                                                        @if (Model.GroupSets.Any())
+                                                        {
+                                                            @* Served to tools by the Course Groups service (Controllers/GroupsController.cs). *@
+                                                            <h6>Groups</h6>
+                                                            @foreach (var set in Model.GroupSets)
+                                                            {
+                                                                <div>
+                                                                    <strong>@set.Name:</strong>
+                                                                    @string.Join("; ", set.Groups.OrderBy(g => g.Name).Select(g =>
+                                                                        $"{g.Name} ({string.Join(", ", g.Members.Select(m => m.FirstName))})"))
+                                                                </div>
+                                                            }
+                                                        }
                                                     </div>
                                                 </div>
                                             </div>

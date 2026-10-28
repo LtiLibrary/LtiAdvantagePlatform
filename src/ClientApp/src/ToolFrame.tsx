@@ -10,10 +10,17 @@ export interface ToolLaunch {
   deepLinking: boolean;
 }
 
+/** What /DeepLinks posts when the tool is done: msg and errormsg come from the tool. */
+export interface DeepLinkingResult {
+  added: number;
+  msg?: string | null;
+  errormsg?: string | null;
+}
+
 interface Props {
   launch: ToolLaunch;
   onClose: () => void;
-  onDeepLinkingComplete: (added: number) => void;
+  onDeepLinkingComplete: (result: DeepLinkingResult) => void;
 }
 
 /**
@@ -34,7 +41,11 @@ export function ToolFrame({ launch, onClose, onDeepLinkingComplete }: Props) {
       // Ignore messages from the tool or anyone else: only the platform's /DeepLinks page counts.
       if (!platformOrigins.includes(event.origin)) return;
       if (event.data?.type !== "lti-deep-linking-complete") return;
-      onDeepLinkingComplete(Number(event.data.added) || 0);
+      onDeepLinkingComplete({
+        added: Number(event.data.added) || 0,
+        msg: event.data.msg,
+        errormsg: event.data.errormsg,
+      });
     }
 
     window.addEventListener("message", onMessage);

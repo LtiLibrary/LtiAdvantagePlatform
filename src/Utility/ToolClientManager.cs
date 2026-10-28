@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
@@ -24,10 +25,10 @@ namespace AdvantagePlatform.Utility
             return await _applicationManager.FindByClientIdAsync(clientId) is not null;
         }
 
-        public async Task CreateAsync(string clientId, string displayName, string launchUrl, string publicKey)
+        public async Task CreateAsync(string clientId, string displayName, IEnumerable<string> redirectUris, JsonWebKeySet keySet)
         {
             var descriptor = new OpenIddictApplicationDescriptor { ClientId = clientId };
-            ApplyToolSettings(descriptor, displayName, launchUrl, publicKey);
+            ApplyToolSettings(descriptor, displayName, redirectUris, keySet);
             await _applicationManager.CreateAsync(descriptor);
         }
 
@@ -35,18 +36,18 @@ namespace AdvantagePlatform.Utility
         /// Brings the tool's OpenIddict application in line with the tool settings,
         /// creating it if it does not exist yet.
         /// </summary>
-        public async Task UpdateAsync(string clientId, string displayName, string launchUrl, string publicKey)
+        public async Task UpdateAsync(string clientId, string displayName, IEnumerable<string> redirectUris, JsonWebKeySet keySet)
         {
             var application = await _applicationManager.FindByClientIdAsync(clientId);
             if (application == null)
             {
-                await CreateAsync(clientId, displayName, launchUrl, publicKey);
+                await CreateAsync(clientId, displayName, redirectUris, keySet);
                 return;
             }
 
             var descriptor = new OpenIddictApplicationDescriptor();
             await _applicationManager.PopulateAsync(descriptor, application);
-            ApplyToolSettings(descriptor, displayName, launchUrl, publicKey);
+            ApplyToolSettings(descriptor, displayName, redirectUris, keySet);
             await _applicationManager.UpdateAsync(application, descriptor);
         }
 
@@ -61,28 +62,23 @@ namespace AdvantagePlatform.Utility
         private static void ApplyToolSettings(
             OpenIddictApplicationDescriptor descriptor,
             string displayName,
-            string launchUrl,
-            string publicKey)
+            IEnumerable<string> redirectUris,
+            JsonWebKeySet keySet)
         {
             descriptor.DisplayName = displayName;
 
             // LTI tools authenticate to the token endpoint with a JWT signed by their
             // private key (private_key_jwt), so they are confidential clients whose
             // credential is their public key rather than a client secret.
+            // (ToolSigningKeys builds the key set from the tool's JWKS URL or PEM key.)
             descriptor.ClientType = OpenIddictConstants.ClientTypes.Confidential;
             descriptor.ConsentType = OpenIddictConstants.ConsentTypes.Implicit;
-            descriptor.JsonWebKeySet = null;
-            var key = PemKeys.ParseRsaPublicKey(publicKey);
-            if (key != null)
-            {
-                descriptor.JsonWebKeySet = new JsonWebKeySet();
-                descriptor.JsonWebKeySet.Keys.Add(JsonWebKeyConverter.ConvertFromRSASecurityKey(key));
-            }
+            descriptor.JsonWebKeySet = keySet;
 
             descriptor.RedirectUris.Clear();
-            if (!string.IsNullOrWhiteSpace(launchUrl))
+            foreach (var redirectUri in redirectUris.Where(u => !string.IsNullOrWhiteSpace(u)).Distinct())
             {
-                descriptor.RedirectUris.Add(new Uri(launchUrl));
+                descriptor.RedirectUris.Add(new Uri(redirectUri));
             }
 
             descriptor.Permissions.Clear();
@@ -100,6 +96,38 @@ namespace AdvantagePlatform.Utility
             foreach (var scope in Config.LtiScopes)
             {
                 descriptor.Permissions.Add(OpenIddictConstants.Permissions.Prefixes.Scope + scope);
+            }
+        }
+
+        /// <summary>
+        /// Gives clients created before a scope was added to <see cref="Config.LtiScopes"/>
+        /// (for example the Course Groups scope) permission to request it too.
+        /// </summary>
+        public async Task EnsureScopePermissionsAsync()
+        {
+            var required = Config.LtiScopes
+                .Select(scope => OpenIddictConstants.Permissions.Prefixes.Scope + scope)
+                .ToList();
+
+            var applications = new List<object>();
+            await foreach (var application in _applicationManager.ListAsync())
+            {
+                applications.Add(application);
+            }
+
+            foreach (var application in applications)
+            {
+                var descriptor = new OpenIddictApplicationDescriptor();
+                await _applicationManager.PopulateAsync(descriptor, application);
+
+                // Only clients that already use LTI scopes: the tools and Swagger UI.
+                if (!descriptor.Permissions.Overlaps(required) || descriptor.Permissions.IsSupersetOf(required))
+                {
+                    continue;
+                }
+
+                descriptor.Permissions.UnionWith(required);
+                await _applicationManager.UpdateAsync(application, descriptor);
             }
         }
 

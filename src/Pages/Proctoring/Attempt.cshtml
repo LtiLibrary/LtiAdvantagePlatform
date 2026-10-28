@@ -1,0 +1,99 @@
+@page "{id:int}"
+@using LtiAdvantage.Proctoring
+@model AdvantagePlatform.Pages.Proctoring.AttemptModel
+@{
+    ViewData["Title"] = "Proctored assessment";
+    var attempt = Model.Attempt;
+}
+
+<div class="container-fluid">
+    <h4>@attempt.ResourceLink.Title <small class="text-muted">proctored by @attempt.ResourceLink.Tool.Name</small></h4>
+    <p>
+        Attempt @attempt.AttemptNumber by @Model.Candidate?.FirstName @Model.Candidate?.LastName.
+        Status: <strong id="status">@attempt.Status.ToString().ToLowerInvariant()</strong>
+        @if (attempt.ExtraTime > 0)
+        {
+            <span>· @attempt.ExtraTime extra minute(s)</span>
+        }
+        @if (!string.IsNullOrWhiteSpace(attempt.VerifiedUserName))
+        {
+            <span>· identity verified by the proctoring tool as @attempt.VerifiedUserName</span>
+        }
+    </p>
+
+    <div class="card mb-3" style="max-width: 40em">
+        <div class="card-body">
+            @switch (attempt.Status)
+            {
+                case AssessmentControlStatus.Running:
+                    <p>Question 1: What does LTI stand for?</p>
+                    <form method="post" asp-page-handler="Finish" asp-route-id="@attempt.Id">
+                        <input class="form-control mb-2" placeholder="Your answer" />
+                        <button type="submit" class="btn btn-secondary">Finish assessment</button>
+                    </form>
+                    break;
+                case AssessmentControlStatus.Paused:
+                    <p>The proctoring tool paused the assessment. Wait until it resumes.</p>
+                    break;
+                case AssessmentControlStatus.Terminated:
+                    <p>The proctoring tool ended the assessment.</p>
+                    break;
+                case AssessmentControlStatus.Complete:
+                    <p>You finished the assessment.</p>
+                    break;
+                default:
+                    <p>Waiting for the proctoring tool to start the assessment.</p>
+                    break;
+            }
+        </div>
+    </div>
+
+    <h5>Assessment Control actions from the proctoring tool</h5>
+    @if (!attempt.Events.Any())
+    {
+        <p>None yet.</p>
+    }
+    else
+    {
+        <table class="table table-sm" style="max-width: 60em">
+            <thead>
+            <tr><th>Received</th><th>Action</th><th>Severity</th><th>Extra time</th><th>Reason</th><th>Status after</th></tr>
+            </thead>
+            <tbody>
+            @foreach (var e in attempt.Events.OrderBy(e => e.ReceivedAt))
+            {
+                <tr>
+                    <td>@e.ReceivedAt.ToLocalTime().ToString("T")</td>
+                    <td>@e.Action.ToString().ToLowerInvariant()</td>
+                    <td>@e.IncidentSeverity</td>
+                    <td>@e.ExtraTime</td>
+                    <td>@e.ReasonCode @e.ReasonMessage</td>
+                    <td>@e.ResultingStatus.ToString().ToLowerInvariant()</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+
+    <a href="/">Back to the home page</a>
+</div>
+
+@section Scripts {
+    <script>
+        // Reload when the proctoring tool changes the attempt through Assessment Control.
+        (function () {
+            var url = '@Url.Page("Attempt", "Status", new { id = attempt.Id })';
+            var last = null;
+            setInterval(function () {
+                fetch(url, { credentials: 'same-origin' })
+                    .then(function (r) { return r.json(); })
+                    .then(function (s) {
+                        var key = s.status + '/' + s.events;
+                        if (last !== null && key !== last) window.location.reload();
+                        last = key;
+                    })
+                    .catch(function () { });
+            }, 3000);
+        })();
+    </script>
+}

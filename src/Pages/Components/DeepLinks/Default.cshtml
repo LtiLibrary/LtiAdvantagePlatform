@@ -57,15 +57,32 @@
                 });
         });
 
-        // /DeepLinks posts this message when the tool has returned its links.
+        // /DeepLinks posts this message when the tool has returned its content items.
         // Both the platform and course components render this script, so register once.
         if (!window.ltiDeepLinkingListener) {
             window.ltiDeepLinkingListener = true;
             window.addEventListener('message', function (event) {
                 if (event.origin === window.location.origin
                     && event.data && event.data.type === 'lti-deep-linking-complete') {
+                    // Keep the tool's msg / errormsg across the reload, then show them below.
+                    try { sessionStorage.setItem('ltiDeepLinkingComplete', JSON.stringify(event.data)); } catch (e) { }
                     window.location.reload();
                 }
+            });
+
+            $(function () {
+                var stored = null;
+                try {
+                    stored = JSON.parse(sessionStorage.getItem('ltiDeepLinkingComplete'));
+                    sessionStorage.removeItem('ltiDeepLinkingComplete');
+                } catch (e) { }
+                if (!stored) return;
+
+                var notice = $('<div class="alert alert-dismissible" role="status"></div>')
+                    .addClass(stored.errormsg ? 'alert-danger' : 'alert-success')
+                    .text('Added ' + (stored.added || 0) + ' item(s). ' + (stored.msg || '') + ' ' + (stored.errormsg || ''))
+                    .append('<button type="button" class="close" data-dismiss="alert">&times;</button>');
+                $('main, .container-fluid').first().prepend(notice);
             });
         }
     </script>

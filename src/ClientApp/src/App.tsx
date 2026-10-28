@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { Context, getHome, Home, NotSignedInError } from "./api";
-import { ToolFrame, ToolLaunch } from "./ToolFrame";
+import { DeepLinkingResult, ToolFrame, ToolLaunch } from "./ToolFrame";
 
 export function App() {
   const [home, setHome] = useState<Home>();
   const [error, setError] = useState<Error>();
   const [personId, setPersonId] = useState<number>();
   const [launch, setLaunch] = useState<ToolLaunch>();
-  const [notice, setNotice] = useState<string>();
+  const [notice, setNotice] = useState<{ text: string; error: boolean }>();
 
   const load = useCallback(() => {
     getHome()
@@ -21,9 +21,11 @@ export function App() {
   useEffect(load, [load]);
 
   const onDeepLinkingComplete = useCallback(
-    (added: number) => {
+    ({ added, msg, errormsg }: DeepLinkingResult) => {
       setLaunch(undefined);
-      setNotice(`Added ${added} link${added === 1 ? "" : "s"}.`);
+      // Show the tool's own msg / errormsg next to the count (Deep Linking 2.0 response).
+      const text = [`Added ${added} item${added === 1 ? "" : "s"}.`, msg, errormsg].filter(Boolean).join(" ");
+      setNotice({ text, error: !!errormsg });
       load();
     },
     [load],
@@ -63,8 +65,8 @@ export function App() {
       </label>
 
       {notice && (
-        <p className="notice" role="status">
-          {notice} <button onClick={() => setNotice(undefined)}>Dismiss</button>
+        <p className={notice.error ? "notice error" : "notice"} role="status">
+          {notice.text} <button onClick={() => setNotice(undefined)}>Dismiss</button>
         </p>
       )}
 
@@ -107,7 +109,7 @@ function ContextSection({ heading, context, personId, personName, onLaunch }: Se
     <section>
       <h2>{heading}</h2>
 
-      {context.links.length === 0 ? (
+      {context.links.length === 0 && context.content.length === 0 ? (
         <p className="muted">No links yet.</p>
       ) : (
         <ul className="links">
@@ -121,16 +123,48 @@ function ContextSection({ heading, context, personId, personName, onLaunch }: Se
                 </div>
               </div>
               <button
-                onClick={() =>
+                onClick={() => {
+                  // Honour the presentation target the tool chose with Deep Linking.
+                  if (link.documentTarget === "window" && !link.proctored) {
+                    window.open(link.launchUrls[personId], "_blank", "noopener");
+                    return;
+                  }
                   onLaunch({
                     title: `${link.title} (as ${personName})`,
                     url: link.launchUrls[personId],
                     deepLinking: false,
-                  })
-                }
+                  });
+                }}
               >
-                Launch
+                {link.proctored
+                  ? "Start proctored attempt"
+                  : link.documentTarget === "window"
+                    ? "Launch in new tab"
+                    : "Launch"}
               </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {context.content.length > 0 && (
+        <ul className="links">
+          {context.content.map((item) => (
+            <li key={`content-${item.id}`}>
+              <div>
+                <strong>{item.title}</strong>
+                <div className="muted">
+                  {item.type}
+                  {item.text && ` · ${item.text}`}
+                </div>
+              </div>
+              {item.type === "image" ? (
+                <img src={item.url} alt={item.title} style={{ maxHeight: "4em" }} />
+              ) : (
+                <a href={item.url} target="_blank" rel="noopener">
+                  {item.type === "file" ? "Download" : "Open"}
+                </a>
+              )}
             </li>
           ))}
         </ul>

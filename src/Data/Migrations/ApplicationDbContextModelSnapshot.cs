@@ -15,7 +15,7 @@ namespace AdvantagePlatform.Data.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "8.0.24");
+            modelBuilder.HasAnnotation("ProductVersion", "10.0.14");
 
             modelBuilder.Entity("AdvantagePlatform.Data.AdvantagePlatformUser", b =>
                 {
@@ -109,6 +109,50 @@ namespace AdvantagePlatform.Data.Migrations
                     b.ToTable("Courses");
                 });
 
+            modelBuilder.Entity("AdvantagePlatform.Data.CourseGroup", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("GroupSetId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Tag")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupSetId");
+
+                    b.ToTable("CourseGroups");
+                });
+
+            modelBuilder.Entity("AdvantagePlatform.Data.CourseGroupSet", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("CourseId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Tag")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.ToTable("CourseGroupSets");
+                });
+
             modelBuilder.Entity("AdvantagePlatform.Data.GradebookColumn", b =>
                 {
                     b.Property<int>("Id")
@@ -120,6 +164,9 @@ namespace AdvantagePlatform.Data.Migrations
 
                     b.Property<DateTime?>("EndDateTime")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("HasSubmissionReview")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Label")
                         .HasColumnType("TEXT");
@@ -134,6 +181,15 @@ namespace AdvantagePlatform.Data.Migrations
                         .HasColumnType("REAL");
 
                     b.Property<DateTime?>("StartDateTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SubmissionReviewCustom")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SubmissionReviewLabel")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SubmissionReviewUrl")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Tag")
@@ -183,6 +239,54 @@ namespace AdvantagePlatform.Data.Migrations
                     b.HasIndex("GradebookColumnId");
 
                     b.ToTable("GradebookRows");
+                });
+
+            modelBuilder.Entity("AdvantagePlatform.Data.LinkedContent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("CourseId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("DocumentTarget")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("Height")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Html")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("PlatformId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Text")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ThumbnailUrl")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Url")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("Width")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("PlatformId");
+
+                    b.ToTable("LinkedContent");
                 });
 
             modelBuilder.Entity("AdvantagePlatform.Data.Person", b =>
@@ -251,6 +355,95 @@ namespace AdvantagePlatform.Data.Migrations
                     b.ToTable("Platforms");
                 });
 
+            modelBuilder.Entity("AdvantagePlatform.Data.ProctoringAttempt", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AttemptNumber")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("EndAssessmentReturn")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("EndedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ExtraTime")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("PersonId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ResourceLinkId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("SessionData")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("StartedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("VerifiedUserName")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ResourceLinkId");
+
+                    b.ToTable("ProctoringAttempts");
+                });
+
+            modelBuilder.Entity("AdvantagePlatform.Data.ProctoringEvent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("ExtraTime")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<double?>("IncidentSeverity")
+                        .HasColumnType("REAL");
+
+                    b.Property<DateTime?>("IncidentTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ProctoringAttemptId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ReasonCode")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReasonMessage")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("ReceivedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ResultingStatus")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProctoringAttemptId");
+
+                    b.ToTable("ProctoringEvents");
+                });
+
             modelBuilder.Entity("AdvantagePlatform.Data.ResourceLink", b =>
                 {
                     b.Property<int>("Id")
@@ -266,8 +459,20 @@ namespace AdvantagePlatform.Data.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("DocumentTarget")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("IframeHeight")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsProctored")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int?>("PlatformId")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("ProctoringSettings")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Title")
                         .HasColumnType("TEXT");
@@ -307,6 +512,9 @@ namespace AdvantagePlatform.Data.Migrations
                     b.Property<string>("DeploymentId")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("JwksUrl")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("LaunchUrl")
                         .HasColumnType("TEXT");
 
@@ -319,11 +527,58 @@ namespace AdvantagePlatform.Data.Migrations
                     b.Property<string>("PublicKey")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("RedirectUris")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AdvantagePlatformUserId");
 
                     b.ToTable("Tools");
+                });
+
+            modelBuilder.Entity("AdvantagePlatform.Data.ToolRegistration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("InitiationUrl")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Token")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("ToolId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
+                    b.ToTable("ToolRegistrations");
+                });
+
+            modelBuilder.Entity("CourseGroupPerson", b =>
+                {
+                    b.Property<int>("CourseGroupId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("MembersId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("CourseGroupId", "MembersId");
+
+                    b.HasIndex("MembersId");
+
+                    b.ToTable("CourseGroupPerson");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -681,6 +936,25 @@ namespace AdvantagePlatform.Data.Migrations
                     b.Navigation("Platform");
                 });
 
+            modelBuilder.Entity("AdvantagePlatform.Data.CourseGroup", b =>
+                {
+                    b.HasOne("AdvantagePlatform.Data.CourseGroupSet", "GroupSet")
+                        .WithMany("Groups")
+                        .HasForeignKey("GroupSetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("GroupSet");
+                });
+
+            modelBuilder.Entity("AdvantagePlatform.Data.CourseGroupSet", b =>
+                {
+                    b.HasOne("AdvantagePlatform.Data.Course", null)
+                        .WithMany("GroupSets")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("AdvantagePlatform.Data.GradebookColumn", b =>
                 {
                     b.HasOne("AdvantagePlatform.Data.Course", null)
@@ -703,11 +977,44 @@ namespace AdvantagePlatform.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
+            modelBuilder.Entity("AdvantagePlatform.Data.LinkedContent", b =>
+                {
+                    b.HasOne("AdvantagePlatform.Data.Course", null)
+                        .WithMany("LinkedContent")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("AdvantagePlatform.Data.Platform", null)
+                        .WithMany("LinkedContent")
+                        .HasForeignKey("PlatformId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("AdvantagePlatform.Data.Person", b =>
                 {
                     b.HasOne("AdvantagePlatform.Data.AdvantagePlatformUser", null)
                         .WithMany("People")
                         .HasForeignKey("AdvantagePlatformUserId");
+                });
+
+            modelBuilder.Entity("AdvantagePlatform.Data.ProctoringAttempt", b =>
+                {
+                    b.HasOne("AdvantagePlatform.Data.ResourceLink", "ResourceLink")
+                        .WithMany()
+                        .HasForeignKey("ResourceLinkId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ResourceLink");
+                });
+
+            modelBuilder.Entity("AdvantagePlatform.Data.ProctoringEvent", b =>
+                {
+                    b.HasOne("AdvantagePlatform.Data.ProctoringAttempt", null)
+                        .WithMany("Events")
+                        .HasForeignKey("ProctoringAttemptId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("AdvantagePlatform.Data.ResourceLink", b =>
@@ -733,6 +1040,21 @@ namespace AdvantagePlatform.Data.Migrations
                     b.HasOne("AdvantagePlatform.Data.AdvantagePlatformUser", null)
                         .WithMany("Tools")
                         .HasForeignKey("AdvantagePlatformUserId");
+                });
+
+            modelBuilder.Entity("CourseGroupPerson", b =>
+                {
+                    b.HasOne("AdvantagePlatform.Data.CourseGroup", null)
+                        .WithMany()
+                        .HasForeignKey("CourseGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AdvantagePlatform.Data.Person", null)
+                        .WithMany()
+                        .HasForeignKey("MembersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -821,7 +1143,16 @@ namespace AdvantagePlatform.Data.Migrations
                 {
                     b.Navigation("GradebookColumns");
 
+                    b.Navigation("GroupSets");
+
+                    b.Navigation("LinkedContent");
+
                     b.Navigation("ResourceLinks");
+                });
+
+            modelBuilder.Entity("AdvantagePlatform.Data.CourseGroupSet", b =>
+                {
+                    b.Navigation("Groups");
                 });
 
             modelBuilder.Entity("AdvantagePlatform.Data.GradebookColumn", b =>
@@ -831,7 +1162,14 @@ namespace AdvantagePlatform.Data.Migrations
 
             modelBuilder.Entity("AdvantagePlatform.Data.Platform", b =>
                 {
+                    b.Navigation("LinkedContent");
+
                     b.Navigation("ResourceLinks");
+                });
+
+            modelBuilder.Entity("AdvantagePlatform.Data.ProctoringAttempt", b =>
+                {
+                    b.Navigation("Events");
                 });
 
             modelBuilder.Entity("OpenIddict.EntityFrameworkCore.Models.OpenIddictEntityFrameworkCoreApplication", b =>

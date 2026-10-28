@@ -1,4 +1,5 @@
-﻿@model GradebookViewComponentModel
+@using AdvantagePlatform.Utility
+@model GradebookViewComponentModel
 
 <div class="row mt-3">
     <div class="col">
@@ -33,6 +34,23 @@
                                         <span data-toggle="tooltip" title="@lastScore.Comment">
                                             @lastScore.ScoreGiven.ToString("N1")
                                         </span>
+                                        @* Submission Review: the tool set submissionReview on this line item, so
+                                           the instructor can open the student's submission in the tool. *@
+                                        @if (column.Column.HasSubmissionReview && column.Column.ResourceLink != null && Model.InstructorId.HasValue)
+                                        {
+                                            <a class="btn btn-sm btn-light ml-1" target="_blank"
+                                               data-toggle="tooltip" title="Launch the tool's submission review for this student"
+                                               href="@Url.Page("/OidcLaunch", new
+                                                     {
+                                                         id = column.Column.Id,
+                                                         messageType = LtiAdvantage.Constants.Lti.LtiSubmissionReviewRequestMessageType,
+                                                         courseId = Model.CourseId,
+                                                         personId = Model.InstructorId,
+                                                         forUserId = personId
+                                                     })">
+                                                @column.Column.SubmissionReviewLabel.IfMissingThen("View submission")
+                                            </a>
+                                        }
                                     }
                                 </td>
                             }

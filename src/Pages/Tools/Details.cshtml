@@ -34,12 +34,22 @@
                         </dt>
                         <dd>@Model.Tool.DeepLinkingLaunchUrl.IfMissingThen()</dd>
                         <dt>
+                            @Html.DisplayNameFor(m => m.Tool.RedirectUris)
+                            <tooltip asp-for="Tool.RedirectUris"></tooltip>
+                        </dt>
+                        <dd><pre>@Model.Tool.RedirectUris.IfMissingThen()</pre></dd>
+                        <dt>
                             @Html.DisplayNameFor(m => m.Tool.CustomProperties)
-                            <tooltip asp-for="Tool.CustomProperties"></tooltip>
+                            <tooltip asp-for="Tool.CustomProperties" html="true"></tooltip>
                         </dt>
                         <dd><pre>@Model.Tool.CustomProperties.IfMissingThen()</pre></dd>
                         <dt>@Html.DisplayNameFor(m => m.Tool.ClientId)</dt>
                         <dd>@Model.Tool.ClientId.IfMissingThen()</dd>
+                        <dt>
+                            @Html.DisplayNameFor(m => m.Tool.JwksUrl)
+                            <tooltip asp-for="Tool.JwksUrl"></tooltip>
+                        </dt>
+                        <dd>@Model.Tool.JwksUrl.IfMissingThen()</dd>
                         <dt>
                             @Html.DisplayNameFor(m => m.Tool.PublicKey)
                             <tooltip asp-for="Tool.PublicKey"></tooltip>

@@ -10,12 +10,25 @@ perspective. There is a companion sample tool over at
 
 - LTI 1.3 Core launch
   - Launch tools with or without a context (i.e. as an assignment or an admin tool), and as a teacher or a student.
+- Custom property substitution
+  - Variables such as `$User.username`, `$Context.title`, `$ResourceLink.id` and `$Membership.course.groupIds` in custom properties are filled in at launch.
 - Assignment and Grade Services v2
-  - Tools can list line items for a course, get a specific line item, read results, and post scores.
+  - Tools can list line items for a course (paged with `limit`), get a specific line item, read results, and post scores.
 - Names and Role Provisioning Services v2
-  - Tools can read course membership.
+  - Tools can read course membership, paged with `limit` and a `Link: <…>; rel="next"` header.
 - Deep Linking 2.0
-  - Tools can add LTI links to the platform or course.
+  - Tools can add LTI links, links, HTML fragments, files and images to the platform or course.
+  - The platform shows the tool's `msg` / `errormsg`, and honours the `iframe` or `window` presentation of each item.
+- Proctoring Services 1.0
+  - Proctored assessments start at the proctoring tool (`LtiStartProctoring`), begin when it sends `LtiStartAssessment`, and end with `LtiEndAssessment`. The tool can pause, resume, terminate, update or flag the attempt with the Assessment Control service.
+- Course Groups Service 1.0
+  - Tools can read the course's group sets, groups, and each member's groups.
+- Submission Review 1.0
+  - Tools mark line items with `submissionReview`; the gradebook then offers "View submission", which launches the tool for that student.
+- Dynamic Registration 1.0
+  - Tools register themselves: no URLs, client IDs or keys to copy by hand.
+- Tool keys from the tool's JWKS URL
+  - Cached and picked by `kid`, so tools can rotate their keys. A PEM public key is the fallback.
 
 ## Stack
 
@@ -26,9 +39,9 @@ This sample tracks the LtiAdvantage libraries' modernized stack:
   earlier dependency on Duende / IdentityServer4.
 - **ASP.NET Core Identity** for application user accounts.
 - **EF Core 10** with **SQLite** as the default database (cross-platform).
-- **LtiAdvantage**, **LtiAdvantage.AspNetCore**, and **LtiAdvantage.Oidc**
-  packages for the LTI message types, controller bases, and OpenIddict
-  impersonation hook.
+- **LtiAdvantage**, **LtiAdvantage.AspNetCore**, **LtiAdvantage.IdentityModel**
+  and **LtiAdvantage.Oidc** 4.0.0 packages for the LTI message types,
+  controller bases, JWKS cache, and OpenIddict impersonation hook.
 
 The sample takes the same architectural approach as before — each registered
 application user is a tenant with their own platform, course, and people — but
@@ -48,12 +61,16 @@ deep-linking launches.
     ├── ClientApp/ (optional React front end, see "Using a React front end")
     ├── Controllers/
     │   ├── AuthorizationController.cs (OIDC /connect/authorize + /connect/token endpoints)
+    │   ├── OpenIdConfigurationController.cs / DynamicRegistrationController.cs (Dynamic Registration)
     │   ├── LineItemsController.cs / ResultsController.cs / ScoresController.cs (AGS v2)
-    │   └── MembershipController.cs (NRPS v2)
+    │   ├── MembershipController.cs (NRPS v2)
+    │   ├── GroupSetsController.cs / GroupsController.cs (Course Groups)
+    │   └── AssessmentControlController.cs (Proctoring)
     ├── Data/ (EF Core entities and migrations)
     ├── Spa/SpaApi.cs (JSON API and /app hosting for the React front end)
     ├── Pages/
     │   ├── DeepLinks.cshtml (receives the deep-linking response)
+    │   ├── Proctoring/ (start_assessment_url and the proctored assessment)
     │   └── OidcLaunch.cshtml (initiates the LTI 1.3 launch by redirecting to the tool)
     ├── Utility/
     │   ├── LtiAdvantageClaimsHandler.cs (OpenIddict ProcessSignInContext handler that adds LTI claims)
@@ -68,15 +85,12 @@ deep-linking launches.
 Prerequisites:
 
 - .NET 10 SDK. `global.json` pins this.
-- A checkout of [LtiAdvantage](https://github.com/LtiLibrary/LtiAdvantage) next
-  to this repository. The sample builds against the library source, so the
-  folders must sit side by side:
 
-  ```
-  some-folder/
-  ├── LtiAdvantage/
-  └── LtiAdvantagePlatform/
-  ```
+The LtiAdvantage libraries come from NuGet (`LtiAdvantage`,
+`LtiAdvantage.AspNetCore`, `LtiAdvantage.IdentityModel` and
+`LtiAdvantage.Oidc` 4.0.0), so no checkout of the library is needed. To try
+local library changes, replace the `PackageReference`s in
+`src/AdvantagePlatform.csproj` with `ProjectReference`s to your checkout.
 
 Steps from the repo root:
 
@@ -101,14 +115,16 @@ Visit:
 ## Trying it with the sample tool
 
 Run [LtiAdvantageTool](https://github.com/LtiLibrary/LtiAdvantageTool) at the
-same time (it listens on `http://localhost:5072`), then:
+same time (it listens on `http://localhost:5072`). The quickest way to connect
+the two is [Dynamic Registration](#registering-a-tool-with-dynamic-registration).
+To register the tool by hand instead:
 
 1. In the tool, register an admin account and open **Platforms → Add
    platform**. Leave the page open: its "Tool side" section lists the URLs and
    public key the platform needs.
 2. In the platform, register an account and open **Tools → Register New
-   Tool**. Enter the tool's Login URL, Launch URL, Deep linking URL and public
-   key. Note the Client ID, and the Issuer, Authorize URL, Token URL and JWKS
+   Tool**. Enter the tool's Login URL, Launch URL, Deep linking URL and JWKS
+   URL (or its public key). Note the Client ID, and the Issuer, Authorize URL, Token URL and JWKS
    URL shown on the page.
 3. Back in the tool, fill in the platform side with those values and save.
    Copy the Issuer exactly, including the trailing slash
@@ -121,6 +137,166 @@ same time (it listens on `http://localhost:5072`), then:
 A launch from a course link also gives the tool access to Assignment and
 Grade Services and Names and Role Provisioning. Scores the tool posts show up
 in the platform's gradebook.
+
+## Custom properties and variables
+
+Custom properties come from the tool (**Tools → Edit**, or the
+`custom_parameters` a tool sends with Dynamic Registration) and from the link
+(**Course Links / Platform Links**, or the `custom` of a deep-linked item); the
+link's win when both set the same name. A value can be a
+[substitution variable](https://www.imsglobal.org/spec/lti/v1p3#custom-property-substitution),
+which the platform fills in at launch with the library's
+`CustomPropertySubstitutions` (`SubstituteCustomProperties` in
+`Utility/LtiAdvantageClaimsHandler.cs`), for example:
+
+```
+user=$User.username
+course=$Context.title
+groups=$Membership.course.groupIds
+```
+
+The platform fills in `$User.id`, `$User.username`, `$Person.sourcedId`,
+`$Person.name.given` / `.family` / `.full`, `$Person.email.primary`,
+`$Context.id`, `$Context.id.history`, `$Context.title`, `$Context.sourcedId`,
+`$Context.type`, `$CourseSection.sourcedId`, `$CourseSection.title`,
+`$Membership.personSourcedId`, `$Membership.role`, `$Membership.status`,
+`$Membership.course.groupIds`, `$CourseGroup.id`, `$ResourceLink.id`,
+`$ResourceLink.id.history`, `$ResourceLink.title`, `$ResourceLink.description`,
+`$Message.documentTarget` / `.height` / `.width` / `.locale` / `.returnUrl`,
+`$ToolPlatform.*` and `$ToolPlatformInstance.*` (`Config.SupportedVariables`,
+also advertised to Dynamic Registration). The values come from the launch
+itself, so a variable never tells the tool more than the launch does.
+Variables the platform doesn't know are sent unchanged.
+
+## Deep Linking
+
+Click **Add Deep Links** on the home page (or **Add content with** in the
+React UI). The platform sends an `LtiDeepLinkingRequest` whose
+`deep_linking_settings` advertise:
+
+- `accept_types`: `ltiResourceLink`, `link`, `html`, `file`, `image`;
+- `accept_presentation_document_targets`: `iframe`, `window`;
+- `accept_multiple`: true.
+
+The tool posts its response to `/DeepLinks` (`Pages/DeepLinks.cshtml.cs`),
+which checks the signature with the tool's keys and saves each content item:
+
+- `ltiResourceLink` becomes a platform or course link. An `iframe` property
+  makes the link open inside the platform page (launched with
+  `launch_presentation.document_target` = `iframe`); otherwise it opens in a
+  new window. In a course every link gets a gradebook column; a `lineItem` on
+  the item sets the column's `label`, `scoreMaximum`, `tag` and `resourceId`.
+- `link`, `file` and `image` are shown as a link, a download or an image.
+  `html` is shown in a sandboxed iframe, so the tool's HTML never runs in the
+  platform's own page.
+
+`msg` and `errormsg` from the response are shown to the user after the
+dialog closes (`/DeepLinks` adds them to its `lti-deep-linking-complete`
+message); `log` and `errorlog` go to the platform's log.
+
+## Proctoring
+
+1. Create a **Course Link** to the proctoring tool and tick **Proctored**
+   (optionally fill in **Proctoring Settings**, sent as `proctoring_settings`).
+2. On the home page the link offers **Start an attempt as** a person. That
+   creates an attempt and launches `LtiStartProctoring` to the tool
+   (`GetStartProctoringRequestClaims` in `Utility/LtiAdvantageClaimsHandler.cs`)
+   with the `attempt_number`, a random `session_data`, the
+   `start_assessment_url` (`/Proctoring/StartAssessment`) and the `acs` claim
+   (Assessment Control URL `/assessment-control` and the allowed actions).
+3. The tool checks the candidate and form-posts a signed `LtiStartAssessment`
+   (field `JWT`) to the `start_assessment_url`. The platform checks the
+   signature and that `session_data`, `resource_link` and `attempt_number`
+   match the attempt (`Pages/Proctoring/StartAssessment.cshtml.cs`), starts
+   it and shows the assessment (`/Proctoring/Attempt/{id}`).
+4. While it runs, the tool can call the Assessment Control service with the
+   `https://purl.imsglobal.org/spec/lti-ap/scope/control.all` scope
+   (`Controllers/AssessmentControlController.cs`, on
+   `AssessmentControlControllerBase`): pause, resume, terminate, update
+   (extra time) or flag. The attempt page shows each action and refreshes
+   when the status changes; the home page lists attempts with their actions.
+5. **Finish assessment** completes the attempt. If the tool sent
+   `end_assessment_return`, the platform then launches `LtiEndAssessment` to it.
+
+The assessment itself is a pretend one-question page: in this flow the
+platform delivers the assessment and the tool only proctors it.
+
+## Course Groups
+
+Every new account's course has three people (a teacher and two students) and
+two group sets: **Project teams** (Team Red and Team Blue, one student each)
+and **Study groups** (Everyone). The home page lists them under Members.
+(Accounts registered before this feature have no groups; register a new one.)
+
+Launches from a course carry the Course Groups service claim
+(`CourseGroupsServiceClaimValueType`) with the two endpoints, which need the
+`https://purl.imsglobal.org/spec/lti-gs/scope/contextgroup.readonly` scope:
+
+- `GET /context/{courseId}/groups/sets`: the group sets
+  (`Controllers/GroupSetsController.cs`, on `GroupSetsControllerBase`);
+- `GET /context/{courseId}/groups[?user_id=…]`: the groups, or only those of
+  one user (`Controllers/GroupsController.cs`, on `GroupsControllerBase`);
+- `GET /context/{courseId}/membership?groups=true`: Names and Roles with each
+  member's `group_enrollments`. The library only lets those through when the
+  token also has the groups scope.
+
+Existing tool clients get the new scope at startup
+(`ToolClientManager.EnsureScopePermissionsAsync`).
+
+## Submission Review
+
+A tool that can show a student's submission says so on the line item: it
+creates or updates the line item (Assignment and Grade Services) with a
+`submissionReview` property (`SubmissionReviewProperty`: `label`, optional
+`url` and `custom`). The platform stores it on the gradebook column
+(`Controllers/LineItemsController.cs`) and returns it when the tool reads the
+line item.
+
+In the gradebook, every score in such a column gets a button with the
+review's label ("View submission" by default). It launches an
+`LtiSubmissionReviewRequest` through the usual `/OidcLaunch` →
+`/connect/authorize` flow, as the course's instructor, with:
+
+- `for_user`: the student whose submission to show (`ForUserClaimValueType`);
+- the AGS claim with that line item's URL, and the line item's resource link;
+- `target_link_uri`: the `submissionReview.url`, or the tool's launch URL;
+- the `submissionReview.custom` parameters on top of the link's own.
+
+See `GetSubmissionReviewRequestClaims` in `Utility/LtiAdvantageClaimsHandler.cs`.
+
+## Registering a tool with Dynamic Registration
+
+Instead of copying URLs, client IDs and keys between the two apps, let the
+tool register itself ([LTI Dynamic Registration](https://www.imsglobal.org/spec/lti-dr/v1p0)):
+
+1. In the platform open **Tools → Register a Tool**, enter the tool's
+   registration URL (from the tool's own UI) and click **Start registration**.
+2. The platform opens that URL in an iframe (or a popup, if the tool can't run
+   in an iframe) with two query parameters:
+   - `openid_configuration`: `http://localhost:5099/.well-known/openid-configuration`
+   - `registration_token`: a random, single-use token, valid for an hour.
+3. The tool reads the platform's endpoints from the OpenID configuration and
+   POSTs its configuration to the registration endpoint,
+   `http://localhost:5099/lti/register`, with the token as Bearer token.
+4. The platform creates the tool and its OpenIddict client, using the tool's
+   `jwks_uri` for its keys, and answers with the `client_id` and
+   `deployment_id` it assigned.
+5. The tool posts `{ subject: "org.imsglobal.lti.close" }` to the platform's
+   window, and the platform shows the new tool.
+
+The pieces, all built on the library:
+
+- `Controllers/OpenIdConfigurationController.cs` (`OpenIdConfigurationControllerBase`)
+  serves the OpenID configuration with the LTI platform configuration claim
+  (`PlatformOpenIdConfiguration`, `LtiPlatformConfiguration`). OpenIddict's own
+  discovery endpoint is turned off in `Program.cs`, so there is one document at
+  that address.
+- `Controllers/DynamicRegistrationController.cs` (`DynamicRegistrationControllerBase`)
+  checks the registration token and turns the submitted `LtiToolConfiguration`
+  into a tool. The library validates the request first (required fields,
+  https URLs, `private_key_jwt`).
+- `Pages/Tools/Register.cshtml` starts the registration and listens for the
+  tool's close message.
 
 ## Using a React front end
 
@@ -170,7 +346,7 @@ The pieces that make this work:
 - **Launch URLs come from the server.** The API returns ready-made URLs, so
   the front end never builds LTI parameters.
 - **Deep Linking ends with `postMessage`.** `/DeepLinks` posts
-  `{ type: "lti-deep-linking-complete", added }` to the parent window, with
+  `{ type: "lti-deep-linking-complete", added, msg, errormsg }` to the parent window, with
   the platform's own origin as target (plus `ClientApp:AllowedOrigins` from
   `appsettings.Development.json` for the Vite dev server). React checks
   `event.origin`, closes the iframe and reloads its data. The Razor Pages UI
@@ -183,14 +359,45 @@ The pieces that make this work:
 A real LMS would launch as the signed-in user. This sample lets you pick the
 teacher or the student, so the API returns one launch URL per person.
 
+## When a service call fails
+
+The service endpoints (Assignment and Grade Services, Names and Roles, Course
+Groups, Assessment Control) answer failures with a `ProblemDetails` JSON body:
+404 when the course, line item, score or attempt doesn't exist, 403 when the
+course doesn't belong to the tool whose token is used, and 400 for invalid
+input (for example a score for someone who isn't in the course). Anything
+unexpected is logged and answered with a 500 by the library's controller
+bases, with the exception details only in Development. The overrides pass the
+request's `CancellationToken` to their database queries, so a call the tool
+gave up on stops early. See `Utility/ServiceProblems.cs` and
+`CourseAccessValidator.GetCourseAsync`.
+
 ## How the platform handles tools
 
 Tools are configured under **Tools → Register New Tool**. The sample manages
 an OpenIddict application for each tool: a confidential client with the
-launch URL as redirect URI, and the tool's PEM-encoded RSA public key as its
-JSON Web Key Set. The tool uses that key to sign the client assertion it sends
-to `/connect/token` (LTI's JWT client credentials grant). The platform also
-uses the key to verify deep-linking responses.
+launch URL as redirect URI. The tool signs the client assertion it sends to
+`/connect/token` (LTI's JWT client credentials grant) and its deep linking
+responses with its private key, so the platform needs the tool's public key.
+
+### Tool keys from a JWKS URL
+
+Enter the tool's **Tool JWKS URL** (the sample tool publishes its keys at
+`http://localhost:5072/jwks/{platformId}`). The platform fetches the key set
+with the library's `JwksCache` (`Utility/ToolSigningKeys.cs`) and picks the key
+by the token's `kid`. When a token names a `kid` the cache doesn't know, the
+cache fetches the set again, so the tool can rotate its key without anyone
+updating the platform. That covers both places the platform checks a tool's
+signature:
+
+- deep linking responses (`Pages/DeepLinks.cshtml.cs`);
+- client assertions at `/connect/token`. OpenIddict normally checks them
+  against the key set stored on the client's application;
+  `ToolJwksClientAssertionHandler` (`Utility/LtiClientAssertionHandlers.cs`)
+  hands it the keys from the JWKS URL instead. The stored key set is a copy
+  taken when the tool is saved, used only if the JWKS URL can't be reached.
+
+A pasted PEM public key still works as a fallback for tools without a JWKS URL.
 
 [LtiAdvantage](https://github.com/LtiLibrary/LtiAdvantage) provides the LTI
 message classes, the AGS / NRPS controller base classes

@@ -7,10 +7,16 @@
     <Nullable>disable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <!-- The React app is built by npm, not MSBuild. Keep its sources and node_modules out of the project. -->
+    <!-- Copy the LtiAdvantage packages' XML docs to the output, so Swagger UI can show them. -->
+    <CopyDocumentationFilesFromPackages>true</CopyDocumentationFilesFromPackages>
     <DefaultItemExcludes>$(DefaultItemExcludes);ClientApp/**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="LtiAdvantage" Version="4.0.0" />
+    <PackageReference Include="LtiAdvantage.AspNetCore" Version="4.0.0" />
+    <PackageReference Include="LtiAdvantage.IdentityModel" Version="4.0.0" />
+    <PackageReference Include="LtiAdvantage.Oidc" Version="4.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.14" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="10.0.14" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.14">
@@ -22,12 +28,6 @@
     <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="7.7.2" />
     <PackageReference Include="RandomNameGeneratorLibrary" Version="2.3.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.3.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\LtiAdvantage\src\LtiAdvantage\LtiAdvantage.csproj" />
-    <ProjectReference Include="..\..\LtiAdvantage\src\LtiAdvantage.AspNetCore\LtiAdvantage.AspNetCore.csproj" />
-    <ProjectReference Include="..\..\LtiAdvantage\src\LtiAdvantage.Oidc\LtiAdvantage.Oidc.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -9,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace AdvantagePlatform.Pages
@@ -30,28 +33,82 @@ namespace AdvantagePlatform.Pages
         /// Initiates an LTI 1.3 launch from the platform to the tool by redirecting
         /// to the tool's OIDC login initiation URL.
         /// </summary>
-        /// <param name="id">The resource link or tool id.</param>
+        /// <param name="id">The resource link id, tool id (deep linking) or gradebook column id (submission review).</param>
         /// <param name="messageType">The lti message type.</param>
         /// <param name="courseId">The course id (or null if not launched from a course).</param>
         /// <param name="personId">The person id to impersonate.</param>
-        public async Task<IActionResult> OnGetAsync(int id, string messageType, string courseId, string personId)
+        /// <param name="forUserId">Submission review only: the person whose submission to show.</param>
+        /// <remarks>For LtiStartProctoring, id is the proctored resource link; for LtiEndAssessment, the attempt.</remarks>
+        public async Task<IActionResult> OnGetAsync(int id, string messageType, string courseId, string personId, string forUserId = null)
         {
             Tool tool;
+            string targetLinkUri;
+            int? attemptId = null;
 
-            if (messageType == Constants.Lti.LtiResourceLinkRequestMessageType)
+            switch (messageType)
             {
-                var resourceLink = await _context.GetResourceLinkAsync(id);
-                if (resourceLink == null)
+                case Constants.Lti.LtiResourceLinkRequestMessageType:
                 {
-                    _logger.LogError("Resource link not found.");
-                    return BadRequest();
+                    var resourceLink = await _context.GetResourceLinkAsync(id);
+                    tool = resourceLink?.Tool;
+                    targetLinkUri = tool?.LaunchUrl;
+                    break;
                 }
+                case Constants.Lti.LtiDeepLinkingRequestMessageType:
+                {
+                    tool = await _context.GetToolAsync(id);
+                    targetLinkUri = tool?.DeepLinkingLaunchUrl.IfMissingThen(tool.LaunchUrl);
+                    break;
+                }
+                case Constants.Lti.LtiSubmissionReviewRequestMessageType:
+                {
+                    // Launched from a gradebook cell. The line item's submissionReview.url, if
+                    // any, replaces the resource link's launch URL (Submission Review §2.2).
+                    var column = await _context.GetGradebookColumnWithToolAsync(id);
+                    tool = column?.ResourceLink?.Tool;
+                    targetLinkUri = column?.SubmissionReviewUrl.IfMissingThen(tool?.LaunchUrl);
+                    break;
+                }
+                case Constants.Lti.LtiStartProctoringRequestMessageType:
+                {
+                    // Proctoring 1.0 §4.2: every start is a new attempt, numbered from 1.
+                    var resourceLink = await _context.GetResourceLinkAsync(id);
+                    if (resourceLink == null || !resourceLink.IsProctored || !int.TryParse(personId, out var candidateId))
+                    {
+                        _logger.LogError("Resource link {Id} is not a proctored assessment.", id);
+                        return BadRequest();
+                    }
 
-                tool = resourceLink.Tool;
-            }
-            else
-            {
-                tool = await _context.GetToolAsync(id);
+                    var previousAttempts = await _context.ProctoringAttempts
+                        .CountAsync(a => a.ResourceLinkId == id && a.PersonId == candidateId);
+                    var attempt = new ProctoringAttempt
+                    {
+                        ResourceLinkId = id,
+                        PersonId = candidateId,
+                        AttemptNumber = previousAttempts + 1,
+                        SessionData = WebEncoders.Base64UrlEncode(RandomNumberGenerator.GetBytes(16)),
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    _context.ProctoringAttempts.Add(attempt);
+                    await _context.SaveChangesAsync();
+
+                    attemptId = attempt.Id;
+                    tool = resourceLink.Tool;
+                    targetLinkUri = tool.LaunchUrl;
+                    break;
+                }
+                case Constants.Lti.LtiEndAssessmentRequestMessageType:
+                {
+                    // Sent when the candidate finished, if the proctoring tool asked for it.
+                    var attempt = await _context.GetProctoringAttemptAsync(id);
+                    tool = attempt?.ResourceLink.Tool;
+                    targetLinkUri = tool?.LaunchUrl;
+                    attemptId = attempt?.Id;
+                    break;
+                }
+                default:
+                    _logger.LogError("Message type {MessageType} not supported.", messageType);
+                    return BadRequest();
             }
 
             if (tool == null)
@@ -65,8 +122,12 @@ namespace AdvantagePlatform.Pages
                 // Must equal the "iss" claim of the id_token, or the tool can't match them up.
                 ["iss"] = Request.GetIssuer(),
                 ["login_hint"] = personId,
-                ["target_link_uri"] = tool.LaunchUrl,
-                ["lti_message_hint"] = JsonSerializer.Serialize(new { id, messageType, courseId })
+                // Must equal the target_link_uri claim of the id_token the tool will receive.
+                ["target_link_uri"] = targetLinkUri,
+                // Lets the tool pick the right registration when it has several with this platform.
+                ["client_id"] = tool.ClientId,
+                ["lti_deployment_id"] = tool.DeploymentId,
+                ["lti_message_hint"] = JsonSerializer.Serialize(new { id, messageType, courseId, forUserId, attemptId })
             };
 
             var url = QueryHelpers.AddQueryString(tool.LoginUrl, values);

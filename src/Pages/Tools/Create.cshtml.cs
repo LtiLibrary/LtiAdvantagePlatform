@@ -12,14 +12,16 @@ namespace AdvantagePlatform.Pages.Tools
     {
         private readonly ApplicationDbContext _context;
         private readonly ToolClientManager _toolClientManager;
+        private readonly ToolSigningKeys _toolSigningKeys;
 
         [BindProperty]
         public ToolModel Tool { get; set; }
 
-        public CreateModel(ApplicationDbContext context, ToolClientManager toolClientManager)
+        public CreateModel(ApplicationDbContext context, ToolClientManager toolClientManager, ToolSigningKeys toolSigningKeys)
         {
             _context = context;
             _toolClientManager = toolClientManager;
+            _toolSigningKeys = toolSigningKeys;
         }
 
         public IActionResult OnGet()
@@ -42,11 +44,7 @@ namespace AdvantagePlatform.Pages.Tools
                     "Cannot parse the Custom Properties.");
             }
 
-            if (PemKeys.ParseRsaPublicKey(Tool.PublicKey) == null)
-            {
-                ModelState.AddModelError($"{nameof(Tool)}.{nameof(Tool.PublicKey)}",
-                    "Enter the tool's PEM-encoded RSA public key.");
-            }
+            var keySet = await Tool.ValidateKeysAsync(ModelState, _toolSigningKeys);
 
             if (await _toolClientManager.ExistsAsync(Tool.ClientId))
             {
@@ -59,8 +57,6 @@ namespace AdvantagePlatform.Pages.Tools
                 return Page();
             }
 
-            await _toolClientManager.CreateAsync(Tool.ClientId, Tool.Name, Tool.LaunchUrl, Tool.PublicKey);
-
             var tool = new Tool
             {
                 ClientId = Tool.ClientId,
@@ -70,8 +66,11 @@ namespace AdvantagePlatform.Pages.Tools
                 LaunchUrl = Tool.LaunchUrl,
                 LoginUrl = Tool.LoginUrl,
                 Name = Tool.Name,
-                PublicKey = Tool.PublicKey
+                JwksUrl = Tool.JwksUrl,
+                PublicKey = Tool.PublicKey,
+                RedirectUris = Tool.RedirectUris
             };
+            await _toolClientManager.CreateAsync(tool.ClientId, tool.Name, tool.GetAllRedirectUris(), keySet);
             await _context.Tools.AddAsync(tool);
 
             var user = await _context.GetUserLightAsync(User);

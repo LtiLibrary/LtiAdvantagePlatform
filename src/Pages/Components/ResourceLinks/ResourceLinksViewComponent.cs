@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AdvantagePlatform.Data;
 using AdvantagePlatform.Pages.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace AdvantagePlatform.Pages.Components.ResourceLinks
 {
@@ -24,6 +25,18 @@ namespace AdvantagePlatform.Pages.Components.ResourceLinks
             model.ResourceLinks = ResourceLinkModel.GetResourceLinks(courseId.HasValue 
                 ? user.Course.ResourceLinks 
                 : user.Platform.ResourceLinks);
+            model.LinkedContent = (courseId.HasValue
+                    ? user.Course.LinkedContent
+                    : user.Platform.LinkedContent)
+                .OrderBy(c => c.Title)
+                .ToList();
+
+            var proctoredIds = model.ResourceLinks.Where(l => l.IsProctored).Select(l => l.Id).ToList();
+            model.ProctoringAttempts = await _context.ProctoringAttempts
+                .Where(a => proctoredIds.Contains(a.ResourceLinkId))
+                .Include(a => a.Events)
+                .OrderByDescending(a => a.Id)
+                .ToListAsync();
             return View(model);
         }
     }

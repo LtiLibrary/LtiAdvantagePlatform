@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AdvantagePlatform.Areas.Identity.Pages.Account.Manage;
 using AdvantagePlatform.Data;
+using LtiAdvantage.Lti;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AdvantagePlatform.Pages.Components.Gradebook
@@ -17,7 +19,7 @@ namespace AdvantagePlatform.Pages.Components.Gradebook
 
         public async Task<IViewComponentResult> InvokeAsync(int courseId)
         {
-            var model = new GradebookViewComponentModel();
+            var model = new GradebookViewComponentModel { CourseId = courseId };
 
             var user = await _context.GetUserLightAsync(HttpContext.User);
             model.Members = new Dictionary<int, string>();
@@ -28,6 +30,10 @@ namespace AdvantagePlatform.Pages.Components.Gradebook
                     model.Members.Add(person.Id, $"{person.LastName}, {person.FirstName}");
                 }
             }
+
+            // Submission review is something the instructor does, so it launches as the instructor.
+            model.InstructorId = user.People
+                .FirstOrDefault(p => PeopleModel.ParsePersonRoles(p.Roles).Contains(Role.ContextInstructor))?.Id;
 
             var course = await _context.GetCourseAsync(courseId);
             model.Columns = course.GradebookColumns

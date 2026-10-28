@@ -34,5 +34,15 @@ namespace AdvantagePlatform.Data
         /// Represents the LTI resources in the course.
         /// </summary>
         public ICollection<ResourceLink> ResourceLinks { get; set; }
+
+        /// <summary>
+        /// Non-LTI content (links, HTML, files, images) added with Deep Linking.
+        /// </summary>
+        public ICollection<LinkedContent> LinkedContent { get; set; }
+
+        /// <summary>
+        /// Group sets (and their groups) in the course, served by the Course Groups service.
+        /// </summary>
+        public ICollection<CourseGroupSet> GroupSets { get; set; }
     }
 }

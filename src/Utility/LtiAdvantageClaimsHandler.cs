@@ -9,9 +9,12 @@ using AdvantagePlatform.Areas.Identity.Pages.Account.Manage;
 using AdvantagePlatform.Data;
 using LtiAdvantage;
 using LtiAdvantage.AssignmentGradeServices;
+using LtiAdvantage.CourseGroupsService;
 using LtiAdvantage.DeepLinking;
 using LtiAdvantage.Lti;
 using LtiAdvantage.NamesRoleProvisioningService;
+using LtiAdvantage.Proctoring;
+using LtiAdvantage.SubmissionReview;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,10 +36,20 @@ namespace AdvantagePlatform.Utility
     /// </summary>
     public class LtiAdvantageClaimsHandler : IOpenIddictServerHandler<OpenIddictServerEvents.ProcessSignInContext>
     {
+        // The AGS scopes a tool may ask a token for: this platform grants all of them.
+        private static readonly string[] AgsScopes =
+        {
+            Constants.LtiScopes.Ags.LineItem,
+            Constants.LtiScopes.Ags.LineItemReadonly,
+            Constants.LtiScopes.Ags.ResultReadonly,
+            Constants.LtiScopes.Ags.Score
+        };
+
         private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly LinkGenerator _linkGenerator;
         private readonly ILogger<LtiAdvantageClaimsHandler> _logger;
+        private List<string> _personGroupIds = new();
 
         public LtiAdvantageClaimsHandler(
             ApplicationDbContext context,
@@ -154,6 +167,17 @@ namespace AdvantagePlatform.Utility
                 return;
             }
 
+            // The person's course groups, for the $Membership.course.groupIds and $CourseGroup.id variables.
+            if (course != null)
+            {
+                _personGroupIds = (await _context.GetGroupSetsAsync(course.Id))
+                    .SelectMany(s => s.Groups)
+                    .Where(g => g.Members.Any(m => m.Id == person.Id))
+                    .OrderBy(g => g.Id)
+                    .Select(g => g.Id.ToString())
+                    .ToList();
+            }
+
             List<Claim> claims;
             switch (messageType)
             {
@@ -180,6 +204,46 @@ namespace AdvantagePlatform.Utility
                     }
 
                     claims = GetDeepLinkingRequestClaims(tool, person, course, user.Platform);
+                    break;
+                }
+                case Constants.Lti.LtiSubmissionReviewRequestMessageType:
+                {
+                    var gradebookColumn = await _context.GetGradebookColumnWithToolAsync(id);
+                    if (gradebookColumn?.ResourceLink == null || course == null)
+                    {
+                        _logger.LogError("Gradebook column {ColumnId} not found, or has no resource link.", id);
+                        return;
+                    }
+
+                    var forUserId = message.TryGetProperty("forUserId", out var forUserEl) ? forUserEl.GetString() : null;
+                    var forUser = int.TryParse(forUserId, out var forUserPersonId)
+                        ? await _context.GetPersonAsync(forUserPersonId)
+                        : null;
+                    if (forUser == null)
+                    {
+                        _logger.LogError("Submission review needs a for_user, but person {ForUserId} was not found.", forUserId);
+                        return;
+                    }
+
+                    claims = GetSubmissionReviewRequestClaims(gradebookColumn, forUser, person, course, user.Platform);
+                    break;
+                }
+                case Constants.Lti.LtiStartProctoringRequestMessageType:
+                case Constants.Lti.LtiEndAssessmentRequestMessageType:
+                {
+                    var attemptId = message.TryGetProperty("attemptId", out var attemptEl) && attemptEl.TryGetInt32(out var attemptValue)
+                        ? attemptValue
+                        : 0;
+                    var attempt = await _context.GetProctoringAttemptAsync(attemptId);
+                    if (attempt == null || attempt.PersonId != person.Id)
+                    {
+                        _logger.LogError("Proctoring attempt {AttemptId} not found for person {PersonId}.", attemptId, person.Id);
+                        return;
+                    }
+
+                    claims = messageType == Constants.Lti.LtiStartProctoringRequestMessageType
+                        ? GetStartProctoringRequestClaims(attempt, person, course, user.Platform)
+                        : GetEndAssessmentRequestClaims(attempt, person, course, user.Platform);
                     break;
                 }
                 default:
@@ -211,7 +275,8 @@ namespace AdvantagePlatform.Utility
                 GivenName = person.FirstName,
                 LaunchPresentation = new LaunchPresentationClaimValueType
                 {
-                    DocumentTarget = DocumentTarget.Window,
+                    // Both UIs run the deep linking flow in an iframe (a modal dialog).
+                    DocumentTarget = DocumentTarget.Iframe,
                     Locale = CultureInfo.CurrentUICulture.Name
                 },
                 Lis = new LisClaimValueType
@@ -250,9 +315,19 @@ namespace AdvantagePlatform.Utility
 
             request.DeepLinkingSettings = new DeepLinkingSettingsClaimValueType
             {
-                AcceptPresentationDocumentTargets = new[] { DocumentTarget.Window },
+                // The platform can open LTI links and plain links in a new window or embed
+                // them in an iframe; the item's "iframe" or "window" property picks one.
+                AcceptPresentationDocumentTargets = new[] { DocumentTarget.Iframe, DocumentTarget.Window },
                 AcceptMultiple = true,
-                AcceptTypes = new[] { Constants.ContentItemTypes.LtiLink },
+                // Besides LTI links the platform shows links, HTML fragments, files and images.
+                AcceptTypes = new[]
+                {
+                    Constants.ContentItemTypes.LtiLink,
+                    Constants.ContentItemTypes.Link,
+                    Constants.ContentItemTypes.Html,
+                    Constants.ContentItemTypes.File,
+                    Constants.ContentItemTypes.Image
+                },
                 AutoCreate = true,
                 DeepLinkReturnUrl = _linkGenerator.GetUriByPage(
                     "/DeepLinks",
@@ -264,14 +339,354 @@ namespace AdvantagePlatform.Utility
 
             if (tool.CustomProperties.TryConvertToDictionary(out var custom))
             {
-                var substitutions = new CustomPropertySubstitutions
-                {
-                    LtiUser = new LtiUser { Username = person.Username }
-                };
-                request.Custom = substitutions.ReplaceCustomPropertyValues(custom);
+                request.Custom = SubstituteCustomProperties(custom, request, person, course, null);
             }
 
             return new List<Claim>(request.Claims);
+        }
+
+        /// <summary>
+        /// An LtiSubmissionReviewRequest (https://www.imsglobal.org/spec/lti-sr/v1p0): the
+        /// instructor asks the tool to show the submission of the user in the for_user claim,
+        /// for the line item (gradebook column) the tool set submissionReview on.
+        /// </summary>
+        private List<Claim> GetSubmissionReviewRequestClaims(
+            GradebookColumn gradebookColumn,
+            Person forUser,
+            Person person,
+            Course course,
+            Platform platform)
+        {
+            var httpRequest = _httpContextAccessor.HttpContext!.Request;
+            var resourceLink = gradebookColumn.ResourceLink;
+            var submissionReview = gradebookColumn.GetSubmissionReview();
+
+            var request = new LtiSubmissionReviewRequest
+            {
+                DeploymentId = resourceLink.Tool.DeploymentId,
+                FamilyName = person.LastName,
+                GivenName = person.FirstName,
+                LaunchPresentation = new LaunchPresentationClaimValueType
+                {
+                    DocumentTarget = DocumentTarget.Window,
+                    Locale = CultureInfo.CurrentUICulture.Name,
+                    ReturnUrl = $"{httpRequest.Scheme}://{httpRequest.Host}"
+                },
+                Platform = GetPlatformClaim(platform),
+                Roles = PeopleModel.ParsePersonRoles(person.Roles),
+                Context = new ContextClaimValueType
+                {
+                    Id = course.Id.ToString(),
+                    Title = course.Name,
+                    Type = new[] { ContextType.CourseSection }
+                },
+                // The resource link the line item belongs to (required).
+                ResourceLink = new ResourceLinkClaimValueType
+                {
+                    Id = resourceLink.Id.ToString(),
+                    Title = resourceLink.Title,
+                    Description = resourceLink.Description
+                },
+                // The student whose submission the instructor wants to see (required).
+                ForUser = new ForUserClaimValueType
+                {
+                    UserId = forUser.Id.ToString(),
+                    GivenName = forUser.FirstName,
+                    FamilyName = forUser.LastName,
+                    Name = $"{forUser.FirstName} {forUser.LastName}".Trim(),
+                    Email = forUser.Email,
+                    PersonSourcedId = forUser.SisId,
+                    // for_user.roles is a list of strings in the library, so turn each Role into
+                    // its URI the same way the roles claim does (RoleConverter).
+                    Roles = PeopleModel.ParsePersonRoles(forUser.Roles)
+                        .Select(r => JsonSerializer.Deserialize<string>(JsonSerializer.Serialize(r)))
+                        .ToList()
+                },
+                // The AGS claim must name the line item being reviewed.
+                AssignmentGradeServices = new AssignmentGradeServicesClaimValueType
+                {
+                    Scope = AgsScopes.ToList(),
+                    LineItemUrl = _linkGenerator.GetUriByRouteValues(
+                        Constants.ServiceEndpoints.Ags.LineItemService,
+                        new { contextId = course.Id, lineItemId = gradebookColumn.Id },
+                        httpRequest.Scheme,
+                        httpRequest.Host),
+                    LineItemsUrl = _linkGenerator.GetUriByRouteValues(
+                        Constants.ServiceEndpoints.Ags.LineItemsService,
+                        new { contextId = course.Id },
+                        httpRequest.Scheme,
+                        httpRequest.Host)
+                },
+                TargetLinkUri = submissionReview?.Url.IfMissingThen(resourceLink.Tool.LaunchUrl)
+            };
+
+            // Custom parameters: the tool's and the link's, then the submissionReview's own.
+            var custom = GetCustomProperties(resourceLink);
+            foreach (var property in submissionReview?.Custom ?? new Dictionary<string, string>())
+            {
+                custom[property.Key] = property.Value;
+            }
+
+            request.Custom = SubstituteCustomProperties(custom, request, person, course, resourceLink);
+
+            return new List<Claim>(request.Claims);
+        }
+
+        /// <summary>
+        /// LtiStartProctoring (Proctoring Services 1.0 §4.2): the platform asks the proctoring
+        /// tool to check the candidate. The tool answers by posting LtiStartAssessment, with
+        /// session_data unchanged, to start_assessment_url.
+        /// </summary>
+        private List<Claim> GetStartProctoringRequestClaims(
+            ProctoringAttempt attempt,
+            Person person,
+            Course course,
+            Platform platform)
+        {
+            var httpRequest = _httpContextAccessor.HttpContext!.Request;
+            var resourceLink = attempt.ResourceLink;
+
+            var request = new LtiStartProctoringRequest
+            {
+                AttemptNumber = attempt.AttemptNumber,
+                SessionData = attempt.SessionData,
+                StartAssessmentUrl = _linkGenerator.GetUriByPage(
+                    "/Proctoring/StartAssessment",
+                    handler: null,
+                    values: null,
+                    scheme: httpRequest.Scheme,
+                    host: httpRequest.Host),
+                // The Assessment Control service and the actions the tool may send to it.
+                Acs = new AssessmentControlClaimValueType
+                {
+                    AssessmentControlUrl = _linkGenerator.GetUriByRouteValues(
+                        Constants.ServiceEndpoints.Ap.AssessmentControlService,
+                        values: null,
+                        httpRequest.Scheme,
+                        httpRequest.Host),
+                    Actions = new[]
+                    {
+                        AssessmentControlAction.Pause,
+                        AssessmentControlAction.Resume,
+                        AssessmentControlAction.Terminate,
+                        AssessmentControlAction.Update,
+                        AssessmentControlAction.Flag
+                    }
+                }
+            };
+            SetProctoringClaims(request, resourceLink, person, course, platform);
+
+            return new List<Claim>(request.Claims);
+        }
+
+        /// <summary>
+        /// LtiEndAssessment (Proctoring Services 1.0 §4.4): the candidate finished, so the
+        /// proctoring tool can close its session. Only sent when the tool asked for it with
+        /// end_assessment_return.
+        /// </summary>
+        private List<Claim> GetEndAssessmentRequestClaims(
+            ProctoringAttempt attempt,
+            Person person,
+            Course course,
+            Platform platform)
+        {
+            var request = new LtiEndAssessmentRequest
+            {
+                AttemptNumber = attempt.AttemptNumber
+            };
+            SetProctoringClaims(request, attempt.ResourceLink, person, course, platform);
+
+            return new List<Claim>(request.Claims);
+        }
+
+        /// <summary>
+        /// The claims every proctoring message shares: the assessment's resource link, the
+        /// candidate, the context and the proctoring settings.
+        /// </summary>
+        private void SetProctoringClaims(LtiRequest request, ResourceLink resourceLink, Person person, Course course, Platform platform)
+        {
+            var httpRequest = _httpContextAccessor.HttpContext!.Request;
+
+            request.DeploymentId = resourceLink.Tool.DeploymentId;
+            request.GivenName = person.FirstName;
+            request.FamilyName = person.LastName;
+            request.Email = person.Email;
+            request.Roles = PeopleModel.ParsePersonRoles(person.Roles);
+            request.Platform = GetPlatformClaim(platform);
+            request.TargetLinkUri = resourceLink.Tool.LaunchUrl;
+            request.LaunchPresentation = new LaunchPresentationClaimValueType
+            {
+                DocumentTarget = DocumentTarget.Window,
+                Locale = CultureInfo.CurrentUICulture.Name,
+                ReturnUrl = $"{httpRequest.Scheme}://{httpRequest.Host}"
+            };
+            if (course != null)
+            {
+                request.Context = new ContextClaimValueType
+                {
+                    Id = course.Id.ToString(),
+                    Title = course.Name,
+                    Type = new[] { ContextType.CourseSection }
+                };
+            }
+
+            var resourceLinkClaim = new ResourceLinkClaimValueType
+            {
+                Id = resourceLink.Id.ToString(),
+                Title = resourceLink.Title,
+                Description = resourceLink.Description
+            };
+            var settings = resourceLink.ProctoringSettings.IsPresent()
+                ? new ProctoringSettingsClaimValueType { Data = resourceLink.ProctoringSettings }
+                : null;
+
+            switch (request)
+            {
+                case LtiStartProctoringRequest start:
+                    start.ResourceLink = resourceLinkClaim;
+                    start.ProctoringSettings = settings;
+                    break;
+                case LtiEndAssessmentRequest end:
+                    end.ResourceLink = resourceLinkClaim;
+                    end.ProctoringSettings = settings;
+                    break;
+            }
+
+            request.Custom = SubstituteCustomProperties(GetCustomProperties(resourceLink), request, person, course, resourceLink);
+        }
+
+        /// <summary>
+        /// Fills in the custom property variables (https://www.imsglobal.org/spec/lti/v1p3#custom-property-substitution)
+        /// the platform knows, using the library's <see cref="CustomPropertySubstitutions"/>. Values
+        /// come from the message being sent, so a tool only learns through a variable what the
+        /// launch already tells it. See <see cref="Config.SupportedVariables"/> for the list.
+        /// </summary>
+        private Dictionary<string, string> SubstituteCustomProperties(
+            Dictionary<string, string> custom,
+            LtiRequest request,
+            Person person,
+            Course course,
+            ResourceLink resourceLink)
+        {
+            var presentation = request.LaunchPresentation;
+            var platform = request.Platform;
+            var roles = string.Join(",", (request.Roles ?? Array.Empty<Role>()).Select(ToUri));
+
+            var substitutions = new CustomPropertySubstitutions
+            {
+                LtiUser = new LtiUser
+                {
+                    Id = person.Id.ToString(),
+                    Username = person.Username
+                },
+                LisPerson = new LisPerson
+                {
+                    SourcedId = person.SisId,
+                    NameGiven = person.FirstName,
+                    NameFamily = person.LastName,
+                    NameFull = $"{person.FirstName} {person.LastName}".Trim(),
+                    EmailPrimary = person.Email
+                },
+                LisMessage = presentation == null ? null : new LisMessage
+                {
+                    DocumentTarget = presentation.DocumentTarget == null ? null : ToUri(presentation.DocumentTarget.Value),
+                    Height = presentation.Height?.ToString(),
+                    Width = presentation.Width?.ToString(),
+                    Locale = presentation.Locale,
+                    ReturnUrl = presentation.ReturnUrl
+                },
+                ToolPlatform = new ToolPlatfom
+                {
+                    ProductFamilyCode = platform?.ProductFamilyCode,
+                    Version = platform?.Version
+                },
+                ToolPlatfomInstance = new ToolPlatfomInstance
+                {
+                    ContactEmail = platform?.ContactEmail,
+                    Description = platform?.Description,
+                    Guid = platform?.Guid,
+                    Name = platform?.Name,
+                    Url = platform?.Url
+                }
+            };
+
+            if (course != null)
+            {
+                substitutions.LtiContext = new LtiContext
+                {
+                    Id = course.Id.ToString(),
+                    // The sample never copies courses, so there is no earlier context id.
+                    IdHistory = string.Empty,
+                    Title = course.Name,
+                    SourcedId = course.SisId,
+                    Type = ToUri(ContextType.CourseSection)
+                };
+                substitutions.LisCourseSection = new LisCourseSection
+                {
+                    SourcedId = course.SisId,
+                    Title = course.Name
+                };
+                substitutions.LisMembership = new LisMembership
+                {
+                    PersonSourcedId = person.SisId,
+                    Role = roles,
+                    Status = "Active",
+                    // Course Groups Service: the groups the person is in.
+                    CourseGroupIds = string.Join(",", _personGroupIds)
+                };
+                // $CourseGroup.id is "any one group associated with the launch". Launches in this
+                // sample aren't made from a group, so it is the first group the person is in.
+                substitutions.CourseGroup = new LtiAdvantage.Lti.CourseGroup
+                {
+                    Id = _personGroupIds.FirstOrDefault() ?? string.Empty
+                };
+            }
+
+            if (resourceLink != null)
+            {
+                substitutions.LtiResourceLink = new LtiResourceLink
+                {
+                    Id = resourceLink.Id.ToString(),
+                    IdHistory = string.Empty,
+                    Title = resourceLink.Title,
+                    Description = resourceLink.Description
+                };
+            }
+
+            return substitutions.ReplaceCustomPropertyValues(custom);
+        }
+
+        /// <summary>
+        /// The URI the library writes for a role, context type or document target (their JSON value).
+        /// </summary>
+        private static string ToUri<T>(T value) => JsonSerializer.Deserialize<string>(JsonSerializer.Serialize(value));
+
+        private static PlatformClaimValueType GetPlatformClaim(Platform platform) => new()
+        {
+            ContactEmail = platform.ContactEmail,
+            Description = platform.Description,
+            Guid = platform.Id.ToString(),
+            Name = platform.Name,
+            ProductFamilyCode = platform.ProductFamilyCode,
+            Url = platform.Url,
+            Version = platform.Version
+        };
+
+        private static Dictionary<string, string> GetCustomProperties(ResourceLink resourceLink)
+        {
+            if (!resourceLink.Tool.CustomProperties.TryConvertToDictionary(out var custom))
+            {
+                custom = new Dictionary<string, string>();
+            }
+            if (resourceLink.CustomProperties.TryConvertToDictionary(out var linkDictionary))
+            {
+                foreach (var property in linkDictionary)
+                {
+                    custom[property.Key] = property.Value;
+                }
+            }
+
+            return custom;
         }
 
         private List<Claim> GetResourceLinkRequestClaims(
@@ -290,7 +705,9 @@ namespace AdvantagePlatform.Utility
                 GivenName = person.FirstName,
                 LaunchPresentation = new LaunchPresentationClaimValueType
                 {
-                    DocumentTarget = DocumentTarget.Window,
+                    // Tells the tool how it is shown, e.g. so it can hide its own chrome in an iframe.
+                    DocumentTarget = resourceLink.DocumentTarget == "iframe" ? DocumentTarget.Iframe : DocumentTarget.Window,
+                    Height = resourceLink.DocumentTarget == "iframe" ? resourceLink.IframeHeight : null,
                     Locale = CultureInfo.CurrentUICulture.Name,
                     ReturnUrl = $"{httpRequest.Scheme}://{httpRequest.Host}"
                 },
@@ -335,7 +752,7 @@ namespace AdvantagePlatform.Utility
 
                 request.AssignmentGradeServices = new AssignmentGradeServicesClaimValueType
                 {
-                    Scope = new List<string> { Constants.LtiScopes.Ags.LineItem },
+                    Scope = AgsScopes.ToList(),
                     LineItemUrl = gradebookColumn == null
                         ? null
                         : _linkGenerator.GetUriByRouteValues(
@@ -358,6 +775,22 @@ namespace AdvantagePlatform.Utility
                         httpRequest.Scheme,
                         httpRequest.Host)
                 };
+
+                // Course Groups service: where the tool can read the course's groups and sets.
+                request.CourseGroupsService = new CourseGroupsServiceClaimValueType
+                {
+                    Scope = new[] { Constants.LtiScopes.Gs.ContextGroupReadonly },
+                    ContextGroupsUrl = _linkGenerator.GetUriByRouteValues(
+                        Constants.ServiceEndpoints.Gs.GroupsService,
+                        new { contextId = course.Id },
+                        httpRequest.Scheme,
+                        httpRequest.Host),
+                    ContextGroupSetsUrl = _linkGenerator.GetUriByRouteValues(
+                        Constants.ServiceEndpoints.Gs.GroupSetsService,
+                        new { contextId = course.Id },
+                        httpRequest.Scheme,
+                        httpRequest.Host)
+                };
             }
 
             if (!resourceLink.Tool.CustomProperties.TryConvertToDictionary(out var custom))
@@ -372,11 +805,7 @@ namespace AdvantagePlatform.Utility
                 }
             }
 
-            var substitutions = new CustomPropertySubstitutions
-            {
-                LtiUser = new LtiUser { Username = person.Username }
-            };
-            request.Custom = substitutions.ReplaceCustomPropertyValues(custom);
+            request.Custom = SubstituteCustomProperties(custom, request, person, course, resourceLink);
 
             return new List<Claim>(request.Claims);
         }

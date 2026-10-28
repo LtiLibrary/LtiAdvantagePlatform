@@ -1,12 +1,14 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using AdvantagePlatform;
 using AdvantagePlatform.Data;
 using AdvantagePlatform.Spa;
 using AdvantagePlatform.Utility;
+using LtiAdvantage.IdentityModel.Validation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -94,6 +96,7 @@ builder.Services.AddRazorPages(options =>
         options.Conventions.AuthorizeFolder("/CourseLinks");
         options.Conventions.AuthorizeFolder("/PlatformLinks");
         options.Conventions.AuthorizeFolder("/Tools");
+        options.Conventions.AuthorizeFolder("/Proctoring");
     });
 
 builder.Services.AddControllers();
@@ -110,10 +113,14 @@ builder.Services.AddSwaggerGen(options =>
                       "Click on Authorize and login with the username and password you registered to try the various services."
     });
 
-    var xmlFile = Path.Combine(AppContext.BaseDirectory, "LtiAdvantage.xml");
-    if (File.Exists(xmlFile))
+    // XML docs of the LtiAdvantage packages (models and the service controller bases).
+    foreach (var name in new[] { "LtiAdvantage.xml", "LtiAdvantage.AspNetCore.xml" })
     {
-        options.IncludeXmlComments(xmlFile);
+        var xmlFile = Path.Combine(AppContext.BaseDirectory, name);
+        if (File.Exists(xmlFile))
+        {
+            options.IncludeXmlComments(xmlFile);
+        }
     }
 
     options.DocumentFilter<HideRubyRoutesInSwaggerFilter>();
@@ -149,7 +156,10 @@ builder.Services.AddOpenIddict()
         options.SetAuthorizationEndpointUris("connect/authorize")
             .SetTokenEndpointUris("connect/token")
             .SetUserInfoEndpointUris("connect/userinfo")
-            .SetEndSessionEndpointUris("connect/logout");
+            .SetEndSessionEndpointUris("connect/logout")
+            // OpenIdConfigurationController serves /.well-known/openid-configuration instead,
+            // with the LTI platform configuration that Dynamic Registration needs.
+            .SetConfigurationEndpointUris(Array.Empty<string>());
 
         options.AllowAuthorizationCodeFlow()
             .AllowImplicitFlow()
@@ -206,6 +216,17 @@ builder.Services.AddLtiAdvantagePolicies();
 builder.Services.AddTransient<CourseAccessValidator>();
 builder.Services.AddScoped<ToolClientManager>();
 
+// Tool keys are fetched from each tool's JWKS URL and cached. A token signed with a key id the
+// cache does not know yet triggers a refetch (at most every 10 seconds per URL), which is how a
+// tool's key rotation reaches the platform.
+builder.Services.AddHttpClient();
+builder.Services.AddSingleton(services => new JwksCache(
+    services.GetRequiredService<IHttpClientFactory>().CreateClient(nameof(JwksCache)),
+    cacheDuration: TimeSpan.FromHours(1),
+    minimumRefreshInterval: TimeSpan.FromSeconds(10)));
+builder.Services.AddScoped<ToolSigningKeys>();
+builder.Services.AddScoped<ToolMessageValidator>();
+
 var app = builder.Build();
 
 await using (var scope = app.Services.CreateAsyncScope())
@@ -215,6 +236,7 @@ await using (var scope = app.Services.CreateAsyncScope())
 
     var toolClientManager = scope.ServiceProvider.GetRequiredService<ToolClientManager>();
     await toolClientManager.EnsureSwaggerClientAsync();
+    await toolClientManager.EnsureScopePermissionsAsync();
 }
 
 if (app.Environment.IsDevelopment())
