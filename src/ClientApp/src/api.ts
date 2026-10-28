@@ -16,6 +16,8 @@ export interface Link {
   toolName: string;
   /** Where the tool asked to be shown (Deep Linking): embedded in an iframe or in a new window. */
   documentTarget: "iframe" | "window";
+  /** A proctored assessment: launching starts an attempt at the proctoring tool. */
+  proctored: boolean;
   launchUrls: LaunchUrls;
 }
 

@@ -96,6 +96,7 @@ builder.Services.AddRazorPages(options =>
         options.Conventions.AuthorizeFolder("/CourseLinks");
         options.Conventions.AuthorizeFolder("/PlatformLinks");
         options.Conventions.AuthorizeFolder("/Tools");
+        options.Conventions.AuthorizeFolder("/Proctoring");
     });
 
 builder.Services.AddControllers();
@@ -220,6 +221,7 @@ builder.Services.AddSingleton(services => new JwksCache(
     cacheDuration: TimeSpan.FromHours(1),
     minimumRefreshInterval: TimeSpan.FromSeconds(10)));
 builder.Services.AddScoped<ToolSigningKeys>();
+builder.Services.AddScoped<ToolMessageValidator>();
 
 var app = builder.Build();
 

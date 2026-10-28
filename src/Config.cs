@@ -21,7 +21,8 @@ namespace AdvantagePlatform
             Constants.LtiScopes.Ags.Score,
             Constants.LtiScopes.Ags.ScoreReadonly,
             Constants.LtiScopes.Nrps.MembershipReadonly,
-            Constants.LtiScopes.Gs.ContextGroupReadonly
+            Constants.LtiScopes.Gs.ContextGroupReadonly,
+            Constants.LtiScopes.Ap.ControlAll
         };
 
         /// <summary>
@@ -38,7 +39,9 @@ namespace AdvantagePlatform
         {
             Constants.Lti.LtiResourceLinkRequestMessageType,
             Constants.Lti.LtiDeepLinkingRequestMessageType,
-            Constants.Lti.LtiSubmissionReviewRequestMessageType
+            Constants.Lti.LtiSubmissionReviewRequestMessageType,
+            Constants.Lti.LtiStartProctoringRequestMessageType,
+            Constants.Lti.LtiEndAssessmentRequestMessageType
         };
     }
 }

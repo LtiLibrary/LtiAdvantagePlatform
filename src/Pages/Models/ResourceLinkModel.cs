@@ -18,6 +18,8 @@ namespace AdvantagePlatform.Pages.Models
             ToolName = resourceLink.Tool.Name;
             DocumentTarget = resourceLink.DocumentTarget;
             IframeHeight = resourceLink.IframeHeight;
+            IsProctored = resourceLink.IsProctored;
+            ProctoringSettings = resourceLink.ProctoringSettings;
         }
 
         /// <summary>
@@ -49,6 +51,12 @@ namespace AdvantagePlatform.Pages.Models
 
         public int? IframeHeight { get; set; }
 
+        [Display(Name = "Proctored", Description = "Launch this assessment through a proctoring tool (LTI Proctoring Services): the tool checks the student before the assessment starts.")]
+        public bool IsProctored { get; set; }
+
+        [Display(Name = "Proctoring Settings", Description = "Optional settings for the proctoring tool, sent as the proctoring_settings claim.")]
+        public string ProctoringSettings { get; set; }
+
         /// <summary>
         /// Convert the resource links into ResourceLinkModels.
         /// </summary>
@@ -69,7 +77,9 @@ namespace AdvantagePlatform.Pages.Models
                     ToolName = tool.Name,
                     CustomProperties = link.CustomProperties,
                     DocumentTarget = link.DocumentTarget,
-                    IframeHeight = link.IframeHeight
+                    IframeHeight = link.IframeHeight,
+                    IsProctored = link.IsProctored,
+                    ProctoringSettings = link.ProctoringSettings
                 });
             }
 
@@ -84,7 +94,9 @@ namespace AdvantagePlatform.Pages.Models
                 CustomProperties = CustomProperties,
                 Description = Description,
                 Title = Title,
-                Tool = tool
+                Tool = tool,
+                IsProctored = IsProctored,
+                ProctoringSettings = ProctoringSettings
             };
         }
 
@@ -94,6 +106,8 @@ namespace AdvantagePlatform.Pages.Models
             resourceLink.Description = Description;
             resourceLink.Title = Title;
             resourceLink.Tool = tool;
+            resourceLink.IsProctored = IsProctored;
+            resourceLink.ProctoringSettings = ProctoringSettings;
         }
     }
 }

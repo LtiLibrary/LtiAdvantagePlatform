@@ -33,6 +33,18 @@
         public int? IframeHeight { get; set; }
 
         /// <summary>
+        /// A proctored assessment: launches go to the tool as LtiStartProctoring, and the
+        /// platform shows the assessment once the proctoring tool sends LtiStartAssessment.
+        /// </summary>
+        public bool IsProctored { get; set; }
+
+        /// <summary>
+        /// Opaque proctoring settings the platform keeps for the proctoring tool and sends
+        /// with every proctoring message (the proctoring_settings claim).
+        /// </summary>
+        public string ProctoringSettings { get; set; }
+
+        /// <summary>
         /// The link title.
         /// </summary>
         public string Title { get; set; }

@@ -36,6 +36,16 @@
                     <textarea asp-for="ResourceLink.CustomProperties" class="form-control text-monospace" rows="3"></textarea>
                     <span asp-validation-for="ResourceLink.CustomProperties" class="text-danger"></span>
                 </div>
+                <div class="form-group form-check">
+                    <input asp-for="ResourceLink.IsProctored" class="form-check-input" />
+                    <label asp-for="ResourceLink.IsProctored" class="form-check-label"></label>
+                    <tooltip asp-for="ResourceLink.IsProctored"></tooltip>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ResourceLink.ProctoringSettings"></label>
+                    <tooltip asp-for="ResourceLink.ProctoringSettings"></tooltip>
+                    <input asp-for="ResourceLink.ProctoringSettings" class="form-control" />
+                </div>
                 <div class="form-group">
                     <input type="submit" value="Create" class="btn btn-secondary" />
                 </div>

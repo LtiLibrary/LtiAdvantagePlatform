@@ -17,6 +17,8 @@ perspective. There is a companion sample tool over at
 - Deep Linking 2.0
   - Tools can add LTI links, links, HTML fragments, files and images to the platform or course.
   - The platform shows the tool's `msg` / `errormsg`, and honours the `iframe` or `window` presentation of each item.
+- Proctoring Services 1.0
+  - Proctored assessments start at the proctoring tool (`LtiStartProctoring`), begin when it sends `LtiStartAssessment`, and end with `LtiEndAssessment`. The tool can pause, resume, terminate, update or flag the attempt with the Assessment Control service.
 - Course Groups Service 1.0
   - Tools can read the course's group sets, groups, and each member's groups.
 - Submission Review 1.0
@@ -60,11 +62,13 @@ deep-linking launches.
     │   ├── OpenIdConfigurationController.cs / DynamicRegistrationController.cs (Dynamic Registration)
     │   ├── LineItemsController.cs / ResultsController.cs / ScoresController.cs (AGS v2)
     │   ├── MembershipController.cs (NRPS v2)
-    │   └── GroupSetsController.cs / GroupsController.cs (Course Groups)
+    │   ├── GroupSetsController.cs / GroupsController.cs (Course Groups)
+    │   └── AssessmentControlController.cs (Proctoring)
     ├── Data/ (EF Core entities and migrations)
     ├── Spa/SpaApi.cs (JSON API and /app hosting for the React front end)
     ├── Pages/
     │   ├── DeepLinks.cshtml (receives the deep-linking response)
+    │   ├── Proctoring/ (start_assessment_url and the proctored assessment)
     │   └── OidcLaunch.cshtml (initiates the LTI 1.3 launch by redirecting to the tool)
     ├── Utility/
     │   ├── LtiAdvantageClaimsHandler.cs (OpenIddict ProcessSignInContext handler that adds LTI claims)
@@ -160,6 +164,33 @@ which checks the signature with the tool's keys and saves each content item:
 `msg` and `errormsg` from the response are shown to the user after the
 dialog closes (`/DeepLinks` adds them to its `lti-deep-linking-complete`
 message); `log` and `errorlog` go to the platform's log.
+
+## Proctoring
+
+1. Create a **Course Link** to the proctoring tool and tick **Proctored**
+   (optionally fill in **Proctoring Settings**, sent as `proctoring_settings`).
+2. On the home page the link offers **Start an attempt as** a person. That
+   creates an attempt and launches `LtiStartProctoring` to the tool
+   (`GetStartProctoringRequestClaims` in `Utility/LtiAdvantageClaimsHandler.cs`)
+   with the `attempt_number`, a random `session_data`, the
+   `start_assessment_url` (`/Proctoring/StartAssessment`) and the `acs` claim
+   (Assessment Control URL `/assessment-control` and the allowed actions).
+3. The tool checks the candidate and form-posts a signed `LtiStartAssessment`
+   (field `JWT`) to the `start_assessment_url`. The platform checks the
+   signature and that `session_data`, `resource_link` and `attempt_number`
+   match the attempt (`Pages/Proctoring/StartAssessment.cshtml.cs`), starts
+   it and shows the assessment (`/Proctoring/Attempt/{id}`).
+4. While it runs, the tool can call the Assessment Control service with the
+   `https://purl.imsglobal.org/spec/lti-ap/scope/control.all` scope
+   (`Controllers/AssessmentControlController.cs`, on
+   `AssessmentControlControllerBase`): pause, resume, terminate, update
+   (extra time) or flag. The attempt page shows each action and refreshes
+   when the status changes; the home page lists attempts with their actions.
+5. **Finish assessment** completes the attempt. If the tool sent
+   `end_assessment_return`, the platform then launches `LtiEndAssessment` to it.
+
+The assessment itself is a pretend one-question page: in this flow the
+platform delivers the assessment and the tool only proctors it.
 
 ## Course Groups
 

@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -9,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace AdvantagePlatform.Pages
@@ -35,10 +38,12 @@ namespace AdvantagePlatform.Pages
         /// <param name="courseId">The course id (or null if not launched from a course).</param>
         /// <param name="personId">The person id to impersonate.</param>
         /// <param name="forUserId">Submission review only: the person whose submission to show.</param>
+        /// <remarks>For LtiStartProctoring, id is the proctored resource link; for LtiEndAssessment, the attempt.</remarks>
         public async Task<IActionResult> OnGetAsync(int id, string messageType, string courseId, string personId, string forUserId = null)
         {
             Tool tool;
             string targetLinkUri;
+            int? attemptId = null;
 
             switch (messageType)
             {
@@ -64,6 +69,43 @@ namespace AdvantagePlatform.Pages
                     targetLinkUri = column?.SubmissionReviewUrl.IfMissingThen(tool?.LaunchUrl);
                     break;
                 }
+                case Constants.Lti.LtiStartProctoringRequestMessageType:
+                {
+                    // Proctoring 1.0 §4.2: every start is a new attempt, numbered from 1.
+                    var resourceLink = await _context.GetResourceLinkAsync(id);
+                    if (resourceLink == null || !resourceLink.IsProctored || !int.TryParse(personId, out var candidateId))
+                    {
+                        _logger.LogError("Resource link {Id} is not a proctored assessment.", id);
+                        return BadRequest();
+                    }
+
+                    var previousAttempts = await _context.ProctoringAttempts
+                        .CountAsync(a => a.ResourceLinkId == id && a.PersonId == candidateId);
+                    var attempt = new ProctoringAttempt
+                    {
+                        ResourceLinkId = id,
+                        PersonId = candidateId,
+                        AttemptNumber = previousAttempts + 1,
+                        SessionData = WebEncoders.Base64UrlEncode(RandomNumberGenerator.GetBytes(16)),
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    _context.ProctoringAttempts.Add(attempt);
+                    await _context.SaveChangesAsync();
+
+                    attemptId = attempt.Id;
+                    tool = resourceLink.Tool;
+                    targetLinkUri = tool.LaunchUrl;
+                    break;
+                }
+                case Constants.Lti.LtiEndAssessmentRequestMessageType:
+                {
+                    // Sent when the candidate finished, if the proctoring tool asked for it.
+                    var attempt = await _context.GetProctoringAttemptAsync(id);
+                    tool = attempt?.ResourceLink.Tool;
+                    targetLinkUri = tool?.LaunchUrl;
+                    attemptId = attempt?.Id;
+                    break;
+                }
                 default:
                     _logger.LogError("Message type {MessageType} not supported.", messageType);
                     return BadRequest();
@@ -85,7 +127,7 @@ namespace AdvantagePlatform.Pages
                 // Lets the tool pick the right registration when it has several with this platform.
                 ["client_id"] = tool.ClientId,
                 ["lti_deployment_id"] = tool.DeploymentId,
-                ["lti_message_hint"] = JsonSerializer.Serialize(new { id, messageType, courseId, forUserId })
+                ["lti_message_hint"] = JsonSerializer.Serialize(new { id, messageType, courseId, forUserId, attemptId })
             };
 
             var url = QueryHelpers.AddQueryString(tool.LoginUrl, values);

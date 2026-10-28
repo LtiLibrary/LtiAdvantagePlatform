@@ -27,32 +27,64 @@ else
                         }
                     </div>
                     <div class="card-footer">
-                        @foreach (var person in Model.People.OrderBy(p => p.FirstName))
+                        @if (link.IsProctored)
                         {
-                            var url = Url.Page("/OidcLaunch", new
-                            {
-                                id = link.Id,
-                                messageType = Constants.Lti.LtiResourceLinkRequestMessageType,
-                                courseId = Model.CourseId,
-                                personId = person.Id
-                            });
-                            var title = $"Launch this resource link using {link.ToolName} as {person.FirstName} {person.LastName}";
-
-                            @* The link's presentation target, set by Deep Linking, decides where the tool opens. *@
-                            if (embedded)
-                            {
-                                <button class="btn btn-sm btn-secondary mt-2 mb-2"
-                                        data-toggle="modal" data-target="#@frameModalId"
-                                        data-url="@url" data-height="@(link.IframeHeight ?? 600)" title="@title">
-                                    <i class="fas fa-window-maximize"></i> @person.FirstName
-                                </button>
-                            }
-                            else
+                            @* Proctored assessment: the launch goes to the proctoring tool as LtiStartProctoring. *@
+                            <div><small>Proctored assessment. Start an attempt as:</small></div>
+                            @foreach (var person in Model.People.OrderBy(p => p.FirstName))
                             {
                                 <a class="btn btn-sm btn-secondary mt-2 mb-2" target="_blank"
-                                   data-toggle="tooltip" title="@title" href="@url">
-                                    <i class="fas fa-external-link-alt"></i> @person.FirstName
+                                   data-toggle="tooltip" title="@($"Start a proctored attempt as {person.FirstName} {person.LastName}")"
+                                   href="@Url.Page("/OidcLaunch", new { id = link.Id, messageType = Constants.Lti.LtiStartProctoringRequestMessageType, courseId = Model.CourseId, personId = person.Id })">
+                                    <i class="fas fa-user-shield"></i> @person.FirstName
                                 </a>
+                            }
+                            @foreach (var attempt in Model.ProctoringAttempts.Where(a => a.ResourceLinkId == link.Id))
+                            {
+                                var candidate = Model.People.SingleOrDefault(p => p.Id == attempt.PersonId);
+                                <div>
+                                    <small>
+                                        <a asp-page="/Proctoring/Attempt" asp-route-id="@attempt.Id">
+                                            @candidate?.FirstName #@attempt.AttemptNumber
+                                        </a>
+                                        @attempt.Status.ToString().ToLowerInvariant()
+                                        @if (attempt.Events.Any())
+                                        {
+                                            <span>(@string.Join(", ", attempt.Events.OrderBy(e => e.ReceivedAt).Select(e => e.Action.ToString().ToLowerInvariant())))</span>
+                                        }
+                                    </small>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            foreach (var person in Model.People.OrderBy(p => p.FirstName))
+                            {
+                                var url = Url.Page("/OidcLaunch", new
+                                {
+                                    id = link.Id,
+                                    messageType = Constants.Lti.LtiResourceLinkRequestMessageType,
+                                    courseId = Model.CourseId,
+                                    personId = person.Id
+                                });
+                                var title = $"Launch this resource link using {link.ToolName} as {person.FirstName} {person.LastName}";
+
+                                @* The link's presentation target, set by Deep Linking, decides where the tool opens. *@
+                                if (embedded)
+                                {
+                                    <button class="btn btn-sm btn-secondary mt-2 mb-2"
+                                            data-toggle="modal" data-target="#@frameModalId"
+                                            data-url="@url" data-height="@(link.IframeHeight ?? 600)" title="@title">
+                                        <i class="fas fa-window-maximize"></i> @person.FirstName
+                                    </button>
+                                }
+                                else
+                                {
+                                    <a class="btn btn-sm btn-secondary mt-2 mb-2" target="_blank"
+                                       data-toggle="tooltip" title="@title" href="@url">
+                                        <i class="fas fa-external-link-alt"></i> @person.FirstName
+                                    </a>
+                                }
                             }
                         }
                     </div>

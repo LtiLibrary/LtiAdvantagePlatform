@@ -21,17 +21,17 @@ namespace AdvantagePlatform.Pages
     public class DeepLinksModel : PageModel
     {
         private readonly ApplicationDbContext _context;
-        private readonly ToolSigningKeys _toolSigningKeys;
+        private readonly ToolMessageValidator _toolMessageValidator;
         private readonly ILogger<DeepLinksModel> _logger;
 
         public DeepLinksModel(
             ApplicationDbContext context,
-            ToolSigningKeys toolSigningKeys,
+            ToolMessageValidator toolMessageValidator,
             IConfiguration configuration,
             ILogger<DeepLinksModel> logger)
         {
             _context = context;
-            _toolSigningKeys = toolSigningKeys;
+            _toolMessageValidator = toolMessageValidator;
             _logger = logger;
 
             // The page tells the window that opened the deep linking flow (the Razor home page or
@@ -80,32 +80,12 @@ namespace AdvantagePlatform.Pages
                 });
             }
 
-            if (!await ValidateToken(IdToken))
+            var (token, tool, error) = await _toolMessageValidator.ValidateAsync(
+                IdToken, Constants.Lti.LtiDeepLinkingResponseMessageType, Request);
+            if (token == null)
             {
-                return Unauthorized();
-            }
-
-            var handler = new JwtSecurityTokenHandler();
-            var token = handler.ReadJwtToken(IdToken);
-
-            var messageType = token.Claims.SingleOrDefault(c => c.Type == Constants.LtiClaims.MessageType)?.Value;
-            if (messageType != Constants.Lti.LtiDeepLinkingResponseMessageType)
-            {
-                return BadRequest(new ProblemDetails
-                {
-                    Title = "Incorrect message format",
-                    Detail = $"Expecting {Constants.Lti.LtiDeepLinkingResponseMessageType}, but found {messageType}."
-                });
-            }
-
-            var tool = await _context.Tools.SingleOrDefaultAsync(t => t.ClientId == token.Issuer);
-            if (tool == null)
-            {
-                return BadRequest(new ProblemDetails
-                {
-                    Title = "Unknown tool",
-                    Detail = $"No registered tool with client id {token.Issuer}."
-                });
+                _logger.LogError("Deep linking response rejected: {Error}", error);
+                return BadRequest(new ProblemDetails { Title = "Invalid deep linking response", Detail = error });
             }
 
             // The return URL names the platform and course. Only save items there when the tool
@@ -227,60 +207,6 @@ namespace AdvantagePlatform.Pages
             else
             {
                 course.LinkedContent.Add(content);
-            }
-        }
-
-        private async Task<bool> ValidateToken(string idToken)
-        {
-            var handler = new JwtSecurityTokenHandler();
-            if (!handler.CanReadToken(idToken))
-            {
-                _logger.LogError("Cannot read {IdToken}.", nameof(idToken));
-                return false;
-            }
-
-            var token = handler.ReadJwtToken(idToken);
-            var tool = await _context.Tools.SingleOrDefaultAsync(t => t.ClientId == token.Issuer);
-            if (tool == null)
-            {
-                _logger.LogError("Cannot find tool for issuer {Issuer}.", token.Issuer);
-                return false;
-            }
-
-            // The "kid" header names the key the tool signed with. If the tool rotated its keys,
-            // an unknown kid makes the platform fetch the tool's JWKS again.
-            var keys = await _toolSigningKeys.GetSigningKeysAsync(tool, token.Header.Kid);
-            if (keys.Count == 0)
-            {
-                _logger.LogError("Tool {ToolId} has no usable public key.", tool.Id);
-                return false;
-            }
-
-            var tokenValidationParameters = new TokenValidationParameters
-            {
-                RequireSignedTokens = true,
-                RequireExpirationTime = true,
-
-                IssuerSigningKeys = keys,
-                ValidateIssuerSigningKey = true,
-
-                ValidateIssuer = false,
-
-                // Tools address the response to the "iss" they received in the id_token.
-                // Also accept it without the trailing slash, as older tools may send that.
-                ValidAudiences = new[] { Request.GetIssuer(), Request.GetIssuer().TrimEnd('/') },
-                ValidateAudience = true
-            };
-
-            try
-            {
-                handler.ValidateToken(idToken, tokenValidationParameters, out _);
-                return true;
-            }
-            catch (System.Exception e)
-            {
-                _logger.LogError(e, "JWT token validation error.");
-                return false;
             }
         }
     }

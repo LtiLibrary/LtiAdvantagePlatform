@@ -125,7 +125,7 @@ function ContextSection({ heading, context, personId, personName, onLaunch }: Se
               <button
                 onClick={() => {
                   // Honour the presentation target the tool chose with Deep Linking.
-                  if (link.documentTarget === "window") {
+                  if (link.documentTarget === "window" && !link.proctored) {
                     window.open(link.launchUrls[personId], "_blank", "noopener");
                     return;
                   }
@@ -136,7 +136,11 @@ function ContextSection({ heading, context, personId, personName, onLaunch }: Se
                   });
                 }}
               >
-                {link.documentTarget === "window" ? "Launch in new tab" : "Launch"}
+                {link.proctored
+                  ? "Start proctored attempt"
+                  : link.documentTarget === "window"
+                    ? "Launch in new tab"
+                    : "Launch"}
               </button>
             </li>
           ))}

@@ -24,6 +24,8 @@ namespace AdvantagePlatform.Data
         public DbSet<LinkedContent> LinkedContent { get; set; }
         public DbSet<Person> People { get; set; }
         public DbSet<Platform> Platforms { get; set; }
+        public DbSet<ProctoringAttempt> ProctoringAttempts { get; set; }
+        public DbSet<ProctoringEvent> ProctoringEvents { get; set; }
         public DbSet<ResourceLink> ResourceLinks { get; set; }
         public DbSet<Tool> Tools { get; set; }
         public DbSet<ToolRegistration> ToolRegistrations { get; set; }
@@ -53,6 +55,18 @@ namespace AdvantagePlatform.Data
 
             // People belong to any number of groups.
             builder.Entity<CourseGroup>().HasMany(g => g.Members).WithMany();
+
+            builder.Entity<ProctoringAttempt>().HasOne(a => a.ResourceLink).WithMany()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<ProctoringAttempt>().HasMany(a => a.Events).WithOne()
+                .HasForeignKey(e => e.ProctoringAttemptId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Store the proctoring enums by name, so the database reads like the spec.
+            builder.Entity<ProctoringAttempt>().Property(a => a.Status).HasConversion<string>();
+            builder.Entity<ProctoringEvent>().Property(e => e.Action).HasConversion<string>();
+            builder.Entity<ProctoringEvent>().Property(e => e.ResultingStatus).HasConversion<string>();
 
             builder.Entity<ToolRegistration>().HasIndex(r => r.Token).IsUnique();
 
@@ -106,6 +120,19 @@ namespace AdvantagePlatform.Data
                 .ThenInclude(g => g.Members)
                 .OrderBy(s => s.Name)
                 .ToListAsync();
+        }
+
+        /// <summary>
+        /// Returns a proctoring attempt with its resource link, tool and events.
+        /// </summary>
+        /// <param name="id">The attempt id.</param>
+        public async Task<ProctoringAttempt> GetProctoringAttemptAsync(int id)
+        {
+            return await ProctoringAttempts
+                .Include(a => a.ResourceLink)
+                .ThenInclude(l => l.Tool)
+                .Include(a => a.Events)
+                .SingleOrDefaultAsync(a => a.Id == id);
         }
 
         /// <summary>

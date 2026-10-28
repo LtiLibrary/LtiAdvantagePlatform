@@ -1,0 +1,11 @@
+@page
+@model AdvantagePlatform.Pages.Proctoring.StartAssessmentModel
+@{
+    ViewData["Title"] = "Proctored assessment";
+}
+
+<div class="container-fluid">
+    <h4>Proctored assessment</h4>
+    <div class="alert alert-danger">The assessment could not start: @Model.Error</div>
+    <a href="/">Back to the home page</a>
+</div>

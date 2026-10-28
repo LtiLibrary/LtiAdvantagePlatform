@@ -13,6 +13,7 @@ using LtiAdvantage.CourseGroupsService;
 using LtiAdvantage.DeepLinking;
 using LtiAdvantage.Lti;
 using LtiAdvantage.NamesRoleProvisioningService;
+using LtiAdvantage.Proctoring;
 using LtiAdvantage.SubmissionReview;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -204,6 +205,24 @@ namespace AdvantagePlatform.Utility
                     }
 
                     claims = GetSubmissionReviewRequestClaims(gradebookColumn, forUser, person, course, user.Platform);
+                    break;
+                }
+                case Constants.Lti.LtiStartProctoringRequestMessageType:
+                case Constants.Lti.LtiEndAssessmentRequestMessageType:
+                {
+                    var attemptId = message.TryGetProperty("attemptId", out var attemptEl) && attemptEl.TryGetInt32(out var attemptValue)
+                        ? attemptValue
+                        : 0;
+                    var attempt = await _context.GetProctoringAttemptAsync(attemptId);
+                    if (attempt == null || attempt.PersonId != person.Id)
+                    {
+                        _logger.LogError("Proctoring attempt {AttemptId} not found for person {PersonId}.", attemptId, person.Id);
+                        return;
+                    }
+
+                    claims = messageType == Constants.Lti.LtiStartProctoringRequestMessageType
+                        ? GetStartProctoringRequestClaims(attempt, person, course, user.Platform)
+                        : GetEndAssessmentRequestClaims(attempt, person, course, user.Platform);
                     break;
                 }
                 default:
@@ -398,6 +417,133 @@ namespace AdvantagePlatform.Utility
             request.Custom = substitutions.ReplaceCustomPropertyValues(custom);
 
             return new List<Claim>(request.Claims);
+        }
+
+        /// <summary>
+        /// LtiStartProctoring (Proctoring Services 1.0 §4.2): the platform asks the proctoring
+        /// tool to check the candidate. The tool answers by posting LtiStartAssessment, with
+        /// session_data unchanged, to start_assessment_url.
+        /// </summary>
+        private List<Claim> GetStartProctoringRequestClaims(
+            ProctoringAttempt attempt,
+            Person person,
+            Course course,
+            Platform platform)
+        {
+            var httpRequest = _httpContextAccessor.HttpContext!.Request;
+            var resourceLink = attempt.ResourceLink;
+
+            var request = new LtiStartProctoringRequest
+            {
+                AttemptNumber = attempt.AttemptNumber,
+                SessionData = attempt.SessionData,
+                StartAssessmentUrl = _linkGenerator.GetUriByPage(
+                    "/Proctoring/StartAssessment",
+                    handler: null,
+                    values: null,
+                    scheme: httpRequest.Scheme,
+                    host: httpRequest.Host),
+                // The Assessment Control service and the actions the tool may send to it.
+                Acs = new AssessmentControlClaimValueType
+                {
+                    AssessmentControlUrl = _linkGenerator.GetUriByRouteValues(
+                        Constants.ServiceEndpoints.Ap.AssessmentControlService,
+                        values: null,
+                        httpRequest.Scheme,
+                        httpRequest.Host),
+                    Actions = new[]
+                    {
+                        AssessmentControlAction.Pause,
+                        AssessmentControlAction.Resume,
+                        AssessmentControlAction.Terminate,
+                        AssessmentControlAction.Update,
+                        AssessmentControlAction.Flag
+                    }
+                }
+            };
+            SetProctoringClaims(request, resourceLink, person, course, platform);
+
+            return new List<Claim>(request.Claims);
+        }
+
+        /// <summary>
+        /// LtiEndAssessment (Proctoring Services 1.0 §4.4): the candidate finished, so the
+        /// proctoring tool can close its session. Only sent when the tool asked for it with
+        /// end_assessment_return.
+        /// </summary>
+        private List<Claim> GetEndAssessmentRequestClaims(
+            ProctoringAttempt attempt,
+            Person person,
+            Course course,
+            Platform platform)
+        {
+            var request = new LtiEndAssessmentRequest
+            {
+                AttemptNumber = attempt.AttemptNumber
+            };
+            SetProctoringClaims(request, attempt.ResourceLink, person, course, platform);
+
+            return new List<Claim>(request.Claims);
+        }
+
+        /// <summary>
+        /// The claims every proctoring message shares: the assessment's resource link, the
+        /// candidate, the context and the proctoring settings.
+        /// </summary>
+        private void SetProctoringClaims(LtiRequest request, ResourceLink resourceLink, Person person, Course course, Platform platform)
+        {
+            var httpRequest = _httpContextAccessor.HttpContext!.Request;
+
+            request.DeploymentId = resourceLink.Tool.DeploymentId;
+            request.GivenName = person.FirstName;
+            request.FamilyName = person.LastName;
+            request.Email = person.Email;
+            request.Roles = PeopleModel.ParsePersonRoles(person.Roles);
+            request.Platform = GetPlatformClaim(platform);
+            request.TargetLinkUri = resourceLink.Tool.LaunchUrl;
+            request.LaunchPresentation = new LaunchPresentationClaimValueType
+            {
+                DocumentTarget = DocumentTarget.Window,
+                Locale = CultureInfo.CurrentUICulture.Name,
+                ReturnUrl = $"{httpRequest.Scheme}://{httpRequest.Host}"
+            };
+            if (course != null)
+            {
+                request.Context = new ContextClaimValueType
+                {
+                    Id = course.Id.ToString(),
+                    Title = course.Name,
+                    Type = new[] { ContextType.CourseSection }
+                };
+            }
+
+            var resourceLinkClaim = new ResourceLinkClaimValueType
+            {
+                Id = resourceLink.Id.ToString(),
+                Title = resourceLink.Title,
+                Description = resourceLink.Description
+            };
+            var settings = resourceLink.ProctoringSettings.IsPresent()
+                ? new ProctoringSettingsClaimValueType { Data = resourceLink.ProctoringSettings }
+                : null;
+
+            switch (request)
+            {
+                case LtiStartProctoringRequest start:
+                    start.ResourceLink = resourceLinkClaim;
+                    start.ProctoringSettings = settings;
+                    break;
+                case LtiEndAssessmentRequest end:
+                    end.ResourceLink = resourceLinkClaim;
+                    end.ProctoringSettings = settings;
+                    break;
+            }
+
+            var substitutions = new CustomPropertySubstitutions
+            {
+                LtiUser = new LtiUser { Username = person.Username }
+            };
+            request.Custom = substitutions.ReplaceCustomPropertyValues(GetCustomProperties(resourceLink));
         }
 
         private static PlatformClaimValueType GetPlatformClaim(Platform platform) => new()

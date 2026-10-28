@@ -64,7 +64,11 @@ namespace AdvantagePlatform.Spa
                             l.Description,
                             l.Tool.Name,
                             l.DocumentTarget.IfMissingThen("window"),
-                            LaunchUrls(l.Id, Constants.Lti.LtiResourceLinkRequestMessageType, courseId)))
+                            l.IsProctored,
+                            // A proctored assessment starts at the proctoring tool (LtiStartProctoring).
+                            LaunchUrls(l.Id, l.IsProctored
+                                ? Constants.Lti.LtiStartProctoringRequestMessageType
+                                : Constants.Lti.LtiResourceLinkRequestMessageType, courseId)))
                         .ToList();
 
                 // Non-LTI content added with Deep Linking. HTML fragments are left out: showing
@@ -133,7 +137,8 @@ namespace AdvantagePlatform.Spa
         public record ContextDto(string Name, List<LinkDto> Links, List<ContentDto> Content, List<DeepLinkToolDto> DeepLinkTools);
 
         /// <param name="DocumentTarget">"iframe" or "window": where the tool asked to be shown.</param>
-        public record LinkDto(int Id, string Title, string Description, string ToolName, string DocumentTarget, Dictionary<int, string> LaunchUrls);
+        /// <param name="Proctored">A proctored assessment: the launch URLs start a proctored attempt.</param>
+        public record LinkDto(int Id, string Title, string Description, string ToolName, string DocumentTarget, bool Proctored, Dictionary<int, string> LaunchUrls);
 
         /// <param name="Type">The deep linking content item type: "link", "file" or "image".</param>
         public record ContentDto(int Id, string Type, string Title, string Text, string Url);
