@@ -121,6 +121,9 @@ namespace AdvantagePlatform.Data.Migrations
                     b.Property<DateTime?>("EndDateTime")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("HasSubmissionReview")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Label")
                         .HasColumnType("TEXT");
 
@@ -134,6 +137,15 @@ namespace AdvantagePlatform.Data.Migrations
                         .HasColumnType("REAL");
 
                     b.Property<DateTime?>("StartDateTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SubmissionReviewCustom")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SubmissionReviewLabel")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SubmissionReviewUrl")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Tag")

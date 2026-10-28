@@ -74,10 +74,12 @@ namespace AdvantagePlatform.Controllers
             {
                 EndDateTime = request.LineItem.EndDateTime,
                 Label = request.LineItem.Label,
+                ResourceId = request.LineItem.ResourceId,
                 ScoreMaximum = request.LineItem.ScoreMaximum,
                 StartDateTime = request.LineItem.StartDateTime,
                 Tag = request.LineItem.Tag
             };
+            gradebookColumn.SetSubmissionReview(request.LineItem.SubmissionReviewExtension);
 
             if (request.LineItem.ResourceLinkId.IsPresent())
             {
@@ -226,9 +228,10 @@ namespace AdvantagePlatform.Controllers
                 EndDateTime = gradebookColumn.EndDateTime,
                 Label = gradebookColumn.Label,
                 ResourceId = gradebookColumn.ResourceId,
-                ResourceLinkId = gradebookColumn.ResourceLink.Id.ToString(),
+                ResourceLinkId = gradebookColumn.ResourceLink?.Id.ToString(),
                 ScoreMaximum = gradebookColumn.ScoreMaximum,
                 StartDateTime = gradebookColumn.StartDateTime,
+                SubmissionReviewExtension = gradebookColumn.GetSubmissionReview(),
                 Tag = gradebookColumn.Tag
             };
         }
@@ -276,9 +279,10 @@ namespace AdvantagePlatform.Controllers
                     EndDateTime = gradebookColumn.EndDateTime,
                     Label = gradebookColumn.Label,
                     ResourceId = gradebookColumn.ResourceId,
-                    ResourceLinkId = gradebookColumn.ResourceLink.Id.ToString(),
+                    ResourceLinkId = gradebookColumn.ResourceLink?.Id.ToString(),
                     ScoreMaximum = gradebookColumn.ScoreMaximum,
                     StartDateTime = gradebookColumn.StartDateTime,
+                    SubmissionReviewExtension = gradebookColumn.GetSubmissionReview(),
                     Tag = gradebookColumn.Tag
                 });
             }
@@ -359,6 +363,7 @@ namespace AdvantagePlatform.Controllers
             gradebookColumn.ScoreMaximum = request.LineItem.ScoreMaximum;
             gradebookColumn.StartDateTime = request.LineItem.StartDateTime;
             gradebookColumn.Tag = request.LineItem.Tag;
+            gradebookColumn.SetSubmissionReview(request.LineItem.SubmissionReviewExtension);
             if (request.LineItem.ResourceLinkId.IsPresent())
             {
                 if (!int.TryParse(request.LineItem.ResourceLinkId, out var resourceLinkId))

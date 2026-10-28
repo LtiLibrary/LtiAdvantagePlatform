@@ -30,28 +30,43 @@ namespace AdvantagePlatform.Pages
         /// Initiates an LTI 1.3 launch from the platform to the tool by redirecting
         /// to the tool's OIDC login initiation URL.
         /// </summary>
-        /// <param name="id">The resource link or tool id.</param>
+        /// <param name="id">The resource link id, tool id (deep linking) or gradebook column id (submission review).</param>
         /// <param name="messageType">The lti message type.</param>
         /// <param name="courseId">The course id (or null if not launched from a course).</param>
         /// <param name="personId">The person id to impersonate.</param>
-        public async Task<IActionResult> OnGetAsync(int id, string messageType, string courseId, string personId)
+        /// <param name="forUserId">Submission review only: the person whose submission to show.</param>
+        public async Task<IActionResult> OnGetAsync(int id, string messageType, string courseId, string personId, string forUserId = null)
         {
             Tool tool;
+            string targetLinkUri;
 
-            if (messageType == Constants.Lti.LtiResourceLinkRequestMessageType)
+            switch (messageType)
             {
-                var resourceLink = await _context.GetResourceLinkAsync(id);
-                if (resourceLink == null)
+                case Constants.Lti.LtiResourceLinkRequestMessageType:
                 {
-                    _logger.LogError("Resource link not found.");
-                    return BadRequest();
+                    var resourceLink = await _context.GetResourceLinkAsync(id);
+                    tool = resourceLink?.Tool;
+                    targetLinkUri = tool?.LaunchUrl;
+                    break;
                 }
-
-                tool = resourceLink.Tool;
-            }
-            else
-            {
-                tool = await _context.GetToolAsync(id);
+                case Constants.Lti.LtiDeepLinkingRequestMessageType:
+                {
+                    tool = await _context.GetToolAsync(id);
+                    targetLinkUri = tool?.DeepLinkingLaunchUrl.IfMissingThen(tool.LaunchUrl);
+                    break;
+                }
+                case Constants.Lti.LtiSubmissionReviewRequestMessageType:
+                {
+                    // Launched from a gradebook cell. The line item's submissionReview.url, if
+                    // any, replaces the resource link's launch URL (Submission Review §2.2).
+                    var column = await _context.GetGradebookColumnWithToolAsync(id);
+                    tool = column?.ResourceLink?.Tool;
+                    targetLinkUri = column?.SubmissionReviewUrl.IfMissingThen(tool?.LaunchUrl);
+                    break;
+                }
+                default:
+                    _logger.LogError("Message type {MessageType} not supported.", messageType);
+                    return BadRequest();
             }
 
             if (tool == null)
@@ -65,8 +80,12 @@ namespace AdvantagePlatform.Pages
                 // Must equal the "iss" claim of the id_token, or the tool can't match them up.
                 ["iss"] = Request.GetIssuer(),
                 ["login_hint"] = personId,
-                ["target_link_uri"] = tool.LaunchUrl,
-                ["lti_message_hint"] = JsonSerializer.Serialize(new { id, messageType, courseId })
+                // Must equal the target_link_uri claim of the id_token the tool will receive.
+                ["target_link_uri"] = targetLinkUri,
+                // Lets the tool pick the right registration when it has several with this platform.
+                ["client_id"] = tool.ClientId,
+                ["lti_deployment_id"] = tool.DeploymentId,
+                ["lti_message_hint"] = JsonSerializer.Serialize(new { id, messageType, courseId, forUserId })
             };
 
             var url = QueryHelpers.AddQueryString(tool.LoginUrl, values);

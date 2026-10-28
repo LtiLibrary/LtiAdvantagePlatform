@@ -17,6 +17,8 @@ perspective. There is a companion sample tool over at
 - Deep Linking 2.0
   - Tools can add LTI links, links, HTML fragments, files and images to the platform or course.
   - The platform shows the tool's `msg` / `errormsg`, and honours the `iframe` or `window` presentation of each item.
+- Submission Review 1.0
+  - Tools mark line items with `submissionReview`; the gradebook then offers "View submission", which launches the tool for that student.
 - Dynamic Registration 1.0
   - Tools register themselves: no URLs, client IDs or keys to copy by hand.
 - Tool keys from the tool's JWKS URL
@@ -155,6 +157,27 @@ which checks the signature with the tool's keys and saves each content item:
 `msg` and `errormsg` from the response are shown to the user after the
 dialog closes (`/DeepLinks` adds them to its `lti-deep-linking-complete`
 message); `log` and `errorlog` go to the platform's log.
+
+## Submission Review
+
+A tool that can show a student's submission says so on the line item: it
+creates or updates the line item (Assignment and Grade Services) with a
+`submissionReview` property (`SubmissionReviewProperty`: `label`, optional
+`url` and `custom`). The platform stores it on the gradebook column
+(`Controllers/LineItemsController.cs`) and returns it when the tool reads the
+line item.
+
+In the gradebook, every score in such a column gets a button with the
+review's label ("View submission" by default). It launches an
+`LtiSubmissionReviewRequest` through the usual `/OidcLaunch` →
+`/connect/authorize` flow, as the course's instructor, with:
+
+- `for_user`: the student whose submission to show (`ForUserClaimValueType`);
+- the AGS claim with that line item's URL, and the line item's resource link;
+- `target_link_uri`: the `submissionReview.url`, or the tool's launch URL;
+- the `submissionReview.custom` parameters on top of the link's own.
+
+See `GetSubmissionReviewRequestClaims` in `Utility/LtiAdvantageClaimsHandler.cs`.
 
 ## Registering a tool with Dynamic Registration
 

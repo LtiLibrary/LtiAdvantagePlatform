@@ -36,7 +36,8 @@ namespace AdvantagePlatform
         public static readonly IReadOnlyCollection<string> MessagesSupported = new[]
         {
             Constants.Lti.LtiResourceLinkRequestMessageType,
-            Constants.Lti.LtiDeepLinkingRequestMessageType
+            Constants.Lti.LtiDeepLinkingRequestMessageType,
+            Constants.Lti.LtiSubmissionReviewRequestMessageType
         };
     }
 }

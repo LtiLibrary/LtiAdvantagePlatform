@@ -12,6 +12,7 @@ using LtiAdvantage.AssignmentGradeServices;
 using LtiAdvantage.DeepLinking;
 using LtiAdvantage.Lti;
 using LtiAdvantage.NamesRoleProvisioningService;
+using LtiAdvantage.SubmissionReview;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -182,6 +183,28 @@ namespace AdvantagePlatform.Utility
                     claims = GetDeepLinkingRequestClaims(tool, person, course, user.Platform);
                     break;
                 }
+                case Constants.Lti.LtiSubmissionReviewRequestMessageType:
+                {
+                    var gradebookColumn = await _context.GetGradebookColumnWithToolAsync(id);
+                    if (gradebookColumn?.ResourceLink == null || course == null)
+                    {
+                        _logger.LogError("Gradebook column {ColumnId} not found, or has no resource link.", id);
+                        return;
+                    }
+
+                    var forUserId = message.TryGetProperty("forUserId", out var forUserEl) ? forUserEl.GetString() : null;
+                    var forUser = int.TryParse(forUserId, out var forUserPersonId)
+                        ? await _context.GetPersonAsync(forUserPersonId)
+                        : null;
+                    if (forUser == null)
+                    {
+                        _logger.LogError("Submission review needs a for_user, but person {ForUserId} was not found.", forUserId);
+                        return;
+                    }
+
+                    claims = GetSubmissionReviewRequestClaims(gradebookColumn, forUser, person, course, user.Platform);
+                    break;
+                }
                 default:
                     _logger.LogError("messageType=\"{MessageType}\" not supported.", messageType);
                     return;
@@ -283,6 +306,125 @@ namespace AdvantagePlatform.Utility
             }
 
             return new List<Claim>(request.Claims);
+        }
+
+        /// <summary>
+        /// An LtiSubmissionReviewRequest (https://www.imsglobal.org/spec/lti-sr/v1p0): the
+        /// instructor asks the tool to show the submission of the user in the for_user claim,
+        /// for the line item (gradebook column) the tool set submissionReview on.
+        /// </summary>
+        private List<Claim> GetSubmissionReviewRequestClaims(
+            GradebookColumn gradebookColumn,
+            Person forUser,
+            Person person,
+            Course course,
+            Platform platform)
+        {
+            var httpRequest = _httpContextAccessor.HttpContext!.Request;
+            var resourceLink = gradebookColumn.ResourceLink;
+            var submissionReview = gradebookColumn.GetSubmissionReview();
+
+            var request = new LtiSubmissionReviewRequest
+            {
+                DeploymentId = resourceLink.Tool.DeploymentId,
+                FamilyName = person.LastName,
+                GivenName = person.FirstName,
+                LaunchPresentation = new LaunchPresentationClaimValueType
+                {
+                    DocumentTarget = DocumentTarget.Window,
+                    Locale = CultureInfo.CurrentUICulture.Name,
+                    ReturnUrl = $"{httpRequest.Scheme}://{httpRequest.Host}"
+                },
+                Platform = GetPlatformClaim(platform),
+                Roles = PeopleModel.ParsePersonRoles(person.Roles),
+                Context = new ContextClaimValueType
+                {
+                    Id = course.Id.ToString(),
+                    Title = course.Name,
+                    Type = new[] { ContextType.CourseSection }
+                },
+                // The resource link the line item belongs to (required).
+                ResourceLink = new ResourceLinkClaimValueType
+                {
+                    Id = resourceLink.Id.ToString(),
+                    Title = resourceLink.Title,
+                    Description = resourceLink.Description
+                },
+                // The student whose submission the instructor wants to see (required).
+                ForUser = new ForUserClaimValueType
+                {
+                    UserId = forUser.Id.ToString(),
+                    GivenName = forUser.FirstName,
+                    FamilyName = forUser.LastName,
+                    Name = $"{forUser.FirstName} {forUser.LastName}".Trim(),
+                    Email = forUser.Email,
+                    PersonSourcedId = forUser.SisId,
+                    // for_user.roles is a list of strings in the library, so turn each Role into
+                    // its URI the same way the roles claim does (RoleConverter).
+                    Roles = PeopleModel.ParsePersonRoles(forUser.Roles)
+                        .Select(r => JsonSerializer.Deserialize<string>(JsonSerializer.Serialize(r)))
+                        .ToList()
+                },
+                // The AGS claim must name the line item being reviewed.
+                AssignmentGradeServices = new AssignmentGradeServicesClaimValueType
+                {
+                    Scope = new List<string> { Constants.LtiScopes.Ags.LineItem },
+                    LineItemUrl = _linkGenerator.GetUriByRouteValues(
+                        Constants.ServiceEndpoints.Ags.LineItemService,
+                        new { contextId = course.Id, lineItemId = gradebookColumn.Id },
+                        httpRequest.Scheme,
+                        httpRequest.Host),
+                    LineItemsUrl = _linkGenerator.GetUriByRouteValues(
+                        Constants.ServiceEndpoints.Ags.LineItemsService,
+                        new { contextId = course.Id },
+                        httpRequest.Scheme,
+                        httpRequest.Host)
+                },
+                TargetLinkUri = submissionReview?.Url.IfMissingThen(resourceLink.Tool.LaunchUrl)
+            };
+
+            // Custom parameters: the tool's and the link's, then the submissionReview's own.
+            var custom = GetCustomProperties(resourceLink);
+            foreach (var property in submissionReview?.Custom ?? new Dictionary<string, string>())
+            {
+                custom[property.Key] = property.Value;
+            }
+
+            var substitutions = new CustomPropertySubstitutions
+            {
+                LtiUser = new LtiUser { Username = person.Username }
+            };
+            request.Custom = substitutions.ReplaceCustomPropertyValues(custom);
+
+            return new List<Claim>(request.Claims);
+        }
+
+        private static PlatformClaimValueType GetPlatformClaim(Platform platform) => new()
+        {
+            ContactEmail = platform.ContactEmail,
+            Description = platform.Description,
+            Guid = platform.Id.ToString(),
+            Name = platform.Name,
+            ProductFamilyCode = platform.ProductFamilyCode,
+            Url = platform.Url,
+            Version = platform.Version
+        };
+
+        private static Dictionary<string, string> GetCustomProperties(ResourceLink resourceLink)
+        {
+            if (!resourceLink.Tool.CustomProperties.TryConvertToDictionary(out var custom))
+            {
+                custom = new Dictionary<string, string>();
+            }
+            if (resourceLink.CustomProperties.TryConvertToDictionary(out var linkDictionary))
+            {
+                foreach (var property in linkDictionary)
+                {
+                    custom[property.Key] = property.Value;
+                }
+            }
+
+            return custom;
         }
 
         private List<Claim> GetResourceLinkRequestClaims(

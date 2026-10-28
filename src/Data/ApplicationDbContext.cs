@@ -94,6 +94,18 @@ namespace AdvantagePlatform.Data
         }
 
         /// <summary>
+        /// Returns a gradebook column with its resource link and tool.
+        /// </summary>
+        /// <param name="id">The gradebook column id.</param>
+        public async Task<GradebookColumn> GetGradebookColumnWithToolAsync(int id)
+        {
+            return await GradebookColumns
+                .Include(c => c.ResourceLink)
+                .ThenInclude(l => l.Tool)
+                .SingleOrDefaultAsync(c => c.Id == id);
+        }
+
+        /// <summary>
         /// Returns the gradebook column for a resource link if there is exactly one. Otherwise
         /// returns null.
         /// </summary>
