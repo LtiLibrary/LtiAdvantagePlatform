@@ -67,6 +67,10 @@ button {
   background: var(--surface);
 }
 
+.notice.error {
+  border-color: #c0392b;
+}
+
 section {
   margin-top: 1.5rem;
   padding: 1rem;

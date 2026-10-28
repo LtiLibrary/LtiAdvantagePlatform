@@ -3,7 +3,15 @@
 @model AdvantagePlatform.Pages.DeepLinksModel
 @{
     Layout = null;
-    var message = new { type = "lti-deep-linking-complete", added = Model.AddedCount };
+    // msg and errormsg come from the tool's deep linking response; the page that started the
+    // flow shows them to the user.
+    var message = new
+    {
+        type = "lti-deep-linking-complete",
+        added = Model.AddedCount,
+        msg = Model.Message,
+        errormsg = Model.ErrorMessage
+    };
     var origins = new[] { $"{Request.Scheme}://{Request.Host}" }.Concat(Model.MessageTargetOrigins);
 }
 
@@ -15,7 +23,15 @@
     <title>Deep Links Return</title>
 </head>
 <body>
-<p>Added @Model.AddedCount link(s).</p>
+<p>Added @Model.AddedCount item(s).</p>
+@if (!string.IsNullOrWhiteSpace(Model.Message))
+{
+    <p>@Model.Message</p>
+}
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <p style="color: #b00">@Model.ErrorMessage</p>
+}
 <script>
     // This page loads inside the iframe that ran the deep linking flow. Tell the page around
     // it (the Razor home page or the React app) that the tool is done, so it can close the
@@ -27,7 +43,9 @@
         if (window.parent !== window) {
             origins.forEach(function (origin) { window.parent.postMessage(message, origin); });
         } else {
-            // Not in an iframe (e.g. opened in a new tab): go back to the home page.
+            // Not in an iframe (e.g. opened in a new tab): go back to the home page, which
+            // shows the message (see Components/DeepLinks).
+            try { sessionStorage.setItem("ltiDeepLinkingComplete", JSON.stringify(message)); } catch (e) { }
             window.location.href = "/";
         }
     })();

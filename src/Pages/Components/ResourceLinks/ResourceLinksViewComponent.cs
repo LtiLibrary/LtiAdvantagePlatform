@@ -24,6 +24,11 @@ namespace AdvantagePlatform.Pages.Components.ResourceLinks
             model.ResourceLinks = ResourceLinkModel.GetResourceLinks(courseId.HasValue 
                 ? user.Course.ResourceLinks 
                 : user.Platform.ResourceLinks);
+            model.LinkedContent = (courseId.HasValue
+                    ? user.Course.LinkedContent
+                    : user.Platform.LinkedContent)
+                .OrderBy(c => c.Title)
+                .ToList();
             return View(model);
         }
     }

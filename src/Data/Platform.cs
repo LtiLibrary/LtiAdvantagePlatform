@@ -33,5 +33,10 @@ namespace AdvantagePlatform.Data
         public string Version { get; set; }
 
         public ICollection<ResourceLink> ResourceLinks { get; set; }
+
+        /// <summary>
+        /// Non-LTI content (links, HTML, files, images) added with Deep Linking.
+        /// </summary>
+        public ICollection<LinkedContent> LinkedContent { get; set; }
     }
 }

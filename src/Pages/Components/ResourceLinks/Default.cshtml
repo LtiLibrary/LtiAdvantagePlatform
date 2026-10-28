@@ -1,7 +1,12 @@
-﻿@using LtiAdvantage
+@using AdvantagePlatform.Utility
+@using LtiAdvantage
 @model ResourceLinksViewComponentModel
 
-@if (!Model.ResourceLinks.Any())
+@{
+    var frameModalId = $"launch-frame-{Model.CourseId}";
+}
+
+@if (!Model.ResourceLinks.Any() && !Model.LinkedContent.Any())
 {
     <p>No links.</p>
 }
@@ -10,26 +15,126 @@ else
     <div class="row">
         @foreach (var link in Model.ResourceLinks.OrderBy(l => l.Title))
         {
+            var embedded = link.DocumentTarget == "iframe";
             <div class="col-auto">
                 <div class="card bg-warning mb-3 text-dark" style="max-width: 15em">
                     <h5 class="card-header">@link.Title</h5>
-                    <div class="card-body">@link.Description</div>
+                    <div class="card-body">
+                        @link.Description
+                        @if (embedded)
+                        {
+                            <div><small>Opens in the page (iframe)</small></div>
+                        }
+                    </div>
                     <div class="card-footer">
                         @foreach (var person in Model.People.OrderBy(p => p.FirstName))
                         {
-                            <a class="btn btn-sm btn-secondary mt-2 mb-2" target="_blank"
-                               data-toggle="tooltip" title="@($"Launch this resource link using {link.ToolName} as {person.FirstName} {person.LastName}")"
-                               asp-page="OidcLaunch"
-                               asp-route-id="@link.Id"
-                               asp-route-messageType="@Constants.Lti.LtiResourceLinkRequestMessageType"
-                               asp-route-courseId="@Model.CourseId"
-                               asp-route-personId="@person.Id">
-                                <i class="fas fa-external-link-alt"></i> @person.FirstName
-                            </a>
+                            var url = Url.Page("/OidcLaunch", new
+                            {
+                                id = link.Id,
+                                messageType = Constants.Lti.LtiResourceLinkRequestMessageType,
+                                courseId = Model.CourseId,
+                                personId = person.Id
+                            });
+                            var title = $"Launch this resource link using {link.ToolName} as {person.FirstName} {person.LastName}";
+
+                            @* The link's presentation target, set by Deep Linking, decides where the tool opens. *@
+                            if (embedded)
+                            {
+                                <button class="btn btn-sm btn-secondary mt-2 mb-2"
+                                        data-toggle="modal" data-target="#@frameModalId"
+                                        data-url="@url" data-height="@(link.IframeHeight ?? 600)" title="@title">
+                                    <i class="fas fa-window-maximize"></i> @person.FirstName
+                                </button>
+                            }
+                            else
+                            {
+                                <a class="btn btn-sm btn-secondary mt-2 mb-2" target="_blank"
+                                   data-toggle="tooltip" title="@title" href="@url">
+                                    <i class="fas fa-external-link-alt"></i> @person.FirstName
+                                </a>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+        @* Non-LTI content items returned by Deep Linking. *@
+        @foreach (var content in Model.LinkedContent)
+        {
+            <div class="col-auto">
+                <div class="card bg-light mb-3 text-dark" style="max-width: 20em">
+                    <h5 class="card-header">
+                        @content.Title.IfMissingThen(content.Type)
+                        <small class="text-muted">(@content.Type)</small>
+                        <form method="post" asp-page="/Index" asp-page-handler="DeleteContent" asp-route-id="@content.Id" class="d-inline float-right">
+                            <button type="submit" class="close" title="Remove">&times;</button>
+                        </form>
+                    </h5>
+                    <div class="card-body">
+                        @if (content.Text.IsPresent())
+                        {
+                            <p>@content.Text</p>
+                        }
+                        @switch (content.Type)
+                        {
+                            case Constants.ContentItemTypes.Html:
+                                @* Tool-supplied HTML runs in a sandboxed iframe, never in the platform's own page. *@
+                                <iframe sandbox srcdoc="@content.Html" style="border: 0; width: 100%; height: @(content.Height ?? 150)px"></iframe>
+                                break;
+                            case Constants.ContentItemTypes.Image:
+                                <img src="@content.Url" alt="@content.Title" style="max-width: 100%" />
+                                break;
+                            case Constants.ContentItemTypes.File:
+                                <a href="@content.Url" target="_blank" rel="noopener" download><i class="fas fa-download"></i> Download</a>
+                                break;
+                            default:
+                                if (content.DocumentTarget == "iframe")
+                                {
+                                    <iframe src="@content.Url" style="border: 0; width: @(content.Width.HasValue ? content.Width + "px" : "100%"); height: @(content.Height ?? 300)px"></iframe>
+                                }
+                                else
+                                {
+                                    @if (content.ThumbnailUrl.IsPresent())
+                                    {
+                                        <img src="@content.ThumbnailUrl" alt="" style="max-width: 100%" class="mb-2" />
+                                    }
+                                    <a href="@content.Url" target="_blank" rel="noopener"><i class="fas fa-external-link-alt"></i> Open</a>
+                                }
+                                break;
                         }
                     </div>
                 </div>
             </div>
         }
     </div>
+
+    @if (Model.ResourceLinks.Any(l => l.DocumentTarget == "iframe"))
+    {
+        <div class="modal fade" id="@frameModalId" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <iframe src="about:blank" allow="fullscreen" style="border: 0; width: 100%; height: 600px"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="/lib/jquery/jquery.js"></script>
+        <script>
+            $(function () {
+                // Start the launch inside the iframe; the OIDC flow runs there.
+                $('#@frameModalId').on('show.bs.modal', function (event) {
+                    const button = $(event.relatedTarget);
+                    $(this).find('iframe').attr('src', button.data('url')).css('height', button.data('height') + 'px');
+                }).on('hidden.bs.modal', function () {
+                    $(this).find('iframe').attr('src', 'about:blank');
+                });
+            });
+        </script>
+    }
 }

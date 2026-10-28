@@ -14,7 +14,18 @@ export interface Link {
   title: string;
   description: string | null;
   toolName: string;
+  /** Where the tool asked to be shown (Deep Linking): embedded in an iframe or in a new window. */
+  documentTarget: "iframe" | "window";
   launchUrls: LaunchUrls;
+}
+
+/** Non-LTI content a tool added with Deep Linking. */
+export interface Content {
+  id: number;
+  type: "link" | "file" | "image" | string;
+  title: string;
+  text: string | null;
+  url: string;
 }
 
 export interface DeepLinkTool {
@@ -26,6 +37,7 @@ export interface DeepLinkTool {
 export interface Context {
   name: string;
   links: Link[];
+  content: Content[];
   deepLinkTools: DeepLinkTool[];
 }
 

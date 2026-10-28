@@ -211,7 +211,8 @@ namespace AdvantagePlatform.Utility
                 GivenName = person.FirstName,
                 LaunchPresentation = new LaunchPresentationClaimValueType
                 {
-                    DocumentTarget = DocumentTarget.Window,
+                    // Both UIs run the deep linking flow in an iframe (a modal dialog).
+                    DocumentTarget = DocumentTarget.Iframe,
                     Locale = CultureInfo.CurrentUICulture.Name
                 },
                 Lis = new LisClaimValueType
@@ -250,9 +251,19 @@ namespace AdvantagePlatform.Utility
 
             request.DeepLinkingSettings = new DeepLinkingSettingsClaimValueType
             {
-                AcceptPresentationDocumentTargets = new[] { DocumentTarget.Window },
+                // The platform can open LTI links and plain links in a new window or embed
+                // them in an iframe; the item's "iframe" or "window" property picks one.
+                AcceptPresentationDocumentTargets = new[] { DocumentTarget.Iframe, DocumentTarget.Window },
                 AcceptMultiple = true,
-                AcceptTypes = new[] { Constants.ContentItemTypes.LtiLink },
+                // Besides LTI links the platform shows links, HTML fragments, files and images.
+                AcceptTypes = new[]
+                {
+                    Constants.ContentItemTypes.LtiLink,
+                    Constants.ContentItemTypes.Link,
+                    Constants.ContentItemTypes.Html,
+                    Constants.ContentItemTypes.File,
+                    Constants.ContentItemTypes.Image
+                },
                 AutoCreate = true,
                 DeepLinkReturnUrl = _linkGenerator.GetUriByPage(
                     "/DeepLinks",
@@ -290,7 +301,9 @@ namespace AdvantagePlatform.Utility
                 GivenName = person.FirstName,
                 LaunchPresentation = new LaunchPresentationClaimValueType
                 {
-                    DocumentTarget = DocumentTarget.Window,
+                    // Tells the tool how it is shown, e.g. so it can hide its own chrome in an iframe.
+                    DocumentTarget = resourceLink.DocumentTarget == "iframe" ? DocumentTarget.Iframe : DocumentTarget.Window,
+                    Height = resourceLink.DocumentTarget == "iframe" ? resourceLink.IframeHeight : null,
                     Locale = CultureInfo.CurrentUICulture.Name,
                     ReturnUrl = $"{httpRequest.Scheme}://{httpRequest.Host}"
                 },

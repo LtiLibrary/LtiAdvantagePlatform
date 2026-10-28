@@ -63,7 +63,17 @@ namespace AdvantagePlatform.Spa
                             l.Title,
                             l.Description,
                             l.Tool.Name,
+                            l.DocumentTarget.IfMissingThen("window"),
                             LaunchUrls(l.Id, Constants.Lti.LtiResourceLinkRequestMessageType, courseId)))
+                        .ToList();
+
+                // Non-LTI content added with Deep Linking. HTML fragments are left out: showing
+                // tool-supplied HTML safely needs a sandboxed iframe, see the Razor UI.
+                List<ContentDto> Content(IEnumerable<LinkedContent> content) =>
+                    content
+                        .Where(c => c.Url.IsPresent())
+                        .OrderBy(c => c.Title)
+                        .Select(c => new ContentDto(c.Id, c.Type, c.Title.IfMissingThen(c.Url), c.Text, c.Url))
                         .ToList();
 
                 List<DeepLinkToolDto> DeepLinkTools(int? courseId) =>
@@ -80,10 +90,12 @@ namespace AdvantagePlatform.Spa
                     new ContextDto(
                         user.Platform.Name.IfMissingThen("Platform"),
                         Links(user.Platform.ResourceLinks, null),
+                        Content(user.Platform.LinkedContent),
                         DeepLinkTools(null)),
                     new ContextDto(
                         user.Course.Name.IfMissingThen("Course"),
                         Links(user.Course.ResourceLinks, user.Course.Id),
+                        Content(user.Course.LinkedContent),
                         DeepLinkTools(user.Course.Id)),
                     people));
             });
@@ -118,9 +130,13 @@ namespace AdvantagePlatform.Spa
 
         public record HomeDto(ContextDto Platform, ContextDto Course, List<PersonDto> People);
 
-        public record ContextDto(string Name, List<LinkDto> Links, List<DeepLinkToolDto> DeepLinkTools);
+        public record ContextDto(string Name, List<LinkDto> Links, List<ContentDto> Content, List<DeepLinkToolDto> DeepLinkTools);
 
-        public record LinkDto(int Id, string Title, string Description, string ToolName, Dictionary<int, string> LaunchUrls);
+        /// <param name="DocumentTarget">"iframe" or "window": where the tool asked to be shown.</param>
+        public record LinkDto(int Id, string Title, string Description, string ToolName, string DocumentTarget, Dictionary<int, string> LaunchUrls);
+
+        /// <param name="Type">The deep linking content item type: "link", "file" or "image".</param>
+        public record ContentDto(int Id, string Type, string Title, string Text, string Url);
 
         public record DeepLinkToolDto(int Id, string Name, Dictionary<int, string> LaunchUrls);
 

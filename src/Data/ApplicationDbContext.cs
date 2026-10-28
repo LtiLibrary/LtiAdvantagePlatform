@@ -18,6 +18,7 @@ namespace AdvantagePlatform.Data
         public DbSet<Course> Courses { get; set; }
         public DbSet<GradebookColumn> GradebookColumns { get; set; }
         public DbSet<GradebookRow> GradebookRows { get; set; }
+        public DbSet<LinkedContent> LinkedContent { get; set; }
         public DbSet<Person> People { get; set; }
         public DbSet<Platform> Platforms { get; set; }
         public DbSet<ResourceLink> ResourceLinks { get; set; }
@@ -33,6 +34,12 @@ namespace AdvantagePlatform.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Tool>().HasMany<ResourceLink>().WithOne(l => l.Tool)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Course>().HasMany(c => c.LinkedContent).WithOne()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Platform>().HasMany(p => p.LinkedContent).WithOne()
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<ToolRegistration>().HasIndex(r => r.Token).IsUnique();
@@ -58,6 +65,7 @@ namespace AdvantagePlatform.Data
                 .ThenInclude(c => c.Scores)
                 .Include(c => c.ResourceLinks)
                 .ThenInclude(l => l.Tool)
+                .Include(c => c.LinkedContent)
                 .SingleOrDefaultAsync(c => c.Id == id);
         }
 
@@ -126,6 +134,7 @@ namespace AdvantagePlatform.Data
         {
             return await Platforms
                 .Include(p => p.ResourceLinks)
+                .Include(p => p.LinkedContent)
                 .SingleOrDefaultAsync(p => p.Id == id);
         }
         
@@ -197,10 +206,14 @@ namespace AdvantagePlatform.Data
                 .Include(u => u.Course)
                 .ThenInclude(c => c.GradebookColumns)
                 .ThenInclude(c => c.ResourceLink)
+                .Include(u => u.Course)
+                .ThenInclude(c => c.LinkedContent)
                 .Include(u => u.People)
                 .Include(u => u.Platform)
                 .ThenInclude(p => p.ResourceLinks)
                 .ThenInclude(l => l.Tool)
+                .Include(u => u.Platform)
+                .ThenInclude(p => p.LinkedContent)
                 .Include(u => u.Tools)
                 .SingleOrDefaultAsync(u => u.Id == id);
         }

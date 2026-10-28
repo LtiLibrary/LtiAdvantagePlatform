@@ -16,6 +16,8 @@ namespace AdvantagePlatform.Pages.Models
             Title = resourceLink.Title;
             ToolId = resourceLink.Tool.Id;
             ToolName = resourceLink.Tool.Name;
+            DocumentTarget = resourceLink.DocumentTarget;
+            IframeHeight = resourceLink.IframeHeight;
         }
 
         /// <summary>
@@ -41,6 +43,13 @@ namespace AdvantagePlatform.Pages.Models
         public string ToolName { get; set; }
 
         /// <summary>
+        /// "iframe" to embed the tool in the page, otherwise a new window.
+        /// </summary>
+        public string DocumentTarget { get; set; }
+
+        public int? IframeHeight { get; set; }
+
+        /// <summary>
         /// Convert the resource links into ResourceLinkModels.
         /// </summary>
         /// <param name="resourceLinks">The resource links to convert.</param>
@@ -58,7 +67,9 @@ namespace AdvantagePlatform.Pages.Models
                     Title = link.Title,
                     Description = link.Description,
                     ToolName = tool.Name,
-                    CustomProperties = link.CustomProperties
+                    CustomProperties = link.CustomProperties,
+                    DocumentTarget = link.DocumentTarget,
+                    IframeHeight = link.IframeHeight
                 });
             }
 

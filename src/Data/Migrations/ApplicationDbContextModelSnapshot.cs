@@ -185,6 +185,54 @@ namespace AdvantagePlatform.Data.Migrations
                     b.ToTable("GradebookRows");
                 });
 
+            modelBuilder.Entity("AdvantagePlatform.Data.LinkedContent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("CourseId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("DocumentTarget")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("Height")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Html")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("PlatformId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Text")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ThumbnailUrl")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Url")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("Width")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("PlatformId");
+
+                    b.ToTable("LinkedContent");
+                });
+
             modelBuilder.Entity("AdvantagePlatform.Data.Person", b =>
                 {
                     b.Property<int>("Id")
@@ -265,6 +313,12 @@ namespace AdvantagePlatform.Data.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("TEXT");
+
+                    b.Property<string>("DocumentTarget")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("IframeHeight")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("PlatformId")
                         .HasColumnType("INTEGER");
@@ -738,6 +792,19 @@ namespace AdvantagePlatform.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
+            modelBuilder.Entity("AdvantagePlatform.Data.LinkedContent", b =>
+                {
+                    b.HasOne("AdvantagePlatform.Data.Course", null)
+                        .WithMany("LinkedContent")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("AdvantagePlatform.Data.Platform", null)
+                        .WithMany("LinkedContent")
+                        .HasForeignKey("PlatformId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("AdvantagePlatform.Data.Person", b =>
                 {
                     b.HasOne("AdvantagePlatform.Data.AdvantagePlatformUser", null)
@@ -856,6 +923,8 @@ namespace AdvantagePlatform.Data.Migrations
                 {
                     b.Navigation("GradebookColumns");
 
+                    b.Navigation("LinkedContent");
+
                     b.Navigation("ResourceLinks");
                 });
 
@@ -866,6 +935,8 @@ namespace AdvantagePlatform.Data.Migrations
 
             modelBuilder.Entity("AdvantagePlatform.Data.Platform", b =>
                 {
+                    b.Navigation("LinkedContent");
+
                     b.Navigation("ResourceLinks");
                 });
 

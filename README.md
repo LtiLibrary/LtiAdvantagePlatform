@@ -15,7 +15,8 @@ perspective. There is a companion sample tool over at
 - Names and Role Provisioning Services v2
   - Tools can read course membership.
 - Deep Linking 2.0
-  - Tools can add LTI links to the platform or course.
+  - Tools can add LTI links, links, HTML fragments, files and images to the platform or course.
+  - The platform shows the tool's `msg` / `errormsg`, and honours the `iframe` or `window` presentation of each item.
 - Dynamic Registration 1.0
   - Tools register themselves: no URLs, client IDs or keys to copy by hand.
 - Tool keys from the tool's JWKS URL
@@ -129,6 +130,32 @@ A launch from a course link also gives the tool access to Assignment and
 Grade Services and Names and Role Provisioning. Scores the tool posts show up
 in the platform's gradebook.
 
+## Deep Linking
+
+Click **Add Deep Links** on the home page (or **Add content with** in the
+React UI). The platform sends an `LtiDeepLinkingRequest` whose
+`deep_linking_settings` advertise:
+
+- `accept_types`: `ltiResourceLink`, `link`, `html`, `file`, `image`;
+- `accept_presentation_document_targets`: `iframe`, `window`;
+- `accept_multiple`: true.
+
+The tool posts its response to `/DeepLinks` (`Pages/DeepLinks.cshtml.cs`),
+which checks the signature with the tool's keys and saves each content item:
+
+- `ltiResourceLink` becomes a platform or course link. An `iframe` property
+  makes the link open inside the platform page (launched with
+  `launch_presentation.document_target` = `iframe`); otherwise it opens in a
+  new window. In a course every link gets a gradebook column; a `lineItem` on
+  the item sets the column's `label`, `scoreMaximum`, `tag` and `resourceId`.
+- `link`, `file` and `image` are shown as a link, a download or an image.
+  `html` is shown in a sandboxed iframe, so the tool's HTML never runs in the
+  platform's own page.
+
+`msg` and `errormsg` from the response are shown to the user after the
+dialog closes (`/DeepLinks` adds them to its `lti-deep-linking-complete`
+message); `log` and `errorlog` go to the platform's log.
+
 ## Registering a tool with Dynamic Registration
 
 Instead of copying URLs, client IDs and keys between the two apps, let the
@@ -211,7 +238,7 @@ The pieces that make this work:
 - **Launch URLs come from the server.** The API returns ready-made URLs, so
   the front end never builds LTI parameters.
 - **Deep Linking ends with `postMessage`.** `/DeepLinks` posts
-  `{ type: "lti-deep-linking-complete", added }` to the parent window, with
+  `{ type: "lti-deep-linking-complete", added, msg, errormsg }` to the parent window, with
   the platform's own origin as target (plus `ClientApp:AllowedOrigins` from
   `appsettings.Development.json` for the Vite dev server). React checks
   `event.origin`, closes the iframe and reloads its data. The Razor Pages UI
