@@ -18,10 +18,10 @@ namespace AdvantagePlatform.Pages.Models
 
         public ToolModel(HttpContext httpContext)
         {
-            Issuer = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
-            AuthorizeUrl = Issuer.EnsureTrailingSlash() + "connect/authorize";
-            JwkSetUrl = Issuer.EnsureTrailingSlash() + ".well-known/jwks";
-            TokenUrl = Issuer.EnsureTrailingSlash() + "connect/token";
+            Issuer = httpContext.Request.GetIssuer();
+            AuthorizeUrl = Issuer + "connect/authorize";
+            JwkSetUrl = Issuer + ".well-known/jwks";
+            TokenUrl = Issuer + "connect/token";
         }
 
         public ToolModel(HttpContext httpContext, Tool tool) : this(httpContext)

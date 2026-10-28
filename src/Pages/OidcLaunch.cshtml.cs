@@ -60,11 +60,10 @@ namespace AdvantagePlatform.Pages
                 return BadRequest();
             }
 
-            var issuer = $"{Request.Scheme}://{Request.Host}";
-
             var values = new Dictionary<string, string>
             {
-                ["iss"] = issuer,
+                // Must equal the "iss" claim of the id_token, or the tool can't match them up.
+                ["iss"] = Request.GetIssuer(),
                 ["login_hint"] = personId,
                 ["target_link_uri"] = tool.LaunchUrl,
                 ["lti_message_hint"] = JsonSerializer.Serialize(new { id, messageType, courseId })

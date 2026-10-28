@@ -1,6 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using LtiAdvantage;
+using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
 
 namespace AdvantagePlatform.Utility
@@ -23,54 +24,29 @@ namespace AdvantagePlatform.Utility
             return await _applicationManager.FindByClientIdAsync(clientId) is not null;
         }
 
-        public async Task CreateAsync(string clientId, string displayName, string launchUrl)
+        public async Task CreateAsync(string clientId, string displayName, string launchUrl, string publicKey)
         {
-            var descriptor = new OpenIddictApplicationDescriptor
-            {
-                ClientId = clientId,
-                DisplayName = displayName,
-                ClientType = OpenIddictConstants.ClientTypes.Public,
-                ConsentType = OpenIddictConstants.ConsentTypes.Implicit,
-                Permissions =
-                {
-                    OpenIddictConstants.Permissions.Endpoints.Authorization,
-                    OpenIddictConstants.Permissions.Endpoints.Token,
-                    OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode,
-                    OpenIddictConstants.Permissions.GrantTypes.ClientCredentials,
-                    OpenIddictConstants.Permissions.GrantTypes.Implicit,
-                    OpenIddictConstants.Permissions.ResponseTypes.IdToken,
-                    OpenIddictConstants.Permissions.Scopes.Email,
-                    OpenIddictConstants.Permissions.Scopes.Profile,
-                }
-            };
-
-            if (!string.IsNullOrWhiteSpace(launchUrl))
-            {
-                descriptor.RedirectUris.Add(new System.Uri(launchUrl));
-            }
-
-            foreach (var scope in Config.LtiScopes)
-            {
-                descriptor.Permissions.Add(OpenIddictConstants.Permissions.Prefixes.Scope + scope);
-            }
-
+            var descriptor = new OpenIddictApplicationDescriptor { ClientId = clientId };
+            ApplyToolSettings(descriptor, displayName, launchUrl, publicKey);
             await _applicationManager.CreateAsync(descriptor);
         }
 
-        public async Task UpdateRedirectUriAsync(string clientId, string launchUrl)
+        /// <summary>
+        /// Brings the tool's OpenIddict application in line with the tool settings,
+        /// creating it if it does not exist yet.
+        /// </summary>
+        public async Task UpdateAsync(string clientId, string displayName, string launchUrl, string publicKey)
         {
             var application = await _applicationManager.FindByClientIdAsync(clientId);
-            if (application == null) return;
+            if (application == null)
+            {
+                await CreateAsync(clientId, displayName, launchUrl, publicKey);
+                return;
+            }
 
             var descriptor = new OpenIddictApplicationDescriptor();
             await _applicationManager.PopulateAsync(descriptor, application);
-
-            descriptor.RedirectUris.Clear();
-            if (!string.IsNullOrWhiteSpace(launchUrl))
-            {
-                descriptor.RedirectUris.Add(new System.Uri(launchUrl));
-            }
-
+            ApplyToolSettings(descriptor, displayName, launchUrl, publicKey);
             await _applicationManager.UpdateAsync(application, descriptor);
         }
 
@@ -80,6 +56,51 @@ namespace AdvantagePlatform.Utility
             if (application == null) return;
 
             await _applicationManager.DeleteAsync(application);
+        }
+
+        private static void ApplyToolSettings(
+            OpenIddictApplicationDescriptor descriptor,
+            string displayName,
+            string launchUrl,
+            string publicKey)
+        {
+            descriptor.DisplayName = displayName;
+
+            // LTI tools authenticate to the token endpoint with a JWT signed by their
+            // private key (private_key_jwt), so they are confidential clients whose
+            // credential is their public key rather than a client secret.
+            descriptor.ClientType = OpenIddictConstants.ClientTypes.Confidential;
+            descriptor.ConsentType = OpenIddictConstants.ConsentTypes.Implicit;
+            descriptor.JsonWebKeySet = null;
+            var key = PemKeys.ParseRsaPublicKey(publicKey);
+            if (key != null)
+            {
+                descriptor.JsonWebKeySet = new JsonWebKeySet();
+                descriptor.JsonWebKeySet.Keys.Add(JsonWebKeyConverter.ConvertFromRSASecurityKey(key));
+            }
+
+            descriptor.RedirectUris.Clear();
+            if (!string.IsNullOrWhiteSpace(launchUrl))
+            {
+                descriptor.RedirectUris.Add(new Uri(launchUrl));
+            }
+
+            descriptor.Permissions.Clear();
+            descriptor.Permissions.UnionWith(new[]
+            {
+                OpenIddictConstants.Permissions.Endpoints.Authorization,
+                OpenIddictConstants.Permissions.Endpoints.Token,
+                OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode,
+                OpenIddictConstants.Permissions.GrantTypes.ClientCredentials,
+                OpenIddictConstants.Permissions.GrantTypes.Implicit,
+                OpenIddictConstants.Permissions.ResponseTypes.IdToken,
+                OpenIddictConstants.Permissions.Scopes.Email,
+                OpenIddictConstants.Permissions.Scopes.Profile,
+            });
+            foreach (var scope in Config.LtiScopes)
+            {
+                descriptor.Permissions.Add(OpenIddictConstants.Permissions.Prefixes.Scope + scope);
+            }
         }
 
         public async Task EnsureSwaggerClientAsync()
