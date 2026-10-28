@@ -49,5 +49,28 @@ namespace AdvantagePlatform.Pages
 
             return RedirectToPage();
         }
+
+        /// <summary>
+        /// The instructor releases or hides a gradebook column's grades. The tool sees the new
+        /// gradesReleased the next time it reads the line item.
+        /// </summary>
+        public async Task<IActionResult> OnPostSetGradesReleasedAsync(int id, bool? released)
+        {
+            if (released == null)
+            {
+                return BadRequest();
+            }
+
+            var user = await _context.GetUserLightAsync(User);
+            var course = user?.Course == null ? null : await _context.GetCourseAsync(user.Course.Id);
+            var column = course?.GradebookColumns.SingleOrDefault(c => c.Id == id);
+            if (column != null)
+            {
+                column.GradesReleased = released;
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToPage();
+        }
     }
 }

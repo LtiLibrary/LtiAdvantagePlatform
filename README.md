@@ -14,6 +14,7 @@ perspective. There is a companion sample tool over at
   - Variables such as `$User.username`, `$Context.title`, `$ResourceLink.id` and `$Membership.course.groupIds` in custom properties are filled in at launch.
 - Assignment and Grade Services v2
   - Tools can list line items for a course (paged with `limit`), get a specific line item, read results, and post scores.
+  - `gradesReleased` on a line item says whether learners may see its grades. The gradebook shows it on each column, and the instructor can release or hide the grades there; the tool sees the change when it reads the line item. A tool that updates the line item without `gradesReleased` leaves the stored value alone.
 - Names and Role Provisioning Services v2
   - Tools can read course membership, paged with `limit` and a `Link: <…>; rel="next"` header.
 - Deep Linking 2.0
@@ -185,8 +186,9 @@ which checks the signature with the tool's keys and saves each content item:
   makes the link open inside the platform page (launched with
   `launch_presentation.document_target` = `iframe`); otherwise it opens in a
   new window. In a course every link gets a gradebook column; a `lineItem` on
-  the item sets the column's `label`, `scoreMaximum`, `tag` and `resourceId`,
-  and a `submissionReview` on it turns on Submission Review for that column.
+  the item sets the column's `label`, `scoreMaximum`, `tag`, `resourceId` and
+  `gradesReleased`, and a `submissionReview` on it turns on Submission Review
+  for that column.
 - `link`, `file` and `image` are shown as a link, a download or an image (at
   the image's `width`/`height`). `html` is shown in a sandboxed iframe, so the tool's HTML
   never runs in the platform's own page. A `link` with `embed.html` (the

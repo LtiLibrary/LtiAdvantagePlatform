@@ -181,7 +181,9 @@ namespace AdvantagePlatform.Pages
                 ScoreMaximum = item.LineItem?.ScoreMaximum ?? 100,
                 Tag = item.LineItem?.Tag.IfMissingThen("Deep Link"),
                 StartDateTime = item.Submission?.StartDateTime,
-                EndDateTime = item.Submission?.EndDateTime
+                EndDateTime = item.Submission?.EndDateTime,
+                // AGS 2.0 gradesReleased, sent with the deep-linked lineItem.
+                GradesReleased = item.LineItem?.GradesReleased
             };
             // Submission Review 1.0: a deep-linked lineItem can ask for submission review up front,
             // so the gradebook offers "View submission" without a later line items call.

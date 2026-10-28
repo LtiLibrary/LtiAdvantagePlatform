@@ -165,6 +165,9 @@ namespace AdvantagePlatform.Data.Migrations
                     b.Property<DateTime?>("EndDateTime")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool?>("GradesReleased")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("HasSubmissionReview")
                         .HasColumnType("INTEGER");
 
