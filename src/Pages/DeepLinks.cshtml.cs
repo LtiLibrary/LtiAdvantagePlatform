@@ -173,7 +173,7 @@ namespace AdvantagePlatform.Pages
             // This sample gives every course link a gradebook column. When the tool sent a
             // lineItem, the column takes its label, scoreMaximum, resourceId and tag, so the
             // tool can find it again with the line items service.
-            course.GradebookColumns.Add(new GradebookColumn
+            var column = new GradebookColumn
             {
                 Label = item.LineItem?.Label ?? resourceLink.Title,
                 ResourceId = item.LineItem?.ResourceId,
@@ -182,7 +182,11 @@ namespace AdvantagePlatform.Pages
                 Tag = item.LineItem?.Tag.IfMissingThen("Deep Link"),
                 StartDateTime = item.Submission?.StartDateTime,
                 EndDateTime = item.Submission?.EndDateTime
-            });
+            };
+            // Submission Review 1.0: a deep-linked lineItem can ask for submission review up front,
+            // so the gradebook offers "View submission" without a later line items call.
+            column.SetSubmissionReview(item.LineItem?.SubmissionReview);
+            course.GradebookColumns.Add(column);
         }
 
         private static void AddLinkedContent(ContentItem item, Platform platform, Course course)
@@ -193,11 +197,13 @@ namespace AdvantagePlatform.Pages
                 Title = item.Title,
                 Text = item.Text,
                 Url = item.Url,
-                Html = item.Html,
+                // A link item with "embed" carries HTML for the platform to show in its page.
+                Html = item.Html ?? item.Embed,
                 ThumbnailUrl = item.Thumbnail?.Url,
-                DocumentTarget = item.Iframe != null ? "iframe" : "window",
-                Width = item.Iframe?.Width,
-                Height = item.Iframe?.Height
+                DocumentTarget = item.Iframe != null ? "iframe" : item.Embed != null ? "embed" : "window",
+                // The iframe's size, or the item's own (an image's width and height).
+                Width = item.Iframe?.Width ?? item.Width,
+                Height = item.Iframe?.Height ?? item.Height
             };
 
             if (course == null)

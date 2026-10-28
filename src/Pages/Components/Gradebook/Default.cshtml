@@ -32,7 +32,7 @@
                                     else
                                     {
                                         <span data-toggle="tooltip" title="@lastScore.Comment">
-                                            @lastScore.ScoreGiven.ToString("N1")
+                                            @(lastScore.ScoreGiven?.ToString("N1") ?? lastScore.ActivityProgress.ToString())
                                         </span>
                                         @* Submission Review: the tool set submissionReview on this line item, so
                                            the instructor can open the student's submission in the tool. *@

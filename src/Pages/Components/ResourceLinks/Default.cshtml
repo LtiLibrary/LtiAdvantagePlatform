@@ -116,13 +116,18 @@ else
                                 <iframe sandbox srcdoc="@content.Html" style="border: 0; width: 100%; height: @(content.Height ?? 150)px"></iframe>
                                 break;
                             case Constants.ContentItemTypes.Image:
-                                <img src="@content.Url" alt="@content.Title" style="max-width: 100%" />
+                                <img src="@content.Url" alt="@content.Title" width="@content.Width" height="@content.Height" style="max-width: 100%; height: auto" />
                                 break;
                             case Constants.ContentItemTypes.File:
                                 <a href="@content.Url" target="_blank" rel="noopener" download><i class="fas fa-download"></i> Download</a>
                                 break;
                             default:
-                                if (content.DocumentTarget == "iframe")
+                                if (content.DocumentTarget == "embed")
+                                {
+                                    @* Embedded HTML from the tool, sandboxed like an html item (scripts allowed, but in an opaque origin). *@
+                                    <iframe sandbox="allow-scripts allow-popups" srcdoc="@content.Html" style="border: 0; width: 100%; height: @(content.Height ?? 300)px"></iframe>
+                                }
+                                else if (content.DocumentTarget == "iframe")
                                 {
                                     <iframe src="@content.Url" style="border: 0; width: @(content.Width.HasValue ? content.Width + "px" : "100%"); height: @(content.Height ?? 300)px"></iframe>
                                 }

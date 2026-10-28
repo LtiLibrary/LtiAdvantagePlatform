@@ -317,7 +317,7 @@ namespace AdvantagePlatform.Utility
             {
                 // The platform can open LTI links and plain links in a new window or embed
                 // them in an iframe; the item's "iframe" or "window" property picks one.
-                AcceptPresentationDocumentTargets = new[] { DocumentTarget.Iframe, DocumentTarget.Window },
+                AcceptPresentationDocumentTargets = new[] { DocumentTarget.Iframe, DocumentTarget.Window, DocumentTarget.Embed },
                 AcceptMultiple = true,
                 // Besides LTI links the platform shows links, HTML fragments, files and images.
                 AcceptTypes = new[]
@@ -396,11 +396,7 @@ namespace AdvantagePlatform.Utility
                     Name = $"{forUser.FirstName} {forUser.LastName}".Trim(),
                     Email = forUser.Email,
                     PersonSourcedId = forUser.SisId,
-                    // for_user.roles is a list of strings in the library, so turn each Role into
-                    // its URI the same way the roles claim does (RoleConverter).
-                    Roles = PeopleModel.ParsePersonRoles(forUser.Roles)
-                        .Select(r => JsonSerializer.Deserialize<string>(JsonSerializer.Serialize(r)))
-                        .ToList()
+                    Roles = PeopleModel.ParsePersonRoles(forUser.Roles).ToArray()
                 },
                 // The AGS claim must name the line item being reviewed.
                 AssignmentGradeServices = new AssignmentGradeServicesClaimValueType
@@ -595,12 +591,12 @@ namespace AdvantagePlatform.Utility
                     Locale = presentation.Locale,
                     ReturnUrl = presentation.ReturnUrl
                 },
-                ToolPlatform = new ToolPlatfom
+                ToolPlatform = new ToolPlatform
                 {
                     ProductFamilyCode = platform?.ProductFamilyCode,
                     Version = platform?.Version
                 },
-                ToolPlatfomInstance = new ToolPlatfomInstance
+                ToolPlatformInstance = new ToolPlatformInstance
                 {
                     ContactEmail = platform?.ContactEmail,
                     Description = platform?.Description,
@@ -636,7 +632,7 @@ namespace AdvantagePlatform.Utility
                 };
                 // $CourseGroup.id is "any one group associated with the launch". Launches in this
                 // sample aren't made from a group, so it is the first group the person is in.
-                substitutions.CourseGroup = new LtiAdvantage.Lti.CourseGroup
+                substitutions.CourseGroup = new LtiAdvantage.Lti.LtiCourseGroup
                 {
                     Id = _personGroupIds.FirstOrDefault() ?? string.Empty
                 };

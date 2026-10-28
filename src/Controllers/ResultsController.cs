@@ -61,8 +61,11 @@ namespace AdvantagePlatform.Controllers
                         new { contextId = request.ContextId, lineItemId = request.LineItemId }).EnsureTrailingSlash() + g.Key,
                     // The comment the tool sent with the most recent score (AGS §3.3.5).
                     Comment = g.Last().Comment,
-                    ResultMaximum = g.Max(x => x.ScoreMaximum),
-                    ResultScore = g.Last().ScoreGiven,
+                    // A progress-only score has no scoreGiven, so the result's score is the last
+                    // one the tool actually gave. resultMaximum defaults to 1 when nothing says otherwise.
+                    ResultMaximum = g.LastOrDefault(x => x.ScoreGiven.HasValue)?.ScoreMaximum
+                                    ?? gradebookColumn.ScoreMaximum ?? 1,
+                    ResultScore = g.LastOrDefault(x => x.ScoreGiven.HasValue)?.ScoreGiven,
                     ScoreOf = Url.Link(Constants.ServiceEndpoints.Ags.LineItemService, 
                         new { contextId = request.ContextId, lineItemId = request.LineItemId }),
                     UserId = g.Key.ToString()

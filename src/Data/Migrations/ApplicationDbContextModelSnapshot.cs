@@ -225,10 +225,10 @@ namespace AdvantagePlatform.Data.Migrations
                     b.Property<int>("PersonId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<double>("ScoreGiven")
+                    b.Property<double?>("ScoreGiven")
                         .HasColumnType("REAL");
 
-                    b.Property<double>("ScoreMaximum")
+                    b.Property<double?>("ScoreMaximum")
                         .HasColumnType("REAL");
 
                     b.Property<DateTime>("TimeStamp")
