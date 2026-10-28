@@ -63,11 +63,12 @@ namespace AdvantagePlatform.Pages.Tools
             tool.Name = Tool.Name;
             tool.JwksUrl = Tool.JwksUrl;
             tool.PublicKey = Tool.PublicKey;
+            tool.RedirectUris = Tool.RedirectUris;
 
             _context.Tools.Attach(tool).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            await _toolClientManager.UpdateAsync(tool.ClientId, tool.Name, new[] { tool.LaunchUrl, tool.DeepLinkingLaunchUrl }, keySet);
+            await _toolClientManager.UpdateAsync(tool.ClientId, tool.Name, tool.GetAllRedirectUris(), keySet);
 
             return RedirectToPage("./Index");
         }

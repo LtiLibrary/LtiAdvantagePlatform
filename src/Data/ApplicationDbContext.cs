@@ -22,6 +22,7 @@ namespace AdvantagePlatform.Data
         public DbSet<Platform> Platforms { get; set; }
         public DbSet<ResourceLink> ResourceLinks { get; set; }
         public DbSet<Tool> Tools { get; set; }
+        public DbSet<ToolRegistration> ToolRegistrations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -33,6 +34,8 @@ namespace AdvantagePlatform.Data
 
             builder.Entity<Tool>().HasMany<ResourceLink>().WithOne(l => l.Tool)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<ToolRegistration>().HasIndex(r => r.Token).IsUnique();
 
             builder.UseOpenIddict();
 

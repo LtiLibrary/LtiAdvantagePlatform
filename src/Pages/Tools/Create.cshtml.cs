@@ -57,8 +57,6 @@ namespace AdvantagePlatform.Pages.Tools
                 return Page();
             }
 
-            await _toolClientManager.CreateAsync(Tool.ClientId, Tool.Name, new[] { Tool.LaunchUrl, Tool.DeepLinkingLaunchUrl }, keySet);
-
             var tool = new Tool
             {
                 ClientId = Tool.ClientId,
@@ -69,8 +67,10 @@ namespace AdvantagePlatform.Pages.Tools
                 LoginUrl = Tool.LoginUrl,
                 Name = Tool.Name,
                 JwksUrl = Tool.JwksUrl,
-                PublicKey = Tool.PublicKey
+                PublicKey = Tool.PublicKey,
+                RedirectUris = Tool.RedirectUris
             };
+            await _toolClientManager.CreateAsync(tool.ClientId, tool.Name, tool.GetAllRedirectUris(), keySet);
             await _context.Tools.AddAsync(tool);
 
             var user = await _context.GetUserLightAsync(User);

@@ -322,11 +322,43 @@ namespace AdvantagePlatform.Data.Migrations
                     b.Property<string>("PublicKey")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("RedirectUris")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AdvantagePlatformUserId");
 
                     b.ToTable("Tools");
+                });
+
+            modelBuilder.Entity("AdvantagePlatform.Data.ToolRegistration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("InitiationUrl")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Token")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("ToolId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
+                    b.ToTable("ToolRegistrations");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

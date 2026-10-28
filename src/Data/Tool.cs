@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace AdvantagePlatform.Data
 {
     /// <summary>
@@ -57,8 +61,27 @@ namespace AdvantagePlatform.Data
         public string LoginUrl { get; set; }
 
         /// <summary>
+        /// Extra URLs the tool may ask the platform to send launches to, one per line.
+        /// The launch URL and deep linking URL are always allowed. Filled in by Dynamic
+        /// Registration from the tool's redirect_uris.
+        /// </summary>
+        public string RedirectUris { get; set; }
+
+        /// <summary>
         /// The tool name.
         /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// Every URL the tool may receive an id_token at: the OpenIddict client's redirect URIs.
+        /// </summary>
+        public IEnumerable<string> GetAllRedirectUris()
+        {
+            var extra = (RedirectUris ?? string.Empty)
+                .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            return new[] { LaunchUrl, DeepLinkingLaunchUrl }.Concat(extra)
+                .Where(u => !string.IsNullOrWhiteSpace(u))
+                .Distinct();
+        }
     }
 }

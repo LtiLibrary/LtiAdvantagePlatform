@@ -151,7 +151,10 @@ builder.Services.AddOpenIddict()
         options.SetAuthorizationEndpointUris("connect/authorize")
             .SetTokenEndpointUris("connect/token")
             .SetUserInfoEndpointUris("connect/userinfo")
-            .SetEndSessionEndpointUris("connect/logout");
+            .SetEndSessionEndpointUris("connect/logout")
+            // OpenIdConfigurationController serves /.well-known/openid-configuration instead,
+            // with the LTI platform configuration that Dynamic Registration needs.
+            .SetConfigurationEndpointUris(Array.Empty<string>());
 
         options.AllowAuthorizationCodeFlow()
             .AllowImplicitFlow()

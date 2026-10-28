@@ -1,0 +1,76 @@
+@page
+@model RegisterModel
+
+@{
+    ViewData["Title"] = "Tools";
+}
+
+<div class="container-fluid">
+    <h4>Register a Tool with Dynamic Registration</h4>
+    <hr />
+
+    @if (Model.StartUrl == null)
+    {
+        @if (Model.Message != null)
+        {
+            <div class="alert alert-warning">@Model.Message</div>
+        }
+
+        <p>
+            Enter the tool's registration URL. The platform opens it here with the address of the
+            platform's <a href="/.well-known/openid-configuration" target="_blank">OpenID configuration</a>
+            and a one-time registration token. The tool reads the platform's endpoints, registers
+            itself, and the new tool shows up in your list. No URLs, client IDs or keys to copy.
+        </p>
+        <form method="post" class="mb-3" style="max-width: 40em">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="InitiationUrl"></label>
+                <tooltip asp-for="InitiationUrl"></tooltip>
+                <input asp-for="InitiationUrl" class="form-control" placeholder="For example http://localhost:5072/..." />
+                <span asp-validation-for="InitiationUrl" class="text-danger"></span>
+            </div>
+            <input type="submit" value="Start registration" class="btn btn-secondary" />
+        </form>
+    }
+    else
+    {
+        <p>
+            The tool's registration page is shown below.
+            If it doesn't load, <a href="#" id="open-popup">open it in a new window</a> instead.
+        </p>
+        <iframe id="registration-frame" src="@Model.StartUrl" style="border: 1px solid #ccc; width: 100%; height: 600px"></iframe>
+    }
+
+    <div>
+        <a asp-page="Index">Back to List</a>
+    </div>
+</div>
+
+@section Scripts {
+    @if (Model.StartUrl != null)
+    {
+        <script>
+            (function () {
+                var startUrl = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.StartUrl));
+                var toolOrigin = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ToolOrigin));
+                var completeUrl = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                    Url.Page("Register", "Complete", new { id = Model.RegistrationId })));
+
+                // DR §3.7: when the tool is done it posts { subject: "org.imsglobal.lti.close" }
+                // to the window that opened it (window.parent for an iframe, window.opener for a popup).
+                window.addEventListener('message', function (event) {
+                    if (event.origin !== toolOrigin) return;
+                    if (!event.data || event.data.subject !== 'org.imsglobal.lti.close') return;
+                    window.location.href = completeUrl;
+                });
+
+                document.getElementById('open-popup').addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.getElementById('registration-frame').src = 'about:blank';
+                    window.open(startUrl, 'lti-registration', 'width=900,height=700');
+                });
+            })();
+        </script>
+    }
+}

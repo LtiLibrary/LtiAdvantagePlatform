@@ -22,5 +22,21 @@ namespace AdvantagePlatform
             Constants.LtiScopes.Ags.ScoreReadonly,
             Constants.LtiScopes.Nrps.MembershipReadonly
         };
+
+        /// <summary>
+        /// The product family code and version in the LTI platform configuration
+        /// (Dynamic Registration) and in the platform claim of launches.
+        /// </summary>
+        public const string ProductFamilyCode = "LTI Advantage Platform";
+        public const string PlatformVersion = "1.0";
+
+        /// <summary>
+        /// LTI messages this platform can send to tools, as advertised to Dynamic Registration.
+        /// </summary>
+        public static readonly IReadOnlyCollection<string> MessagesSupported = new[]
+        {
+            Constants.Lti.LtiResourceLinkRequestMessageType,
+            Constants.Lti.LtiDeepLinkingRequestMessageType
+        };
     }
 }

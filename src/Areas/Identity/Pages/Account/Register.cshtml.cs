@@ -130,9 +130,9 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account
                 Description = "Auto generated platform",
                 Guid = $"{request.Host}",
                 Name = ".NET Core Test Platform",
-                ProductFamilyCode = "LTI Advantage Platform",
+                ProductFamilyCode = Config.ProductFamilyCode,
                 Url = $"{request.Scheme}://{request.Host}/",
-                Version = "1.0"
+                Version = Config.PlatformVersion
             };
             await context.Platforms.AddAsync(platform);
             await context.SaveChangesAsync();

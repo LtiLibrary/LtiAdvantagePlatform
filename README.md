@@ -16,6 +16,8 @@ perspective. There is a companion sample tool over at
   - Tools can read course membership.
 - Deep Linking 2.0
   - Tools can add LTI links to the platform or course.
+- Dynamic Registration 1.0
+  - Tools register themselves: no URLs, client IDs or keys to copy by hand.
 - Tool keys from the tool's JWKS URL
   - Cached and picked by `kid`, so tools can rotate their keys. A PEM public key is the fallback.
 
@@ -50,6 +52,7 @@ deep-linking launches.
     ├── ClientApp/ (optional React front end, see "Using a React front end")
     ├── Controllers/
     │   ├── AuthorizationController.cs (OIDC /connect/authorize + /connect/token endpoints)
+    │   ├── OpenIdConfigurationController.cs / DynamicRegistrationController.cs (Dynamic Registration)
     │   ├── LineItemsController.cs / ResultsController.cs / ScoresController.cs (AGS v2)
     │   └── MembershipController.cs (NRPS v2)
     ├── Data/ (EF Core entities and migrations)
@@ -103,7 +106,9 @@ Visit:
 ## Trying it with the sample tool
 
 Run [LtiAdvantageTool](https://github.com/LtiLibrary/LtiAdvantageTool) at the
-same time (it listens on `http://localhost:5072`), then:
+same time (it listens on `http://localhost:5072`). The quickest way to connect
+the two is [Dynamic Registration](#registering-a-tool-with-dynamic-registration).
+To register the tool by hand instead:
 
 1. In the tool, register an admin account and open **Platforms → Add
    platform**. Leave the page open: its "Tool side" section lists the URLs and
@@ -123,6 +128,40 @@ same time (it listens on `http://localhost:5072`), then:
 A launch from a course link also gives the tool access to Assignment and
 Grade Services and Names and Role Provisioning. Scores the tool posts show up
 in the platform's gradebook.
+
+## Registering a tool with Dynamic Registration
+
+Instead of copying URLs, client IDs and keys between the two apps, let the
+tool register itself ([LTI Dynamic Registration](https://www.imsglobal.org/spec/lti-dr/v1p0)):
+
+1. In the platform open **Tools → Register a Tool**, enter the tool's
+   registration URL (from the tool's own UI) and click **Start registration**.
+2. The platform opens that URL in an iframe (or a popup, if the tool can't run
+   in an iframe) with two query parameters:
+   - `openid_configuration`: `http://localhost:5099/.well-known/openid-configuration`
+   - `registration_token`: a random, single-use token, valid for an hour.
+3. The tool reads the platform's endpoints from the OpenID configuration and
+   POSTs its configuration to the registration endpoint,
+   `http://localhost:5099/lti/register`, with the token as Bearer token.
+4. The platform creates the tool and its OpenIddict client, using the tool's
+   `jwks_uri` for its keys, and answers with the `client_id` and
+   `deployment_id` it assigned.
+5. The tool posts `{ subject: "org.imsglobal.lti.close" }` to the platform's
+   window, and the platform shows the new tool.
+
+The pieces, all built on the library:
+
+- `Controllers/OpenIdConfigurationController.cs` (`OpenIdConfigurationControllerBase`)
+  serves the OpenID configuration with the LTI platform configuration claim
+  (`PlatformOpenIdConfiguration`, `LtiPlatformConfiguration`). OpenIddict's own
+  discovery endpoint is turned off in `Program.cs`, so there is one document at
+  that address.
+- `Controllers/DynamicRegistrationController.cs` (`DynamicRegistrationControllerBase`)
+  checks the registration token and turns the submitted `LtiToolConfiguration`
+  into a tool. The library validates the request first (required fields,
+  https URLs, `private_key_jwt`).
+- `Pages/Tools/Register.cshtml` starts the registration and listens for the
+  tool's close message.
 
 ## Using a React front end
 

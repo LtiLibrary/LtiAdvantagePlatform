@@ -41,6 +41,7 @@ namespace AdvantagePlatform.Pages.Models
             Name = tool.Name;
             JwksUrl = tool.JwksUrl;
             PublicKey = tool.PublicKey;
+            RedirectUris = tool.RedirectUris;
         }
 
         /// <summary>
@@ -93,6 +94,9 @@ namespace AdvantagePlatform.Pages.Models
         [LocalhostUrl]
         [Display(Name = "Login URL", Description = "The URL to initiate OpenID Connect authorization.")]
         public string LoginUrl { get; set; }
+
+        [Display(Name = "Redirect URIs", Description = "Other URLs the tool may receive launches at, one per line. The launch URL and deep linking URL are always allowed.")]
+        public string RedirectUris { get; set; }
 
         [Required]
         [Display(Name = "Display Name")]
