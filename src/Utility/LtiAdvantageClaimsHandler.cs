@@ -36,6 +36,15 @@ namespace AdvantagePlatform.Utility
     /// </summary>
     public class LtiAdvantageClaimsHandler : IOpenIddictServerHandler<OpenIddictServerEvents.ProcessSignInContext>
     {
+        // The AGS scopes a tool may ask a token for: this platform grants all of them.
+        private static readonly string[] AgsScopes =
+        {
+            Constants.LtiScopes.Ags.LineItem,
+            Constants.LtiScopes.Ags.LineItemReadonly,
+            Constants.LtiScopes.Ags.ResultReadonly,
+            Constants.LtiScopes.Ags.Score
+        };
+
         private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly LinkGenerator _linkGenerator;
@@ -396,7 +405,7 @@ namespace AdvantagePlatform.Utility
                 // The AGS claim must name the line item being reviewed.
                 AssignmentGradeServices = new AssignmentGradeServicesClaimValueType
                 {
-                    Scope = new List<string> { Constants.LtiScopes.Ags.LineItem },
+                    Scope = AgsScopes.ToList(),
                     LineItemUrl = _linkGenerator.GetUriByRouteValues(
                         Constants.ServiceEndpoints.Ags.LineItemService,
                         new { contextId = course.Id, lineItemId = gradebookColumn.Id },
@@ -743,7 +752,7 @@ namespace AdvantagePlatform.Utility
 
                 request.AssignmentGradeServices = new AssignmentGradeServicesClaimValueType
                 {
-                    Scope = new List<string> { Constants.LtiScopes.Ags.LineItem },
+                    Scope = AgsScopes.ToList(),
                     LineItemUrl = gradebookColumn == null
                         ? null
                         : _linkGenerator.GetUriByRouteValues(
