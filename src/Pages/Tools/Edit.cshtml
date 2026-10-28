@@ -48,9 +48,10 @@
                         </div>
                         <div class="form-group">
                             <label asp-for="Tool.CustomProperties"></label>
-                            <tooltip asp-for="Tool.CustomProperties"></tooltip>
+                            <tooltip asp-for="Tool.CustomProperties" html="true"></tooltip>
                             <textarea asp-for="Tool.CustomProperties" class="form-control text-monospace" rows="3" placeholder="Put each name=value pair on a separate line."></textarea>
                             <span asp-validation-for="Tool.CustomProperties" class="text-danger"></span>
+                            <small class="form-text text-muted">Variables such as <code>$User.username</code>, <code>$Context.title</code> or <code>$Membership.course.groupIds</code> are filled in at launch.</small>
                         </div>
                         <div class="form-group">
                             <label asp-for="Tool.ClientId"></label>

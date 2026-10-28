@@ -10,6 +10,8 @@ perspective. There is a companion sample tool over at
 
 - LTI 1.3 Core launch
   - Launch tools with or without a context (i.e. as an assignment or an admin tool), and as a teacher or a student.
+- Custom property substitution
+  - Variables such as `$User.username`, `$Context.title`, `$ResourceLink.id` and `$Membership.course.groupIds` in custom properties are filled in at launch.
 - Assignment and Grade Services v2
   - Tools can list line items for a course, get a specific line item, read results, and post scores.
 - Names and Role Provisioning Services v2
@@ -135,6 +137,36 @@ To register the tool by hand instead:
 A launch from a course link also gives the tool access to Assignment and
 Grade Services and Names and Role Provisioning. Scores the tool posts show up
 in the platform's gradebook.
+
+## Custom properties and variables
+
+Custom properties come from the tool (**Tools → Edit**, or the
+`custom_parameters` a tool sends with Dynamic Registration) and from the link
+(**Course Links / Platform Links**, or the `custom` of a deep-linked item); the
+link's win when both set the same name. A value can be a
+[substitution variable](https://www.imsglobal.org/spec/lti/v1p3#custom-property-substitution),
+which the platform fills in at launch with the library's
+`CustomPropertySubstitutions` (`SubstituteCustomProperties` in
+`Utility/LtiAdvantageClaimsHandler.cs`), for example:
+
+```
+user=$User.username
+course=$Context.title
+groups=$Membership.course.groupIds
+```
+
+The platform fills in `$User.id`, `$User.username`, `$Person.sourcedId`,
+`$Person.name.given` / `.family` / `.full`, `$Person.email.primary`,
+`$Context.id`, `$Context.id.history`, `$Context.title`, `$Context.sourcedId`,
+`$Context.type`, `$CourseSection.sourcedId`, `$CourseSection.title`,
+`$Membership.personSourcedId`, `$Membership.role`, `$Membership.status`,
+`$Membership.course.groupIds`, `$CourseGroup.id`, `$ResourceLink.id`,
+`$ResourceLink.id.history`, `$ResourceLink.title`, `$ResourceLink.description`,
+`$Message.documentTarget` / `.height` / `.width` / `.locale` / `.returnUrl`,
+`$ToolPlatform.*` and `$ToolPlatformInstance.*` (`Config.SupportedVariables`,
+also advertised to Dynamic Registration). The values come from the launch
+itself, so a variable never tells the tool more than the launch does.
+Variables the platform doesn't know are sent unchanged.
 
 ## Deep Linking
 

@@ -35,6 +35,7 @@
                     <tooltip asp-for="ResourceLink.CustomProperties" html="true"></tooltip>
                     <textarea asp-for="ResourceLink.CustomProperties" class="form-control text-monospace" rows="3"></textarea>
                     <span asp-validation-for="ResourceLink.CustomProperties" class="text-danger"></span>
+                    <small class="form-text text-muted">Variables such as <code>$User.username</code>, <code>$Context.title</code> or <code>$Membership.course.groupIds</code> are filled in at launch.</small>
                 </div>
                 <div class="form-group form-check">
                     <input asp-for="ResourceLink.IsProctored" class="form-check-input" />

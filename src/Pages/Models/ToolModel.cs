@@ -75,7 +75,7 @@ namespace AdvantagePlatform.Pages.Models
 
         #region Tool properties
 
-        [Display(Name = "Custom Properties", Description = "Custom properties to include in all launches of this tool deployment.")]
+        [Display(Name = "Custom Properties", Description = "<p>Custom properties to include in all launches of this tool deployment.</p>" + Config.CustomPropertiesHelp)]
         public string CustomProperties { get; set; }
 
         [LocalhostUrl]

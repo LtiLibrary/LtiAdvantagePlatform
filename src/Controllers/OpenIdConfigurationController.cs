@@ -60,7 +60,7 @@ namespace AdvantagePlatform.Controllers
                         .Select(type => new MessageDescriptor { Type = type })
                         .ToList(),
                     // Custom parameter substitutions LtiAdvantageClaimsHandler fills in.
-                    Variables = new List<string> { "User.username" }
+                    Variables = Config.SupportedVariables.ToList()
                 }
             });
         }

@@ -40,6 +40,7 @@ namespace AdvantagePlatform.Utility
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly LinkGenerator _linkGenerator;
         private readonly ILogger<LtiAdvantageClaimsHandler> _logger;
+        private List<string> _personGroupIds = new();
 
         public LtiAdvantageClaimsHandler(
             ApplicationDbContext context,
@@ -155,6 +156,17 @@ namespace AdvantagePlatform.Utility
             {
                 _logger.LogError("Person {PersonId} not found.", personId);
                 return;
+            }
+
+            // The person's course groups, for the $Membership.course.groupIds and $CourseGroup.id variables.
+            if (course != null)
+            {
+                _personGroupIds = (await _context.GetGroupSetsAsync(course.Id))
+                    .SelectMany(s => s.Groups)
+                    .Where(g => g.Members.Any(m => m.Id == person.Id))
+                    .OrderBy(g => g.Id)
+                    .Select(g => g.Id.ToString())
+                    .ToList();
             }
 
             List<Claim> claims;
@@ -318,11 +330,7 @@ namespace AdvantagePlatform.Utility
 
             if (tool.CustomProperties.TryConvertToDictionary(out var custom))
             {
-                var substitutions = new CustomPropertySubstitutions
-                {
-                    LtiUser = new LtiUser { Username = person.Username }
-                };
-                request.Custom = substitutions.ReplaceCustomPropertyValues(custom);
+                request.Custom = SubstituteCustomProperties(custom, request, person, course, null);
             }
 
             return new List<Claim>(request.Claims);
@@ -410,11 +418,7 @@ namespace AdvantagePlatform.Utility
                 custom[property.Key] = property.Value;
             }
 
-            var substitutions = new CustomPropertySubstitutions
-            {
-                LtiUser = new LtiUser { Username = person.Username }
-            };
-            request.Custom = substitutions.ReplaceCustomPropertyValues(custom);
+            request.Custom = SubstituteCustomProperties(custom, request, person, course, resourceLink);
 
             return new List<Claim>(request.Claims);
         }
@@ -539,12 +543,114 @@ namespace AdvantagePlatform.Utility
                     break;
             }
 
+            request.Custom = SubstituteCustomProperties(GetCustomProperties(resourceLink), request, person, course, resourceLink);
+        }
+
+        /// <summary>
+        /// Fills in the custom property variables (https://www.imsglobal.org/spec/lti/v1p3#custom-property-substitution)
+        /// the platform knows, using the library's <see cref="CustomPropertySubstitutions"/>. Values
+        /// come from the message being sent, so a tool only learns through a variable what the
+        /// launch already tells it. See <see cref="Config.SupportedVariables"/> for the list.
+        /// </summary>
+        private Dictionary<string, string> SubstituteCustomProperties(
+            Dictionary<string, string> custom,
+            LtiRequest request,
+            Person person,
+            Course course,
+            ResourceLink resourceLink)
+        {
+            var presentation = request.LaunchPresentation;
+            var platform = request.Platform;
+            var roles = string.Join(",", (request.Roles ?? Array.Empty<Role>()).Select(ToUri));
+
             var substitutions = new CustomPropertySubstitutions
             {
-                LtiUser = new LtiUser { Username = person.Username }
+                LtiUser = new LtiUser
+                {
+                    Id = person.Id.ToString(),
+                    Username = person.Username
+                },
+                LisPerson = new LisPerson
+                {
+                    SourcedId = person.SisId,
+                    NameGiven = person.FirstName,
+                    NameFamily = person.LastName,
+                    NameFull = $"{person.FirstName} {person.LastName}".Trim(),
+                    EmailPrimary = person.Email
+                },
+                LisMessage = presentation == null ? null : new LisMessage
+                {
+                    DocumentTarget = presentation.DocumentTarget == null ? null : ToUri(presentation.DocumentTarget.Value),
+                    Height = presentation.Height?.ToString(),
+                    Width = presentation.Width?.ToString(),
+                    Locale = presentation.Locale,
+                    ReturnUrl = presentation.ReturnUrl
+                },
+                ToolPlatform = new ToolPlatfom
+                {
+                    ProductFamilyCode = platform?.ProductFamilyCode,
+                    Version = platform?.Version
+                },
+                ToolPlatfomInstance = new ToolPlatfomInstance
+                {
+                    ContactEmail = platform?.ContactEmail,
+                    Description = platform?.Description,
+                    Guid = platform?.Guid,
+                    Name = platform?.Name,
+                    Url = platform?.Url
+                }
             };
-            request.Custom = substitutions.ReplaceCustomPropertyValues(GetCustomProperties(resourceLink));
+
+            if (course != null)
+            {
+                substitutions.LtiContext = new LtiContext
+                {
+                    Id = course.Id.ToString(),
+                    // The sample never copies courses, so there is no earlier context id.
+                    IdHistory = string.Empty,
+                    Title = course.Name,
+                    SourcedId = course.SisId,
+                    Type = ToUri(ContextType.CourseSection)
+                };
+                substitutions.LisCourseSection = new LisCourseSection
+                {
+                    SourcedId = course.SisId,
+                    Title = course.Name
+                };
+                substitutions.LisMembership = new LisMembership
+                {
+                    PersonSourcedId = person.SisId,
+                    Role = roles,
+                    Status = "Active",
+                    // Course Groups Service: the groups the person is in.
+                    CourseGroupIds = string.Join(",", _personGroupIds)
+                };
+                // $CourseGroup.id is "any one group associated with the launch". Launches in this
+                // sample aren't made from a group, so it is the first group the person is in.
+                substitutions.CourseGroup = new LtiAdvantage.Lti.CourseGroup
+                {
+                    Id = _personGroupIds.FirstOrDefault() ?? string.Empty
+                };
+            }
+
+            if (resourceLink != null)
+            {
+                substitutions.LtiResourceLink = new LtiResourceLink
+                {
+                    Id = resourceLink.Id.ToString(),
+                    IdHistory = string.Empty,
+                    Title = resourceLink.Title,
+                    Description = resourceLink.Description
+                };
+            }
+
+            return substitutions.ReplaceCustomPropertyValues(custom);
         }
+
+        /// <summary>
+        /// The URI the library writes for a role, context type or document target (their JSON value).
+        /// </summary>
+        private static string ToUri<T>(T value) => JsonSerializer.Deserialize<string>(JsonSerializer.Serialize(value));
 
         private static PlatformClaimValueType GetPlatformClaim(Platform platform) => new()
         {
@@ -690,11 +796,7 @@ namespace AdvantagePlatform.Utility
                 }
             }
 
-            var substitutions = new CustomPropertySubstitutions
-            {
-                LtiUser = new LtiUser { Username = person.Username }
-            };
-            request.Custom = substitutions.ReplaceCustomPropertyValues(custom);
+            request.Custom = SubstituteCustomProperties(custom, request, person, course, resourceLink);
 
             return new List<Claim>(request.Claims);
         }

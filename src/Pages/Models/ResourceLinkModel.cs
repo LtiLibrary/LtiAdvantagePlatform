@@ -27,7 +27,7 @@ namespace AdvantagePlatform.Pages.Models
         /// </summary>
         public int Id { get; set; }
 
-        [Display(Name = "Custom Properties", Description = "<p>Custom properties to include in all tool launches.<p><p>Put each name=value pair on a separate line.</p>")]
+        [Display(Name = "Custom Properties", Description = "<p>Custom properties to include in all tool launches.</p>" + Config.CustomPropertiesHelp)]
         public string CustomProperties { get; set; }
 
         [Display(Name = "Description")]
