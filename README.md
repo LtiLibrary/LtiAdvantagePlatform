@@ -37,9 +37,9 @@ This sample tracks the LtiAdvantage libraries' modernized stack:
   earlier dependency on Duende / IdentityServer4.
 - **ASP.NET Core Identity** for application user accounts.
 - **EF Core 10** with **SQLite** as the default database (cross-platform).
-- **LtiAdvantage**, **LtiAdvantage.AspNetCore**, and **LtiAdvantage.Oidc**
-  packages for the LTI message types, controller bases, and OpenIddict
-  impersonation hook.
+- **LtiAdvantage**, **LtiAdvantage.AspNetCore**, **LtiAdvantage.IdentityModel**
+  and **LtiAdvantage.Oidc** 4.0.0 packages for the LTI message types,
+  controller bases, JWKS cache, and OpenIddict impersonation hook.
 
 The sample takes the same architectural approach as before — each registered
 application user is a tenant with their own platform, course, and people — but
@@ -83,15 +83,12 @@ deep-linking launches.
 Prerequisites:
 
 - .NET 10 SDK. `global.json` pins this.
-- A checkout of [LtiAdvantage](https://github.com/LtiLibrary/LtiAdvantage) next
-  to this repository. The sample builds against the library source, so the
-  folders must sit side by side:
 
-  ```
-  some-folder/
-  ├── LtiAdvantage/
-  └── LtiAdvantagePlatform/
-  ```
+The LtiAdvantage libraries come from NuGet (`LtiAdvantage`,
+`LtiAdvantage.AspNetCore`, `LtiAdvantage.IdentityModel` and
+`LtiAdvantage.Oidc` 4.0.0), so no checkout of the library is needed. To try
+local library changes, replace the `PackageReference`s in
+`src/AdvantagePlatform.csproj` with `ProjectReference`s to your checkout.
 
 Steps from the repo root:
 

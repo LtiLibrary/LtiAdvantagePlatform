@@ -113,10 +113,14 @@ builder.Services.AddSwaggerGen(options =>
                       "Click on Authorize and login with the username and password you registered to try the various services."
     });
 
-    var xmlFile = Path.Combine(AppContext.BaseDirectory, "LtiAdvantage.xml");
-    if (File.Exists(xmlFile))
+    // XML docs of the LtiAdvantage packages (models and the service controller bases).
+    foreach (var name in new[] { "LtiAdvantage.xml", "LtiAdvantage.AspNetCore.xml" })
     {
-        options.IncludeXmlComments(xmlFile);
+        var xmlFile = Path.Combine(AppContext.BaseDirectory, name);
+        if (File.Exists(xmlFile))
+        {
+            options.IncludeXmlComments(xmlFile);
+        }
     }
 
     options.DocumentFilter<HideRubyRoutesInSwaggerFilter>();
