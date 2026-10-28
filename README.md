@@ -45,11 +45,13 @@ deep-linking launches.
     ├── Program.cs (top-level Hosting + OpenIddict + LtiAdvantage setup)
     ├── Config.cs (LTI scopes registered with OpenIddict)
     ├── Areas/Identity/ (ASP.NET Core Identity user management; edit platform, course, and people)
+    ├── ClientApp/ (optional React front end, see "Using a React front end")
     ├── Controllers/
     │   ├── AuthorizationController.cs (OIDC /connect/authorize + /connect/token endpoints)
     │   ├── LineItemsController.cs / ResultsController.cs / ScoresController.cs (AGS v2)
     │   └── MembershipController.cs (NRPS v2)
     ├── Data/ (EF Core entities and migrations)
+    ├── Spa/SpaApi.cs (JSON API and /app hosting for the React front end)
     ├── Pages/
     │   ├── DeepLinks.cshtml (receives the deep-linking response)
     │   └── OidcLaunch.cshtml (initiates the LTI 1.3 launch by redirecting to the tool)
@@ -119,6 +121,67 @@ same time (it listens on `http://localhost:5072`), then:
 A launch from a course link also gives the tool access to Assignment and
 Grade Services and Names and Role Provisioning. Scores the tool posts show up
 in the platform's gradebook.
+
+## Using a React front end
+
+`src/ClientApp` is a small React (Vite + TypeScript) front end for the same
+platform, served at `/app`. It shows how an LMS with a single-page-app front
+end and an ASP.NET Core back end can host LTI tools. It lists the platform and
+course links, launches a tool in an iframe, and adds links with Deep Linking.
+
+Build it once, then run the platform as usual and open
+`http://localhost:5099/app/` (or click **React UI** in the menu):
+
+```bash
+cd src/ClientApp
+npm install
+npm run build        # writes to src/wwwroot/app
+```
+
+For hot reload, keep the platform running and use `npm run dev` instead, then
+open `http://localhost:5173/app/`. The Vite dev server forwards `/api`,
+`/OidcLaunch` and the sign-in pages to the platform.
+
+### What React does, and what stays on the server
+
+The LTI 1.3 launch is a chain of browser redirects and form posts that ends
+with the platform signing an `id_token`. The signing key must stay on the
+server, so React doesn't take part in the launch. It only decides where the
+tool appears:
+
+| Step | Where |
+| --- | --- |
+| List links, tools and people | React, from `GET /api/spa/home` (`Spa/SpaApi.cs`) |
+| Start a launch | React sets an `<iframe>`'s `src` to a launch URL from the API (`/OidcLaunch?...`) |
+| OIDC login initiation, `/connect/authorize`, signed `id_token` form post | Server, inside the iframe. The same code serves the Razor Pages UI |
+| Deep Linking response | The tool posts to `/DeepLinks`, which validates and saves the links, then sends `postMessage` to the parent window |
+| Assignment and Grade Services, Names and Role Provisioning | Server only. Tools call these APIs directly with their own access tokens |
+
+The pieces that make this work:
+
+- **The same cookie for the API and the launch.** React is served from the
+  platform's own origin, so `fetch("/api/...")` sends the ASP.NET Core
+  Identity cookie, and `/connect/authorize` inside the iframe sees the same
+  signed-in user. If your React app lives on another origin, put the API and
+  the launch endpoints behind one origin (a backend-for-frontend), because the
+  authorize endpoint has to know who is signed in.
+- **API calls get a 401, not a redirect to the login page.** See
+  `ConfigureApplicationCookie` in `Program.cs`.
+- **Launch URLs come from the server.** The API returns ready-made URLs, so
+  the front end never builds LTI parameters.
+- **Deep Linking ends with `postMessage`.** `/DeepLinks` posts
+  `{ type: "lti-deep-linking-complete", added }` to the parent window, with
+  the platform's own origin as target (plus `ClientApp:AllowedOrigins` from
+  `appsettings.Development.json` for the Vite dev server). React checks
+  `event.origin`, closes the iframe and reloads its data. The Razor Pages UI
+  listens for the same message.
+- **No `sandbox` on the iframe.** Tools need scripts, forms and their own
+  cookies. Offer "open in a new tab" as a fallback for tools that can't run
+  in an iframe (for example when the browser blocks their cookies as
+  third-party cookies).
+
+A real LMS would launch as the signed-in user. This sample lets you pick the
+teacher or the student, so the API returns one launch URL per person.
 
 ## How the platform handles tools
 

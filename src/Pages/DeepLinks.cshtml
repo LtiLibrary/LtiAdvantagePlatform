@@ -1,7 +1,10 @@
-﻿@page
+@page
+@using System.Text.Json
 @model AdvantagePlatform.Pages.DeepLinksModel
 @{
     Layout = null;
+    var message = new { type = "lti-deep-linking-complete", added = Model.AddedCount };
+    var origins = new[] { $"{Request.Scheme}://{Request.Host}" }.Concat(Model.MessageTargetOrigins);
 }
 
 <!DOCTYPE html>
@@ -12,8 +15,22 @@
     <title>Deep Links Return</title>
 </head>
 <body>
+<p>Added @Model.AddedCount link(s).</p>
 <script>
-    window.top.location.href = "/";
+    // This page loads inside the iframe that ran the deep linking flow. Tell the page around
+    // it (the Razor home page or the React app) that the tool is done, so it can close the
+    // iframe and reload its links. postMessage with an explicit target origin only delivers
+    // the message when the parent is one of these origins.
+    (function () {
+        var message = @Html.Raw(JsonSerializer.Serialize(message));
+        var origins = @Html.Raw(JsonSerializer.Serialize(origins));
+        if (window.parent !== window) {
+            origins.forEach(function (origin) { window.parent.postMessage(message, origin); });
+        } else {
+            // Not in an iframe (e.g. opened in a new tab): go back to the home page.
+            window.location.href = "/";
+        }
+    })();
 </script>
 </body>
 </html>

@@ -6,6 +6,8 @@
     <RootNamespace>AdvantagePlatform</RootNamespace>
     <Nullable>disable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
+    <!-- The React app is built by npm, not MSBuild. Keep its sources and node_modules out of the project. -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);ClientApp/**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>

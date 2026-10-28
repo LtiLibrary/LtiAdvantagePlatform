@@ -56,5 +56,17 @@
                     modal.find('#@modalIframeId').attr('src', url);
                 });
         });
+
+        // /DeepLinks posts this message when the tool has returned its links.
+        // Both the platform and course components render this script, so register once.
+        if (!window.ltiDeepLinkingListener) {
+            window.ltiDeepLinkingListener = true;
+            window.addEventListener('message', function (event) {
+                if (event.origin === window.location.origin
+                    && event.data && event.data.type === 'lti-deep-linking-complete') {
+                    window.location.reload();
+                }
+            });
+        }
     </script>
 }

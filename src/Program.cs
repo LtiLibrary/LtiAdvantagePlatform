@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using AdvantagePlatform;
 using AdvantagePlatform.Data;
+using AdvantagePlatform.Spa;
 using AdvantagePlatform.Utility;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -52,6 +53,31 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Cookie.Name = "AdvantagePlatform";
     options.LoginPath = "/Identity/Account/Login";
     options.LogoutPath = "/Identity/Account/Logout";
+
+    // The React app calls /api with fetch. Answer 401/403 there instead of redirecting
+    // to the login page, so the app can show its own "please sign in" message.
+    options.Events.OnRedirectToLogin = context =>
+    {
+        if (context.Request.Path.StartsWithSegments("/api"))
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return Task.CompletedTask;
+        }
+
+        context.Response.Redirect(context.RedirectUri);
+        return Task.CompletedTask;
+    };
+    options.Events.OnRedirectToAccessDenied = context =>
+    {
+        if (context.Request.Path.StartsWithSegments("/api"))
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            return Task.CompletedTask;
+        }
+
+        context.Response.Redirect(context.RedirectUri);
+        return Task.CompletedTask;
+    };
 });
 
 // Identity uses its application cookie scheme for browser auth. OpenIddict maps user
@@ -220,5 +246,9 @@ app.UseSwaggerUI(options =>
 
 app.MapRazorPages();
 app.MapControllers();
+
+// React front end (src/ClientApp): JSON API plus the built app at /app.
+app.MapSpaApi();
+app.MapSpaFallback();
 
 app.Run();
