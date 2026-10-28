@@ -193,8 +193,12 @@ namespace AdvantagePlatform.Controllers
             gradebookColumn.ScoreMaximum = request.LineItem.ScoreMaximum;
             gradebookColumn.StartDateTime = request.LineItem.StartDateTime;
             gradebookColumn.Tag = request.LineItem.Tag;
-            // PUT replaces the line item, so a missing gradesReleased goes back to "not set".
-            gradebookColumn.GradesReleased = request.LineItem.GradesReleased;
+            // A tool that leaves gradesReleased out has no opinion (older tools don't know it), so
+            // keep what is stored, which may be the instructor's choice from the gradebook.
+            if (request.LineItem.GradesReleased.HasValue)
+            {
+                gradebookColumn.GradesReleased = request.LineItem.GradesReleased;
+            }
             gradebookColumn.SetSubmissionReview(request.LineItem.SubmissionReviewExtension);
             if (request.LineItem.ResourceLinkId.IsPresent())
             {

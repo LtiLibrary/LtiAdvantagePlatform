@@ -14,7 +14,7 @@ perspective. There is a companion sample tool over at
   - Variables such as `$User.username`, `$Context.title`, `$ResourceLink.id` and `$Membership.course.groupIds` in custom properties are filled in at launch.
 - Assignment and Grade Services v2
   - Tools can list line items for a course (paged with `limit`), get a specific line item, read results, and post scores.
-  - `gradesReleased` on a line item says whether learners may see its grades. The gradebook shows it on each column, and the instructor can release or hide the grades there; the tool sees the change when it reads the line item.
+  - `gradesReleased` on a line item says whether learners may see its grades. The gradebook shows it on each column, and the instructor can release or hide the grades there; the tool sees the change when it reads the line item. A tool that updates the line item without `gradesReleased` leaves the stored value alone.
 - Names and Role Provisioning Services v2
   - Tools can read course membership, paged with `limit` and a `Link: <…>; rel="next"` header.
 - Deep Linking 2.0
