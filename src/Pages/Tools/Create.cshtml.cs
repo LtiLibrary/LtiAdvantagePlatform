@@ -12,14 +12,16 @@ namespace AdvantagePlatform.Pages.Tools
     {
         private readonly ApplicationDbContext _context;
         private readonly ToolClientManager _toolClientManager;
+        private readonly ToolSigningKeys _toolSigningKeys;
 
         [BindProperty]
         public ToolModel Tool { get; set; }
 
-        public CreateModel(ApplicationDbContext context, ToolClientManager toolClientManager)
+        public CreateModel(ApplicationDbContext context, ToolClientManager toolClientManager, ToolSigningKeys toolSigningKeys)
         {
             _context = context;
             _toolClientManager = toolClientManager;
+            _toolSigningKeys = toolSigningKeys;
         }
 
         public IActionResult OnGet()
@@ -42,11 +44,7 @@ namespace AdvantagePlatform.Pages.Tools
                     "Cannot parse the Custom Properties.");
             }
 
-            if (PemKeys.ParseRsaPublicKey(Tool.PublicKey) == null)
-            {
-                ModelState.AddModelError($"{nameof(Tool)}.{nameof(Tool.PublicKey)}",
-                    "Enter the tool's PEM-encoded RSA public key.");
-            }
+            var keySet = await Tool.ValidateKeysAsync(ModelState, _toolSigningKeys);
 
             if (await _toolClientManager.ExistsAsync(Tool.ClientId))
             {
@@ -59,7 +57,7 @@ namespace AdvantagePlatform.Pages.Tools
                 return Page();
             }
 
-            await _toolClientManager.CreateAsync(Tool.ClientId, Tool.Name, Tool.LaunchUrl, Tool.PublicKey);
+            await _toolClientManager.CreateAsync(Tool.ClientId, Tool.Name, new[] { Tool.LaunchUrl, Tool.DeepLinkingLaunchUrl }, keySet);
 
             var tool = new Tool
             {
@@ -70,6 +68,7 @@ namespace AdvantagePlatform.Pages.Tools
                 LaunchUrl = Tool.LaunchUrl,
                 LoginUrl = Tool.LoginUrl,
                 Name = Tool.Name,
+                JwksUrl = Tool.JwksUrl,
                 PublicKey = Tool.PublicKey
             };
             await _context.Tools.AddAsync(tool);

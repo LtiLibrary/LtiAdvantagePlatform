@@ -27,6 +27,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\LtiAdvantage\src\LtiAdvantage\LtiAdvantage.csproj" />
     <ProjectReference Include="..\..\LtiAdvantage\src\LtiAdvantage.AspNetCore\LtiAdvantage.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\LtiAdvantage\src\LtiAdvantage.IdentityModel\LtiAdvantage.IdentityModel.csproj" />
     <ProjectReference Include="..\..\LtiAdvantage\src\LtiAdvantage.Oidc\LtiAdvantage.Oidc.csproj" />
   </ItemGroup>
 

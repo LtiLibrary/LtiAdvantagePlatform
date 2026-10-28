@@ -16,6 +16,8 @@ perspective. There is a companion sample tool over at
   - Tools can read course membership.
 - Deep Linking 2.0
   - Tools can add LTI links to the platform or course.
+- Tool keys from the tool's JWKS URL
+  - Cached and picked by `kid`, so tools can rotate their keys. A PEM public key is the fallback.
 
 ## Stack
 
@@ -107,8 +109,8 @@ same time (it listens on `http://localhost:5072`), then:
    platform**. Leave the page open: its "Tool side" section lists the URLs and
    public key the platform needs.
 2. In the platform, register an account and open **Tools → Register New
-   Tool**. Enter the tool's Login URL, Launch URL, Deep linking URL and public
-   key. Note the Client ID, and the Issuer, Authorize URL, Token URL and JWKS
+   Tool**. Enter the tool's Login URL, Launch URL, Deep linking URL and JWKS
+   URL (or its public key). Note the Client ID, and the Issuer, Authorize URL, Token URL and JWKS
    URL shown on the page.
 3. Back in the tool, fill in the platform side with those values and save.
    Copy the Issuer exactly, including the trailing slash
@@ -187,10 +189,28 @@ teacher or the student, so the API returns one launch URL per person.
 
 Tools are configured under **Tools → Register New Tool**. The sample manages
 an OpenIddict application for each tool: a confidential client with the
-launch URL as redirect URI, and the tool's PEM-encoded RSA public key as its
-JSON Web Key Set. The tool uses that key to sign the client assertion it sends
-to `/connect/token` (LTI's JWT client credentials grant). The platform also
-uses the key to verify deep-linking responses.
+launch URL as redirect URI. The tool signs the client assertion it sends to
+`/connect/token` (LTI's JWT client credentials grant) and its deep linking
+responses with its private key, so the platform needs the tool's public key.
+
+### Tool keys from a JWKS URL
+
+Enter the tool's **Tool JWKS URL** (the sample tool publishes its keys at
+`http://localhost:5072/jwks/{platformId}`). The platform fetches the key set
+with the library's `JwksCache` (`Utility/ToolSigningKeys.cs`) and picks the key
+by the token's `kid`. When a token names a `kid` the cache doesn't know, the
+cache fetches the set again, so the tool can rotate its key without anyone
+updating the platform. That covers both places the platform checks a tool's
+signature:
+
+- deep linking responses (`Pages/DeepLinks.cshtml.cs`);
+- client assertions at `/connect/token`. OpenIddict normally checks them
+  against the key set stored on the client's application;
+  `ToolJwksClientAssertionHandler` (`Utility/LtiClientAssertionHandlers.cs`)
+  hands it the keys from the JWKS URL instead. The stored key set is a copy
+  taken when the tool is saved, used only if the JWKS URL can't be reached.
+
+A pasted PEM public key still works as a fallback for tools without a JWKS URL.
 
 [LtiAdvantage](https://github.com/LtiLibrary/LtiAdvantage) provides the LTI
 message classes, the AGS / NRPS controller base classes

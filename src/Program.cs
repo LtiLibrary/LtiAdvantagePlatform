@@ -1,12 +1,14 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using AdvantagePlatform;
 using AdvantagePlatform.Data;
 using AdvantagePlatform.Spa;
 using AdvantagePlatform.Utility;
+using LtiAdvantage.IdentityModel.Validation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -205,6 +207,16 @@ builder.Services.AddAuthorization();
 builder.Services.AddLtiAdvantagePolicies();
 builder.Services.AddTransient<CourseAccessValidator>();
 builder.Services.AddScoped<ToolClientManager>();
+
+// Tool keys are fetched from each tool's JWKS URL and cached. A token signed with a key id the
+// cache does not know yet triggers a refetch (at most every 10 seconds per URL), which is how a
+// tool's key rotation reaches the platform.
+builder.Services.AddHttpClient();
+builder.Services.AddSingleton(services => new JwksCache(
+    services.GetRequiredService<IHttpClientFactory>().CreateClient(nameof(JwksCache)),
+    cacheDuration: TimeSpan.FromHours(1),
+    minimumRefreshInterval: TimeSpan.FromSeconds(10)));
+builder.Services.AddScoped<ToolSigningKeys>();
 
 var app = builder.Build();
 

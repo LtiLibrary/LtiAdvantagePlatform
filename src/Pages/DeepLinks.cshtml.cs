@@ -20,14 +20,17 @@ namespace AdvantagePlatform.Pages
     public class DeepLinksModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly ToolSigningKeys _toolSigningKeys;
         private readonly ILogger<DeepLinksModel> _logger;
 
         public DeepLinksModel(
             ApplicationDbContext context,
+            ToolSigningKeys toolSigningKeys,
             IConfiguration configuration,
             ILogger<DeepLinksModel> logger)
         {
             _context = context;
+            _toolSigningKeys = toolSigningKeys;
             _logger = logger;
 
             // The page tells the window that opened the deep linking flow (the Razor home page or
@@ -161,8 +164,10 @@ namespace AdvantagePlatform.Pages
                 return false;
             }
 
-            var key = PemKeys.ParseRsaPublicKey(tool.PublicKey);
-            if (key == null)
+            // The "kid" header names the key the tool signed with. If the tool rotated its keys,
+            // an unknown kid makes the platform fetch the tool's JWKS again.
+            var keys = await _toolSigningKeys.GetSigningKeysAsync(tool, token.Header.Kid);
+            if (keys.Count == 0)
             {
                 _logger.LogError("Tool {ToolId} has no usable public key.", tool.Id);
                 return false;
@@ -173,7 +178,7 @@ namespace AdvantagePlatform.Pages
                 RequireSignedTokens = true,
                 RequireExpirationTime = true,
 
-                IssuerSigningKey = key,
+                IssuerSigningKeys = keys,
                 ValidateIssuerSigningKey = true,
 
                 ValidateIssuer = false,

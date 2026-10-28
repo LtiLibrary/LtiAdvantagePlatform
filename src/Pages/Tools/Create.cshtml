@@ -53,8 +53,15 @@
                             <span asp-validation-for="Tool.ClientId" class="text-danger"></span>
                         </div>
                         <div class="form-group">
+                            <label asp-for="Tool.JwksUrl"></label>
+                            <tooltip asp-for="Tool.JwksUrl"></tooltip>
+                            <input asp-for="Tool.JwksUrl" class="form-control" placeholder="For example http://localhost:5072/jwks/1" />
+                            <span asp-validation-for="Tool.JwksUrl" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
                             <label asp-for="Tool.PublicKey"></label>
                             <tooltip asp-for="Tool.PublicKey"></tooltip>
+                            Only needed if the tool has no JWKS URL.
                             For development keys see <a href="https://lti-ri.imsglobal.org/keygen/index" target="_blank">https://lti-ri.imsglobal.org/keygen/index</a>
                             <textarea asp-for="Tool.PublicKey" class="form-control text-monospace key" rows="5" placeholder="Enter the public key in PEM format."></textarea>
                             <span asp-validation-for="Tool.PublicKey" class="text-danger"></span>

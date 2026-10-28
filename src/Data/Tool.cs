@@ -18,9 +18,16 @@ namespace AdvantagePlatform.Data
         public string ClientId { get; set; }
 
         /// <summary>
-        /// The tool's public signing key, in PEM format. Used to verify deep-linking
-        /// responses and (when stored on the OpenIddict application) JWT client
-        /// assertions sent during the token request.
+        /// The URL where the tool publishes its public signing keys (a JSON Web Key Set).
+        /// Used to verify deep-linking responses and the JWT client assertions sent to the
+        /// token endpoint. Preferred over <see cref="PublicKey"/>, because the tool can
+        /// rotate its keys without the platform being updated.
+        /// </summary>
+        public string JwksUrl { get; set; }
+
+        /// <summary>
+        /// The tool's public signing key, in PEM format. Fallback for tools without a
+        /// <see cref="JwksUrl"/>.
         /// </summary>
         public string PublicKey { get; set; }
 
