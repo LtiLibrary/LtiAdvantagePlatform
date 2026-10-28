@@ -17,6 +17,8 @@ perspective. There is a companion sample tool over at
 - Deep Linking 2.0
   - Tools can add LTI links, links, HTML fragments, files and images to the platform or course.
   - The platform shows the tool's `msg` / `errormsg`, and honours the `iframe` or `window` presentation of each item.
+- Course Groups Service 1.0
+  - Tools can read the course's group sets, groups, and each member's groups.
 - Submission Review 1.0
   - Tools mark line items with `submissionReview`; the gradebook then offers "View submission", which launches the tool for that student.
 - Dynamic Registration 1.0
@@ -57,7 +59,8 @@ deep-linking launches.
     │   ├── AuthorizationController.cs (OIDC /connect/authorize + /connect/token endpoints)
     │   ├── OpenIdConfigurationController.cs / DynamicRegistrationController.cs (Dynamic Registration)
     │   ├── LineItemsController.cs / ResultsController.cs / ScoresController.cs (AGS v2)
-    │   └── MembershipController.cs (NRPS v2)
+    │   ├── MembershipController.cs (NRPS v2)
+    │   └── GroupSetsController.cs / GroupsController.cs (Course Groups)
     ├── Data/ (EF Core entities and migrations)
     ├── Spa/SpaApi.cs (JSON API and /app hosting for the React front end)
     ├── Pages/
@@ -157,6 +160,28 @@ which checks the signature with the tool's keys and saves each content item:
 `msg` and `errormsg` from the response are shown to the user after the
 dialog closes (`/DeepLinks` adds them to its `lti-deep-linking-complete`
 message); `log` and `errorlog` go to the platform's log.
+
+## Course Groups
+
+Every new account's course has three people (a teacher and two students) and
+two group sets: **Project teams** (Team Red and Team Blue, one student each)
+and **Study groups** (Everyone). The home page lists them under Members.
+(Accounts registered before this feature have no groups; register a new one.)
+
+Launches from a course carry the Course Groups service claim
+(`CourseGroupsServiceClaimValueType`) with the two endpoints, which need the
+`https://purl.imsglobal.org/spec/lti-gs/scope/contextgroup.readonly` scope:
+
+- `GET /context/{courseId}/groups/sets`: the group sets
+  (`Controllers/GroupSetsController.cs`, on `GroupSetsControllerBase`);
+- `GET /context/{courseId}/groups[?user_id=…]`: the groups, or only those of
+  one user (`Controllers/GroupsController.cs`, on `GroupsControllerBase`);
+- `GET /context/{courseId}/membership?groups=true`: Names and Roles with each
+  member's `group_enrollments`. The library only lets those through when the
+  token also has the groups scope.
+
+Existing tool clients get the new scope at startup
+(`ToolClientManager.EnsureScopePermissionsAsync`).
 
 ## Submission Review
 

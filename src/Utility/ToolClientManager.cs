@@ -99,6 +99,38 @@ namespace AdvantagePlatform.Utility
             }
         }
 
+        /// <summary>
+        /// Gives clients created before a scope was added to <see cref="Config.LtiScopes"/>
+        /// (for example the Course Groups scope) permission to request it too.
+        /// </summary>
+        public async Task EnsureScopePermissionsAsync()
+        {
+            var required = Config.LtiScopes
+                .Select(scope => OpenIddictConstants.Permissions.Prefixes.Scope + scope)
+                .ToList();
+
+            var applications = new List<object>();
+            await foreach (var application in _applicationManager.ListAsync())
+            {
+                applications.Add(application);
+            }
+
+            foreach (var application in applications)
+            {
+                var descriptor = new OpenIddictApplicationDescriptor();
+                await _applicationManager.PopulateAsync(descriptor, application);
+
+                // Only clients that already use LTI scopes: the tools and Swagger UI.
+                if (!descriptor.Permissions.Overlaps(required) || descriptor.Permissions.IsSupersetOf(required))
+                {
+                    continue;
+                }
+
+                descriptor.Permissions.UnionWith(required);
+                await _applicationManager.UpdateAsync(application, descriptor);
+            }
+        }
+
         public async Task EnsureSwaggerClientAsync()
         {
             const string clientId = "swagger";

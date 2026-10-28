@@ -9,6 +9,7 @@ using AdvantagePlatform.Areas.Identity.Pages.Account.Manage;
 using AdvantagePlatform.Data;
 using LtiAdvantage;
 using LtiAdvantage.AssignmentGradeServices;
+using LtiAdvantage.CourseGroupsService;
 using LtiAdvantage.DeepLinking;
 using LtiAdvantage.Lti;
 using LtiAdvantage.NamesRoleProvisioningService;
@@ -509,6 +510,22 @@ namespace AdvantagePlatform.Utility
                 {
                     ContextMembershipUrl = _linkGenerator.GetUriByRouteValues(
                         Constants.ServiceEndpoints.Nrps.MembershipService,
+                        new { contextId = course.Id },
+                        httpRequest.Scheme,
+                        httpRequest.Host)
+                };
+
+                // Course Groups service: where the tool can read the course's groups and sets.
+                request.CourseGroupsService = new CourseGroupsServiceClaimValueType
+                {
+                    Scope = new[] { Constants.LtiScopes.Gs.ContextGroupReadonly },
+                    ContextGroupsUrl = _linkGenerator.GetUriByRouteValues(
+                        Constants.ServiceEndpoints.Gs.GroupsService,
+                        new { contextId = course.Id },
+                        httpRequest.Scheme,
+                        httpRequest.Host),
+                    ContextGroupSetsUrl = _linkGenerator.GetUriByRouteValues(
+                        Constants.ServiceEndpoints.Gs.GroupSetsService,
                         new { contextId = course.Id },
                         httpRequest.Scheme,
                         httpRequest.Host)

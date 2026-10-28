@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using RandomNameGeneratorLibrary;
+using CourseGroup = AdvantagePlatform.Data.CourseGroup;
 
 namespace AdvantagePlatform.Areas.Identity.Pages.Account
 {
@@ -86,6 +88,7 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account
                     {
                         user.People.Add(person);
                     }
+                    await CreateGroupSetsAsync(_context, user.Course, user.People);
                     await _userManager.UpdateAsync(user);
                     // Done creating the basic objects
 
@@ -178,19 +181,62 @@ namespace AdvantagePlatform.Areas.Identity.Pages.Account
             teacher.Username = $"{teacher.FirstName.Substring(0, 1)}{teacher.LastName}".ToLowerInvariant();
             await context.People.AddAsync(teacher);
 
-            var student = new Person
+            // Two students, so the course groups have someone to tell apart.
+            var people = new List<Person> { teacher };
+            for (var i = 0; i < 2; i++)
             {
-                FirstName = nameGenerator.GenerateRandomFirstName(),
-                LastName = nameGenerator.GenerateRandomLastName(),
-                Roles = string.Join(", ", Role.ContextLearner.ToString(), Role.InstitutionLearner.ToString())
-            };
-            student.SisId = student.GetHashCode().ToString();
-            student.Username = $"{student.FirstName.Substring(0, 1)}{student.LastName}".ToLowerInvariant();
-            await context.People.AddAsync(student);
+                var student = new Person
+                {
+                    FirstName = nameGenerator.GenerateRandomFirstName(),
+                    LastName = nameGenerator.GenerateRandomLastName(),
+                    Roles = string.Join(", ", Role.ContextLearner.ToString(), Role.InstitutionLearner.ToString())
+                };
+                student.SisId = student.GetHashCode().ToString();
+                student.Username = $"{student.FirstName.Substring(0, 1)}{student.LastName}".ToLowerInvariant();
+                await context.People.AddAsync(student);
+                people.Add(student);
+            }
 
             await context.SaveChangesAsync();
 
-            return new List<Person> { teacher, student };
+            return people;
+        }
+
+        /// <summary>
+        /// Create group sets and groups in the course for the Course Groups service:
+        /// "Project teams" puts each student in their own team, and "Study groups" has one
+        /// group with every student in it.
+        /// </summary>
+        public static async Task CreateGroupSetsAsync(ApplicationDbContext context, Course course, IEnumerable<Person> people)
+        {
+            var students = people
+                .Where(p => p.Roles.Contains(Role.ContextLearner.ToString()))
+                .ToList();
+
+            var teams = new CourseGroupSet
+            {
+                Name = "Project teams",
+                Tag = "project",
+                Groups = students
+                    .Select((student, i) => new CourseGroup
+                    {
+                        Name = i % 2 == 0 ? "Team Red" : "Team Blue",
+                        Members = new List<Person> { student }
+                    })
+                    .ToList()
+            };
+
+            var studyGroups = new CourseGroupSet
+            {
+                Name = "Study groups",
+                Groups = new List<CourseGroup>
+                {
+                    new CourseGroup { Name = "Everyone", Members = students }
+                }
+            };
+
+            course.GroupSets = new List<CourseGroupSet> { teams, studyGroups };
+            await context.SaveChangesAsync();
         }
     }
 }

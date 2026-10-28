@@ -109,6 +109,50 @@ namespace AdvantagePlatform.Data.Migrations
                     b.ToTable("Courses");
                 });
 
+            modelBuilder.Entity("AdvantagePlatform.Data.CourseGroup", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("GroupSetId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Tag")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupSetId");
+
+                    b.ToTable("CourseGroups");
+                });
+
+            modelBuilder.Entity("AdvantagePlatform.Data.CourseGroupSet", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("CourseId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Tag")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.ToTable("CourseGroupSets");
+                });
+
             modelBuilder.Entity("AdvantagePlatform.Data.GradebookColumn", b =>
                 {
                     b.Property<int>("Id")
@@ -425,6 +469,21 @@ namespace AdvantagePlatform.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("ToolRegistrations");
+                });
+
+            modelBuilder.Entity("CourseGroupPerson", b =>
+                {
+                    b.Property<int>("CourseGroupId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("MembersId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("CourseGroupId", "MembersId");
+
+                    b.HasIndex("MembersId");
+
+                    b.ToTable("CourseGroupPerson");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -782,6 +841,25 @@ namespace AdvantagePlatform.Data.Migrations
                     b.Navigation("Platform");
                 });
 
+            modelBuilder.Entity("AdvantagePlatform.Data.CourseGroup", b =>
+                {
+                    b.HasOne("AdvantagePlatform.Data.CourseGroupSet", "GroupSet")
+                        .WithMany("Groups")
+                        .HasForeignKey("GroupSetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("GroupSet");
+                });
+
+            modelBuilder.Entity("AdvantagePlatform.Data.CourseGroupSet", b =>
+                {
+                    b.HasOne("AdvantagePlatform.Data.Course", null)
+                        .WithMany("GroupSets")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("AdvantagePlatform.Data.GradebookColumn", b =>
                 {
                     b.HasOne("AdvantagePlatform.Data.Course", null)
@@ -847,6 +925,21 @@ namespace AdvantagePlatform.Data.Migrations
                     b.HasOne("AdvantagePlatform.Data.AdvantagePlatformUser", null)
                         .WithMany("Tools")
                         .HasForeignKey("AdvantagePlatformUserId");
+                });
+
+            modelBuilder.Entity("CourseGroupPerson", b =>
+                {
+                    b.HasOne("AdvantagePlatform.Data.CourseGroup", null)
+                        .WithMany()
+                        .HasForeignKey("CourseGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AdvantagePlatform.Data.Person", null)
+                        .WithMany()
+                        .HasForeignKey("MembersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -935,9 +1028,16 @@ namespace AdvantagePlatform.Data.Migrations
                 {
                     b.Navigation("GradebookColumns");
 
+                    b.Navigation("GroupSets");
+
                     b.Navigation("LinkedContent");
 
                     b.Navigation("ResourceLinks");
+                });
+
+            modelBuilder.Entity("AdvantagePlatform.Data.CourseGroupSet", b =>
+                {
+                    b.Navigation("Groups");
                 });
 
             modelBuilder.Entity("AdvantagePlatform.Data.GradebookColumn", b =>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -16,6 +17,8 @@ namespace AdvantagePlatform.Data
         }
 
         public DbSet<Course> Courses { get; set; }
+        public DbSet<CourseGroup> CourseGroups { get; set; }
+        public DbSet<CourseGroupSet> CourseGroupSets { get; set; }
         public DbSet<GradebookColumn> GradebookColumns { get; set; }
         public DbSet<GradebookRow> GradebookRows { get; set; }
         public DbSet<LinkedContent> LinkedContent { get; set; }
@@ -41,6 +44,15 @@ namespace AdvantagePlatform.Data
 
             builder.Entity<Platform>().HasMany(p => p.LinkedContent).WithOne()
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Course>().HasMany(c => c.GroupSets).WithOne()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<CourseGroupSet>().HasMany(s => s.Groups).WithOne(g => g.GroupSet)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // People belong to any number of groups.
+            builder.Entity<CourseGroup>().HasMany(g => g.Members).WithMany();
 
             builder.Entity<ToolRegistration>().HasIndex(r => r.Token).IsUnique();
 
@@ -81,6 +93,21 @@ namespace AdvantagePlatform.Data
             return course == null ? null  : await GetCourseAsync(course.Id);
         }
                 
+        /// <summary>
+        /// Returns the group sets of a course, with their groups and the groups' members.
+        /// </summary>
+        /// <param name="courseId">The course id.</param>
+        public async Task<List<CourseGroupSet>> GetGroupSetsAsync(int courseId)
+        {
+            return await Courses
+                .Where(c => c.Id == courseId)
+                .SelectMany(c => c.GroupSets)
+                .Include(s => s.Groups)
+                .ThenInclude(g => g.Members)
+                .OrderBy(s => s.Name)
+                .ToListAsync();
+        }
+
         /// <summary>
         /// Returns a gradebook column with scores.
         /// </summary>

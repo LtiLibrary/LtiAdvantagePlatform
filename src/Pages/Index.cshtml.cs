@@ -19,6 +19,7 @@ namespace AdvantagePlatform.Pages
         public Platform Platform { get; set; }
         public Course Course { get; set; }
         public IList<Person> People { get; set; }
+        public IList<CourseGroupSet> GroupSets { get; set; } = new List<CourseGroupSet>();
 
         public async Task OnGetAsync()
         {
@@ -28,6 +29,7 @@ namespace AdvantagePlatform.Pages
                 Platform = user.Platform;
                 Course = user.Course;
                 People = user.People.ToList();
+                GroupSets = await _context.GetGroupSetsAsync(Course.Id);
             }
         }
 

@@ -4,6 +4,7 @@ using AdvantagePlatform.Areas.Identity.Pages.Account.Manage;
 using AdvantagePlatform.Data;
 using AdvantagePlatform.Utility;
 using LtiAdvantage.AspNetCore.NamesRoleProvisioningService;
+using LtiAdvantage.CourseGroupsService;
 using LtiAdvantage.NamesRoleProvisioningService;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -112,6 +113,21 @@ namespace AdvantagePlatform.Controllers
                 if (request.Role.HasValue)
                 {
                     people = people.Where(p => p.Roles.Any(r => r == request.Role.Value));
+                }
+
+                // ?groups=true (Course Groups service): each member's group enrollments.
+                // The base class only asks for them when the token has the groups scope.
+                if (request.IncludeGroups)
+                {
+                    var groups = (await _context.GetGroupSetsAsync(contextId)).SelectMany(s => s.Groups).ToList();
+                    people = people.Select(member =>
+                    {
+                        member.GroupEnrollments = groups
+                            .Where(g => g.Members.Any(m => m.Id.ToString() == member.UserId))
+                            .Select(g => new GroupEnrollment { GroupId = g.Id.ToString() })
+                            .ToArray();
+                        return member;
+                    }).ToList();
                 }
 
                 membership.Members = people.ToList();

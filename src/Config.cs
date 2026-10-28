@@ -20,7 +20,8 @@ namespace AdvantagePlatform
             Constants.LtiScopes.Ags.ResultReadonly,
             Constants.LtiScopes.Ags.Score,
             Constants.LtiScopes.Ags.ScoreReadonly,
-            Constants.LtiScopes.Nrps.MembershipReadonly
+            Constants.LtiScopes.Nrps.MembershipReadonly,
+            Constants.LtiScopes.Gs.ContextGroupReadonly
         };
 
         /// <summary>

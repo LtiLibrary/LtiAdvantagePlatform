@@ -230,6 +230,7 @@ await using (var scope = app.Services.CreateAsyncScope())
 
     var toolClientManager = scope.ServiceProvider.GetRequiredService<ToolClientManager>();
     await toolClientManager.EnsureSwaggerClientAsync();
+    await toolClientManager.EnsureScopePermissionsAsync();
 }
 
 if (app.Environment.IsDevelopment())
