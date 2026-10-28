@@ -6,7 +6,6 @@ using LtiAdvantage;
 using LtiAdvantage.AspNetCore.AssignmentGradeServices;
 using LtiAdvantage.AssignmentGradeServices;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -57,11 +56,11 @@ namespace AdvantagePlatform.Controllers
                 .GroupBy(s => s.PersonId)
                 .Select(g => new Result
                 {
-                    Id = Request.GetDisplayUrl().EnsureTrailingSlash() + g.Key,
-                    Comment = $"Last score of {g.Count()} attempt/s." 
-                              + $"<p><div>First Score: {g.First().ScoreGiven:N1}</div>" 
-                              + $"<div>Highest Score: {g.Max(x => x.ScoreGiven):N1}</div>" 
-                              + $"<div>Lowest Score: {g.Min(x => x.ScoreGiven):N1}</div></p>",
+                    // The result's own URL: the results URL without any query string.
+                    Id = Url.Link(Constants.ServiceEndpoints.Ags.ResultsService,
+                        new { contextId = request.ContextId, lineItemId = request.LineItemId }).EnsureTrailingSlash() + g.Key,
+                    // The comment the tool sent with the most recent score (AGS §3.3.5).
+                    Comment = g.Last().Comment,
                     ResultMaximum = g.Max(x => x.ScoreMaximum),
                     ResultScore = g.Last().ScoreGiven,
                     ScoreOf = Url.Link(Constants.ServiceEndpoints.Ags.LineItemService, 
