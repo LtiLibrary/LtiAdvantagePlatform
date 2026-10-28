@@ -40,7 +40,7 @@ This sample tracks the LtiAdvantage libraries' modernized stack:
 - **ASP.NET Core Identity** for application user accounts.
 - **EF Core 10** with **SQLite** as the default database (cross-platform).
 - **LtiAdvantage**, **LtiAdvantage.AspNetCore**, **LtiAdvantage.IdentityModel**
-  and **LtiAdvantage.Oidc** 4.0.0 packages for the LTI message types,
+  and **LtiAdvantage.Oidc** 4.1.0 packages for the LTI message types,
   controller bases, JWKS cache, and OpenIddict impersonation hook.
 
 The sample takes the same architectural approach as before — each registered
@@ -88,7 +88,7 @@ Prerequisites:
 
 The LtiAdvantage libraries come from NuGet (`LtiAdvantage`,
 `LtiAdvantage.AspNetCore`, `LtiAdvantage.IdentityModel` and
-`LtiAdvantage.Oidc` 4.0.0), so no checkout of the library is needed. To try
+`LtiAdvantage.Oidc` 4.1.0), so no checkout of the library is needed. To try
 local library changes, replace the `PackageReference`s in
 `src/AdvantagePlatform.csproj` with `ProjectReference`s to your checkout.
 
@@ -185,10 +185,13 @@ which checks the signature with the tool's keys and saves each content item:
   makes the link open inside the platform page (launched with
   `launch_presentation.document_target` = `iframe`); otherwise it opens in a
   new window. In a course every link gets a gradebook column; a `lineItem` on
-  the item sets the column's `label`, `scoreMaximum`, `tag` and `resourceId`.
-- `link`, `file` and `image` are shown as a link, a download or an image.
-  `html` is shown in a sandboxed iframe, so the tool's HTML never runs in the
-  platform's own page.
+  the item sets the column's `label`, `scoreMaximum`, `tag` and `resourceId`,
+  and a `submissionReview` on it turns on Submission Review for that column.
+- `link`, `file` and `image` are shown as a link, a download or an image (at
+  the image's `width`/`height`). `html` is shown in a sandboxed iframe, so the tool's HTML
+  never runs in the platform's own page. A `link` with `embed.html` (the
+  `embed` document target) is shown the same way, except that its scripts may
+  run, still in an opaque origin away from the platform's page.
 
 `msg` and `errormsg` from the response are shown to the user after the
 dialog closes (`/DeepLinks` adds them to its `lti-deep-linking-complete`
@@ -248,9 +251,9 @@ Existing tool clients get the new scope at startup
 A tool that can show a student's submission says so on the line item: it
 creates or updates the line item (Assignment and Grade Services) with a
 `submissionReview` property (`SubmissionReviewProperty`: `label`, optional
-`url` and `custom`). The platform stores it on the gradebook column
-(`Controllers/LineItemsController.cs`) and returns it when the tool reads the
-line item.
+`url` and `custom`), or sends it on the deep-linked `lineItem`. The platform
+stores it on the gradebook column (`Controllers/LineItemsController.cs`,
+`Pages/DeepLinks.cshtml.cs`) and returns it when the tool reads the line item.
 
 In the gradebook, every score in such a column gets a button with the
 review's label ("View submission" by default). It launches an

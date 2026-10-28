@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using RandomNameGeneratorLibrary;
-using CourseGroup = AdvantagePlatform.Data.CourseGroup;
 
 namespace AdvantagePlatform.Areas.Identity.Pages.Account
 {

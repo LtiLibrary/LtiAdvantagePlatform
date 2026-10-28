@@ -35,14 +35,14 @@ namespace AdvantagePlatform.Data
         public int PersonId { get; set; }
 
         /// <summary>
-        /// The score.
+        /// The score, or null when the tool only reported progress (AGS 2.0: scoreGiven is optional).
         /// </summary>
-        public double ScoreGiven { get; set; }
+        public double? ScoreGiven { get; set; }
 
         /// <summary>
-        /// The maximum possible score.
+        /// The maximum possible score; null when <see cref="ScoreGiven"/> is.
         /// </summary>
-        public double ScoreMaximum { get; set; }
+        public double? ScoreMaximum { get; set; }
 
         /// <summary>
         /// The UTC time the score was set. ISO 8601 format.
