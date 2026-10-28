@@ -13,9 +13,9 @@ perspective. There is a companion sample tool over at
 - Custom property substitution
   - Variables such as `$User.username`, `$Context.title`, `$ResourceLink.id` and `$Membership.course.groupIds` in custom properties are filled in at launch.
 - Assignment and Grade Services v2
-  - Tools can list line items for a course, get a specific line item, read results, and post scores.
+  - Tools can list line items for a course (paged with `limit`), get a specific line item, read results, and post scores.
 - Names and Role Provisioning Services v2
-  - Tools can read course membership.
+  - Tools can read course membership, paged with `limit` and a `Link: <…>; rel="next"` header.
 - Deep Linking 2.0
   - Tools can add LTI links, links, HTML fragments, files and images to the platform or course.
   - The platform shows the tool's `msg` / `errormsg`, and honours the `iframe` or `window` presentation of each item.

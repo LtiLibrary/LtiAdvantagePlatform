@@ -107,7 +107,7 @@ namespace AdvantagePlatform.Controllers
                     }).ToList();
                 }
 
-                membership.Members = people.ToList();
+                membership.Members = ServicePaging.Page(HttpContext, people, request.Limit);
             }
 
             return membership;

@@ -186,7 +186,7 @@ namespace AdvantagePlatform.Controllers
                 lineitems = lineitems.Where(l => l.Tag == request.Tag).ToList();
             }
 
-            return new LineItemContainer(lineitems);
+            return new LineItemContainer(ServicePaging.Page(HttpContext, lineitems, request.Limit));
         }
 
         /// <inheritdoc />
