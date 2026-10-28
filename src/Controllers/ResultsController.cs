@@ -54,21 +54,24 @@ namespace AdvantagePlatform.Controllers
             var results = gradebookColumn.Scores
                 .OrderBy(s => s.TimeStamp)
                 .GroupBy(s => s.PersonId)
-                .Select(g => new Result
+                .Select(g =>
                 {
-                    // The result's own URL: the results URL without any query string.
-                    Id = Url.Link(Constants.ServiceEndpoints.Ags.ResultsService,
-                        new { contextId = request.ContextId, lineItemId = request.LineItemId }).EnsureTrailingSlash() + g.Key,
-                    // The comment the tool sent with the most recent score (AGS §3.3.5).
-                    Comment = g.Last().Comment,
-                    // A progress-only score has no scoreGiven, so the result's score is the last
-                    // one the tool actually gave. resultMaximum defaults to 1 when nothing says otherwise.
-                    ResultMaximum = g.LastOrDefault(x => x.ScoreGiven.HasValue)?.ScoreMaximum
-                                    ?? gradebookColumn.ScoreMaximum ?? 1,
-                    ResultScore = g.LastOrDefault(x => x.ScoreGiven.HasValue)?.ScoreGiven,
-                    ScoreOf = Url.Link(Constants.ServiceEndpoints.Ags.LineItemService, 
-                        new { contextId = request.ContextId, lineItemId = request.LineItemId }),
-                    UserId = g.Key.ToString()
+                    // A progress-only score has no scoreGiven, so the result is the last score the
+                    // tool actually gave. resultMaximum defaults to 1 when nothing says otherwise.
+                    var scored = g.LastOrDefault(x => x.ScoreGiven.HasValue);
+                    return new Result
+                    {
+                        // The result's own URL: the results URL without any query string.
+                        Id = Url.Link(Constants.ServiceEndpoints.Ags.ResultsService,
+                            new { contextId = request.ContextId, lineItemId = request.LineItemId }).EnsureTrailingSlash() + g.Key,
+                        // The comment the tool sent with the most recent score (AGS §3.3.5).
+                        Comment = g.Last().Comment,
+                        ResultMaximum = scored?.ScoreMaximum ?? gradebookColumn.ScoreMaximum ?? 1,
+                        ResultScore = scored?.ScoreGiven,
+                        ScoreOf = Url.Link(Constants.ServiceEndpoints.Ags.LineItemService,
+                            new { contextId = request.ContextId, lineItemId = request.LineItemId }),
+                        UserId = g.Key.ToString()
+                    };
                 })
                 .ToList();
 

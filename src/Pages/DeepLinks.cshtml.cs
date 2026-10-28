@@ -197,10 +197,11 @@ namespace AdvantagePlatform.Pages
                 Title = item.Title,
                 Text = item.Text,
                 Url = item.Url,
-                // A link item with "embed" carries HTML for the platform to show in its page.
-                Html = item.Html ?? item.Embed,
+                // A link item with "embed" carries HTML for the platform to show in its page. It is
+                // the most specific request, so it wins over an iframe or window property.
+                Html = item.Html ?? (item.Embed.IsPresent() ? item.Embed : null),
                 ThumbnailUrl = item.Thumbnail?.Url,
-                DocumentTarget = item.Iframe != null ? "iframe" : item.Embed != null ? "embed" : "window",
+                DocumentTarget = item.Embed.IsPresent() ? "embed" : item.Iframe != null ? "iframe" : "window",
                 // The iframe's size, or the item's own (an image's width and height).
                 Width = item.Iframe?.Width ?? item.Width,
                 Height = item.Iframe?.Height ?? item.Height

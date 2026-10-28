@@ -124,8 +124,10 @@ else
                             default:
                                 if (content.DocumentTarget == "embed")
                                 {
-                                    @* Embedded HTML from the tool, sandboxed like an html item (scripts allowed, but in an opaque origin). *@
-                                    <iframe sandbox="allow-scripts allow-popups" srcdoc="@content.Html" style="border: 0; width: 100%; height: @(content.Height ?? 300)px"></iframe>
+                                    @* Embedded HTML from the tool. Unlike an html item it may run scripts (an embed is
+                                       usually a player or another iframe), but only in an opaque origin, so it cannot
+                                       reach the platform's page, cookies or storage. *@
+                                    <iframe sandbox="allow-scripts" srcdoc="@content.Html" style="border: 0; width: 100%; height: @(content.Height ?? 300)px"></iframe>
                                 }
                                 else if (content.DocumentTarget == "iframe")
                                 {

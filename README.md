@@ -188,9 +188,10 @@ which checks the signature with the tool's keys and saves each content item:
   the item sets the column's `label`, `scoreMaximum`, `tag` and `resourceId`,
   and a `submissionReview` on it turns on Submission Review for that column.
 - `link`, `file` and `image` are shown as a link, a download or an image (at
-  the image's `width`/`height`). `html`, and a `link` with `embed.html` (the
-  `embed` document target), are shown in a sandboxed iframe, so the tool's HTML
-  never runs in the platform's own page.
+  the image's `width`/`height`). `html` is shown in a sandboxed iframe, so the tool's HTML
+  never runs in the platform's own page. A `link` with `embed.html` (the
+  `embed` document target) is shown the same way, except that its scripts may
+  run, still in an opaque origin away from the platform's page.
 
 `msg` and `errormsg` from the response are shown to the user after the
 dialog closes (`/DeepLinks` adds them to its `lti-deep-linking-complete`

@@ -58,6 +58,12 @@ namespace AdvantagePlatform.Controllers
                 return ServiceProblems.BadRequest($"userId {request.Score.UserId} is not a member of the course.");
             }
 
+            // AGS 2.0 §3.3: scoreMaximum is required whenever scoreGiven is sent.
+            if (request.Score.ScoreGiven.HasValue && !request.Score.ScoreMaximum.HasValue)
+            {
+                return ServiceProblems.BadRequest("scoreMaximum is required when scoreGiven is present.");
+            }
+
             var gradebookColumn = await _context.GetGradebookColumnAsync(lineItemId, request.CancellationToken);
 
             var gradebookRow = new GradebookRow
@@ -67,7 +73,8 @@ namespace AdvantagePlatform.Controllers
                 GradingProgress = request.Score.GradingProgress,
                 PersonId = personId,
                 ScoreGiven = request.Score.ScoreGiven,
-                ScoreMaximum = request.Score.ScoreMaximum,
+                // Only meaningful with a score: a progress-only score keeps no maximum.
+                ScoreMaximum = request.Score.ScoreGiven.HasValue ? request.Score.ScoreMaximum : null,
                 TimeStamp = request.Score.TimeStamp
             };
 

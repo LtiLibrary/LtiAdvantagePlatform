@@ -24,7 +24,12 @@
                             @foreach (var column in Model.Columns.OrderBy(c => c.Header))
                             {
                                 <td class="text-center">
-                                    @{ var lastScore = column.Column.Scores.LastOrDefault(s => s.PersonId == personId); }
+                                    @{
+                                        // The grade is the last score that had a value; a later progress-only score
+                                        // (no scoreGiven) only updates the progress, as AGS results report it.
+                                        var lastScore = column.Column.Scores.LastOrDefault(s => s.PersonId == personId);
+                                        var lastGraded = column.Column.Scores.LastOrDefault(s => s.PersonId == personId && s.ScoreGiven.HasValue);
+                                    }
                                     @if (lastScore == null)
                                     {
                                         <span data-toggle="tooltip" title="No scores submitted">--</span>
@@ -32,7 +37,7 @@
                                     else
                                     {
                                         <span data-toggle="tooltip" title="@lastScore.Comment">
-                                            @(lastScore.ScoreGiven?.ToString("N1") ?? lastScore.ActivityProgress.ToString())
+                                            @(lastGraded?.ScoreGiven?.ToString("N1") ?? lastScore.ActivityProgress.ToString())
                                         </span>
                                         @* Submission Review: the tool set submissionReview on this line item, so
                                            the instructor can open the student's submission in the tool. *@

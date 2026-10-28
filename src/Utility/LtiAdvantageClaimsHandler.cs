@@ -315,8 +315,9 @@ namespace AdvantagePlatform.Utility
 
             request.DeepLinkingSettings = new DeepLinkingSettingsClaimValueType
             {
-                // The platform can open LTI links and plain links in a new window or embed
-                // them in an iframe; the item's "iframe" or "window" property picks one.
+                // The platform can open LTI links and plain links in a new window or an iframe,
+                // and show a link's "embed" HTML in its page; the item's "iframe", "window" or
+                // "embed" property picks one.
                 AcceptPresentationDocumentTargets = new[] { DocumentTarget.Iframe, DocumentTarget.Window, DocumentTarget.Embed },
                 AcceptMultiple = true,
                 // Besides LTI links the platform shows links, HTML fragments, files and images.
@@ -396,7 +397,7 @@ namespace AdvantagePlatform.Utility
                     Name = $"{forUser.FirstName} {forUser.LastName}".Trim(),
                     Email = forUser.Email,
                     PersonSourcedId = forUser.SisId,
-                    Roles = PeopleModel.ParsePersonRoles(forUser.Roles).ToArray()
+                    Roles = PeopleModel.ParsePersonRoles(forUser.Roles)
                 },
                 // The AGS claim must name the line item being reviewed.
                 AssignmentGradeServices = new AssignmentGradeServicesClaimValueType
