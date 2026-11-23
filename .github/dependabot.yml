@@ -1,0 +1,149 @@
+version: 2
+updates:
+  # Package references are in src/AdvantagePlatform.csproj. Patch and minor
+  # updates are grouped into one weekly PR. Major updates for packages that
+  # do not follow the .NET release still open their own PR.
+  - package-ecosystem: "nuget"
+    directory: "/src"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    groups:
+      nuget-minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      # These packages take a new major with each .NET release. This repo
+      # tracks the current LTS (10.x). Ignore only semver-major so 10.x
+      # minor and patch updates still open. Independently versioned
+      # packages (LtiAdvantage, OpenIddict, Swashbuckle, System.CommandLine,
+      # System.Reactive, Microsoft.Data.SqlClient, and similar) are not listed.
+      - dependency-name: "Microsoft.AspNetCore.*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "Microsoft.Extensions.*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "Microsoft.EntityFrameworkCore"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "Microsoft.EntityFrameworkCore.*"
+        update-types: ["version-update:semver-major"]
+      # Ships on the same major as EF Core (10.x with .NET 10, 11.x with .NET 11).
+      - dependency-name: "Microsoft.Data.Sqlite"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "Microsoft.Data.Sqlite.*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "Microsoft.Bcl.AsyncInterfaces"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "Microsoft.Bcl.Cryptography"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "Microsoft.Bcl.Memory"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "Microsoft.Bcl.Numerics"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "Microsoft.Bcl.TimeProvider"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "Microsoft.NETCore.App*"
+        update-types: ["version-update:semver-major"]
+      # Shared-framework System packages whose major version is the .NET release.
+      # Not a blanket System.* rule: System.CommandLine, System.Reactive,
+      # System.IO.Abstractions, and the frozen System.Memory / Unsafe packages
+      # version on their own and must still receive major updates.
+      - dependency-name: "System.CodeDom"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Collections.Immutable"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.ComponentModel.Composition"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Composition*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Configuration.ConfigurationManager"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Data.Odbc"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Data.OleDb"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Diagnostics.DiagnosticSource"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Diagnostics.EventLog"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Diagnostics.PerformanceCounter"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.DirectoryServices*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Drawing.Common"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Formats.Asn1"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Formats.Cbor"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Formats.Nrbf"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.IO.Hashing"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.IO.Packaging"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.IO.Pipelines"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Management"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Memory.Data"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Net.Http.Json"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Net.Http.WinHttpHandler"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Net.ServerSentEvents"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Numerics.Tensors"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Reflection.Context"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Reflection.Metadata*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Resources.Extensions"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Runtime.Caching"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Runtime.Serialization.Schema"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Security.Cryptography.Cose"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Security.Cryptography.Pkcs"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Security.Cryptography.ProtectedData"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Security.Cryptography.Xml"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Security.Permissions"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.ServiceModel*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.ServiceProcess.ServiceController"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Speech"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Text.Encoding.CodePages"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Text.Encodings.Web"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Text.Json"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Threading.AccessControl"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Threading.Channels"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Threading.RateLimiting"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Threading.Tasks.Dataflow"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Windows.Extensions"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
